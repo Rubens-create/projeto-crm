@@ -1,4 +1,4 @@
 .tools/
-*.exe
+*.exe*
 *.test
 .env
