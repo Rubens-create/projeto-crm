@@ -1,7 +1,10 @@
-const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 }).format(value);
 
-const form = document.querySelector('#serviceForm');
-const catalogContainer = document.querySelector('#catalogRows');
+let services = [];
+let currentFilter = 'all';
+
+const body = document.querySelector('#servicesBody');
+const modal = document.querySelector('#serviceModal');
 const badgeCounter = document.querySelector('#totalServicesBadge');
 const toast = document.querySelector('#toast');
 
@@ -12,150 +15,203 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
-function render(options) {
-  if (badgeCounter) badgeCounter.textContent = options.length;
+function render() {
+  if (badgeCounter) badgeCounter.textContent = services.length;
 
-  catalogContainer.innerHTML = options.map(o => `
-    <article class="admin-service-card ${o.active ? 'is-active' : 'is-inactive'}" id="card_${o.id}">
-      <div class="admin-card-thumb">
-        <img src="${o.image || '/assets/loft.jpg'}" alt="${o.name}" loading="lazy">
-        <span class="admin-card-status-pill ${o.active ? 'active' : 'inactive'}">
-          ${o.active ? '<i data-lucide="check-circle-2"></i> Ativo' : '<i data-lucide="eye-off"></i> Desativado'}
-        </span>
-      </div>
-      <div class="admin-card-content">
-        <div class="admin-card-header">
+  const totalCountEl = document.querySelector('#totalServicesCount');
+  if (totalCountEl) totalCountEl.textContent = services.length;
+
+  const activeCountEl = document.querySelector('#activeServicesCount');
+  if (activeCountEl) activeCountEl.textContent = services.filter(s => s.active).length;
+
+  const avgRateEl = document.querySelector('#avgServiceRate');
+  if (avgRateEl && services.length > 0) {
+    const avg = services.reduce((a, s) => a + s.rate, 0) / services.length;
+    avgRateEl.textContent = money(avg);
+  }
+
+  const filtered = services.filter(s => currentFilter === 'all' || (currentFilter === 'active' ? s.active : !s.active));
+
+  if (!body) return;
+
+  body.innerHTML = filtered.map(s => `
+    <tr>
+      <td>
+        <div class="professional-cell">
+          <img src="${s.image || '/assets/loft.jpg'}" alt="${s.name}" style="width:36px;height:36px;border-radius:10px;object-fit:cover;flex:none;">
           <div>
-            <h3>${o.name}</h3>
-            <p>${o.description || 'Sem descrição'}</p>
+            <strong>${s.name}</strong>
+            <small>ID: ${s.id}</small>
           </div>
         </div>
-
-        <div class="admin-card-meta-row">
-          <span><i data-lucide="bed"></i> ${o.bedrooms || 1} Q</span>
-          <span><i data-lucide="bath"></i> ${o.bathrooms || 1} B</span>
-          <span><i data-lucide="armchair"></i> ${o.livingRooms || 1} S</span>
-          <span><i data-lucide="maximize-2"></i> ${o.sqm || 45} m²</span>
-          <span><i data-lucide="clock"></i> ${o.estTime || '2.5h'}</span>
+      </td>
+      <td>
+        <span class="specialty"><i data-lucide="clipboard-check"></i>${s.description || 'Limpeza Pós Check-out'}</span>
+      </td>
+      <td>
+        <span style="font-size:11px;color:#6e6772;">
+          <i data-lucide="bed" style="width:12px;vertical-align:-2px;"></i> ${s.bedrooms || 1}Q · 
+          <i data-lucide="bath" style="width:12px;vertical-align:-2px;"></i> ${s.bathrooms || 1}B · 
+          <i data-lucide="maximize-2" style="width:12px;vertical-align:-2px;"></i> ${s.sqm || 45}m²
+        </span>
+      </td>
+      <td><strong>${s.estTime || '2.5h'}</strong></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <input type="number" step="0.50" min="1" id="rateInput_${s.id}" value="${s.rate.toFixed(2)}" style="width:80px;padding:6px;border:1px solid var(--line);border-radius:6px;font-size:11px;font-weight:700;">
+          <button class="save-rate-btn" data-id="${s.id}" style="border:1px solid var(--pink-strong);background:var(--pink-strong);color:#fff;padding:6px 10px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;">Salvar</button>
         </div>
-
-        <div class="admin-card-actions-row">
-          <div class="rate-edit-group">
-            <label>Valor/Hora (R$):</label>
-            <div class="rate-input-wrap">
-              <input type="number" step="0.50" min="1" class="rate-input" id="rateInput_${o.id}" value="${o.rate.toFixed(2)}">
-              <button class="save-rate-btn" data-id="${o.id}"><i data-lucide="save"></i> Salvar</button>
-            </div>
-          </div>
-
-          <button class="toggle-active-btn ${o.active ? 'btn-deactivate' : 'btn-activate'}" data-id="${o.id}">
-            ${o.active
-              ? '<i data-lucide="eye-off"></i> Desativar (Ocultar do Prestador)'
-              : '<i data-lucide="eye"></i> Ativar (Exibir no Prestador)'
-            }
+      </td>
+      <td>
+        <span class="professional-status ${s.active ? 'active' : 'inactive'}">
+          <i data-lucide="${s.active ? 'check' : 'eye-off'}"></i>${s.active ? 'Ativo (No App)' : 'Desativado'}
+        </span>
+      </td>
+      <td>
+        <div class="action-menu">
+          <button class="more professional-more" data-menu="${s.id}" aria-label="Mais opções">
+            <i data-lucide="more-horizontal"></i>
           </button>
+          <div class="action-dropdown" id="menu-${s.id}">
+            <button data-action="toggle" data-id="${s.id}">
+              <i data-lucide="${s.active ? 'eye-off' : 'eye'}"></i>
+              ${s.active ? 'Desativar (Ocultar)' : 'Ativar (Exibir)'}
+            </button>
+          </div>
         </div>
-      </div>
-    </article>
-  `).join('');
-
-  // Attach Toggle Listeners safely with closest()
-  document.querySelectorAll('.toggle-active-btn').forEach(btn => {
-    btn.onclick = async (e) => {
-      e.preventDefault();
-      const targetBtn = e.target.closest('.toggle-active-btn');
-      if (!targetBtn) return;
-      const id = targetBtn.dataset.id;
-      const res = await fetch('/api/admin/services', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'toggle', id })
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        render(updated);
-        showToast('Visibilidade do imóvel alterada no banco de dados!');
-      }
-    };
-  });
-
-  // Attach Save Rate Listeners safely with closest()
-  document.querySelectorAll('.save-rate-btn').forEach(btn => {
-    btn.onclick = async (e) => {
-      e.preventDefault();
-      const targetBtn = e.target.closest('.save-rate-btn');
-      if (!targetBtn) return;
-      const id = targetBtn.dataset.id;
-      const rateInput = document.querySelector(`#rateInput_${id}`);
-      if (!rateInput) return;
-
-      const newRate = parseFloat(rateInput.value);
-      if (isNaN(newRate) || newRate <= 0) {
-        showToast('Por favor insira um valor válido por hora.');
-        return;
-      }
-
-      const res = await fetch('/api/admin/services', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'update',
-          id: id,
-          rate: newRate
-        })
-      });
-
-      if (res.ok) {
-        const updated = await res.json();
-        render(updated);
-        showToast(`Valor por hora atualizado para ${money(newRate)} no PostgreSQL!`);
-      }
-    };
-  });
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="7" class="empty-row">Nenhum serviço encontrado.</td></tr>';
 
   if (window.lucide) lucide.createIcons();
+
+  document.querySelectorAll('.professional-more').forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      document.querySelectorAll('.action-dropdown.open').forEach(x => x.classList.remove('open'));
+      const targetMenu = document.querySelector('#menu-' + btn.dataset.menu);
+      if (targetMenu) targetMenu.classList.toggle('open');
+    };
+  });
+
+  document.querySelectorAll('[data-action="toggle"]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      toggleStatus(btn.dataset.id);
+    };
+  });
+
+  document.querySelectorAll('.save-rate-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      saveRate(btn.dataset.id);
+    };
+  });
+}
+
+async function toggleStatus(id) {
+  const res = await fetch('/api/admin/services', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'toggle', id })
+  });
+  if (res.ok) {
+    services = await res.json();
+    render();
+    showToast('Visibilidade do imóvel alterada no PostgreSQL!');
+  }
+}
+
+async function saveRate(id) {
+  const rateInput = document.querySelector(`#rateInput_${id}`);
+  if (!rateInput) return;
+  const newRate = parseFloat(rateInput.value);
+  if (isNaN(newRate) || newRate <= 0) {
+    showToast('Insira um valor por hora válido.');
+    return;
+  }
+  const res = await fetch('/api/admin/services', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'update', id, rate: newRate })
+  });
+  if (res.ok) {
+    services = await res.json();
+    render();
+    showToast(`Tarifa por hora atualizada para ${money(newRate)}!`);
+  }
 }
 
 async function load() {
   try {
     const res = await fetch('/api/admin/services');
     if (res.ok) {
-      const data = await res.json();
-      render(data);
+      services = await res.json();
+      render();
     }
   } catch (err) {
-    console.error('Erro ao carregar serviços no admin:', err);
+    console.error('Erro ao carregar serviços:', err);
   }
 }
 
-form.addEventListener('submit', async e => {
-  e.preventDefault();
-  const formData = new FormData(form);
-  const payload = {
-    action: 'create',
-    name: formData.get('name'),
-    description: formData.get('description'),
-    rate: parseFloat(formData.get('rate')),
-    bedrooms: parseInt(formData.get('bedrooms')) || 1,
-    bathrooms: parseInt(formData.get('bathrooms')) || 1,
-    livingRooms: parseInt(formData.get('livingRooms')) || 1,
-    sqm: parseInt(formData.get('sqm')) || 45,
-    estTime: formData.get('estTime'),
-    image: formData.get('image')
+document.querySelectorAll('.filter').forEach(btn => {
+  btn.onclick = () => {
+    const activeFilter = document.querySelector('.filter.active');
+    if (activeFilter) activeFilter.classList.remove('active');
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    render();
   };
+});
 
-  const res = await fetch('/api/admin/services', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
+const newServiceBtn = document.querySelector('#newServiceBtn');
+if (newServiceBtn) newServiceBtn.onclick = () => modal.classList.add('open');
 
-  if (res.ok) {
-    form.reset();
-    const updated = await res.json();
-    render(updated);
-    showToast('Novo imóvel cadastrado e salvo no PostgreSQL!');
-  }
+const closeModalBtn = document.querySelector('#closeModal');
+if (closeModalBtn) closeModalBtn.onclick = () => modal.classList.remove('open');
+
+if (modal) {
+  modal.onclick = e => {
+    if (e.target === modal) modal.classList.remove('open');
+  };
+}
+
+const form = document.querySelector('#serviceForm');
+if (form) {
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const payload = {
+      action: 'create',
+      name: formData.get('name'),
+      description: formData.get('description'),
+      rate: parseFloat(formData.get('rate')),
+      bedrooms: parseInt(formData.get('bedrooms')) || 1,
+      bathrooms: parseInt(formData.get('bathrooms')) || 1,
+      livingRooms: parseInt(formData.get('livingRooms')) || 1,
+      sqm: parseInt(formData.get('sqm')) || 45,
+      estTime: formData.get('estTime'),
+      image: formData.get('image')
+    };
+
+    const res = await fetch('/api/admin/services', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      form.reset();
+      modal.classList.remove('open');
+      services = await res.json();
+      render();
+      showToast('Novo imóvel cadastrado e publicado no PostgreSQL!');
+    }
+  };
+}
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.action-dropdown.open').forEach(x => x.classList.remove('open'));
 });
 
 load();
