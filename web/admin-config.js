@@ -46,3 +46,12 @@ if (form) {
     showToast('Preferências salvas com sucesso no sistema!');
   };
 }
+
+const reportsMenuBtn = document.querySelector('#reportsMenuBtn');
+const reportsNavGroup = document.querySelector('#reportsNavGroup');
+if (reportsMenuBtn && reportsNavGroup) {
+  reportsMenuBtn.onclick = (e) => {
+    e.preventDefault();
+    reportsNavGroup.classList.toggle('open');
+  };
+}

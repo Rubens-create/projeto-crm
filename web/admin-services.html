@@ -23,7 +23,22 @@
         <a class="nav-item" href="/admin/profissionais"><i class="icon" data-lucide="users-round"></i> Profissionais</a>
         <a class="nav-item" href="/admin/clientes"><i class="icon" data-lucide="building-2"></i> Clientes</a>
         <a class="nav-item" href="/admin/pagamentos"><i class="icon" data-lucide="wallet-cards"></i> Pagamentos</a>
-        <a class="nav-item" href="/admin/relatorios"><i class="icon" data-lucide="chart-no-axes-combined"></i> Relatórios</a>
+        
+        <!-- MENU COLAPSÁVEL DE RELATÓRIOS -->
+        <div class="nav-group" id="reportsNavGroup">
+          <button class="nav-item nav-collapsible-btn" id="reportsMenuBtn">
+            <i class="icon" data-lucide="chart-no-axes-combined"></i> Relatórios
+            <i class="chevron icon" data-lucide="chevron-down"></i>
+          </button>
+          <div class="nav-sub-menu" id="reportsSubMenu">
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=geral"><i data-lucide="pie-chart"></i> Visão Geral</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=prestador"><i data-lucide="users"></i> Por Prestador</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=cliente"><i data-lucide="building-2"></i> Por Cliente</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=financeiro"><i data-lucide="wallet"></i> Financeiro</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=servico"><i data-lucide="sparkles"></i> Por Serviço</a>
+          </div>
+        </div>
+
         <a class="nav-item" href="/prestador"><i class="icon" data-lucide="smartphone"></i> App Prestador</a>
       </nav>
       <div class="sidebar-bottom">

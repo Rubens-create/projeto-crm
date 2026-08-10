@@ -214,4 +214,13 @@ document.addEventListener('click', () => {
   document.querySelectorAll('.action-dropdown.open').forEach(x => x.classList.remove('open'));
 });
 
+const reportsMenuBtn = document.querySelector('#reportsMenuBtn');
+const reportsNavGroup = document.querySelector('#reportsNavGroup');
+if (reportsMenuBtn && reportsNavGroup) {
+  reportsMenuBtn.onclick = (e) => {
+    e.preventDefault();
+    reportsNavGroup.classList.toggle('open');
+  };
+}
+
 load();

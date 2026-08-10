@@ -2280,3 +2280,76 @@ input:checked + .slider:before {
   transform: translateX(20px);
 }
 
+/* Submenu Colapsável de Relatórios (Sidebar Nav Group) */
+.nav-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-collapsible-btn {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.nav-collapsible-btn .chevron {
+  margin-left: auto;
+  transition: transform 0.25s ease;
+  width: 16px;
+  height: 16px;
+}
+
+.nav-group.open .nav-collapsible-btn .chevron {
+  transform: rotate(180deg);
+}
+
+.nav-sub-menu {
+  display: none;
+  flex-direction: column;
+  gap: 3px;
+  padding-left: 26px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.nav-group.open .nav-sub-menu {
+  display: flex;
+}
+
+.nav-sub-item {
+  color: #89838d;
+  text-decoration: none;
+  padding: 9px 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.nav-sub-item svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+.nav-sub-item:hover {
+  background: #fdf0f4;
+  color: var(--pink-dark);
+}
+
+.nav-sub-item.active {
+  background: var(--pink-strong) !important;
+  color: #ffffff !important;
+}
+
+.nav-sub-item.active svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
