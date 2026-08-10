@@ -16,8 +16,8 @@ document.querySelectorAll('.filter').forEach(btn => {
     const targetTab = btn.dataset.tab;
     const tabMap = {
       general: 'tabGeneral',
-      db: 'tabDb',
-      notifications: 'tabNotifications'
+      app: 'tabApp',
+      db: 'tabDb'
     };
 
     document.querySelectorAll('.config-tab-section').forEach(sec => {
@@ -26,6 +26,8 @@ document.querySelectorAll('.filter').forEach(btn => {
 
     const activeSec = document.querySelector(`#${tabMap[targetTab]}`);
     if (activeSec) activeSec.style.display = 'block';
+
+    if (window.lucide) lucide.createIcons();
   };
 });
 

@@ -41,127 +41,162 @@
       </header>
 
       <section class="content">
-        <div class="heading">
+        <div class="heading" style="margin-bottom: 24px;">
           <div>
             <p class="eyebrow">PARÂMETROS & OPERAÇÃO</p>
             <h1>Configurações do CRM</h1>
-            <p class="subtitle">Ajuste os dados da empresa, integração com banco de dados e preferências da plataforma.</p>
+            <p class="subtitle">Ajuste os dados da empresa, preferências de relatórios e comportamento do aplicativo.</p>
           </div>
-          <button class="primary" id="saveConfigBtn"><i data-lucide="save"></i> Salvar preferências</button>
-        </div>
-
-        <!-- 4 STAT CARDS -->
-        <div class="professional-stats">
-          <article class="stat-card">
-            <div class="stat-top">
-              <span>Empresa cadastrada</span>
-              <span class="stat-icon pink"><i data-lucide="building"></i></span>
-            </div>
-            <strong>Clara Airbnb</strong>
-            <p class="trend neutral">Limpezas & Terceirizados</p>
-          </article>
-
-          <article class="stat-card">
-            <div class="stat-top">
-              <span>Banco de dados</span>
-              <span class="stat-icon green"><i data-lucide="database"></i></span>
-            </div>
-            <strong>PostgreSQL 18</strong>
-            <p class="trend up">Conexão ativa (Localhost)</p>
-          </article>
-
-          <article class="stat-card">
-            <div class="stat-top">
-              <span>Moeda padrão</span>
-              <span class="stat-icon lilac"><i data-lucide="badge-dollar-sign"></i></span>
-            </div>
-            <strong>Real (R$)</strong>
-            <p class="trend up">BRL - Brasil</p>
-          </article>
-
-          <article class="stat-card">
-            <div class="stat-top">
-              <span>Status do sistema</span>
-              <span class="stat-icon peach"><i data-lucide="shield-check"></i></span>
-            </div>
-            <strong>100% Operacional</strong>
-            <p class="trend neutral">Versão 1.0.0 (PWA)</p>
-          </article>
+          <button class="primary" id="saveConfigBtn"><i data-lucide="save"></i> Salvar alterações</button>
         </div>
 
         <!-- PAINEL DE CONFIGURAÇÕES -->
         <section class="panel professionals-panel">
-          <div class="panel-head">
+          <div class="panel-head" style="margin-bottom: 24px;">
             <div>
               <h2>Preferências do Sistema</h2>
               <p>Configure os parâmetros operacionais da sua empresa de limpeza.</p>
             </div>
             <div class="list-filter">
-              <button class="filter active" data-tab="general">Geral</button>
+              <button class="filter active" data-tab="general">Geral & Empresa</button>
+              <button class="filter" data-tab="app">App do Prestador</button>
               <button class="filter" data-tab="db">Banco de Dados</button>
-              <button class="filter" data-tab="notifications">Notificações</button>
             </div>
           </div>
 
-          <div style="margin-top: 20px;">
-            <form id="configForm">
-              <!-- ABA GERAL -->
-              <div class="config-tab-section active" id="tabGeneral">
-                <div class="form-row" style="margin-bottom:14px;">
-                  <label>Nome Comercial da Empresa
-                    <input name="companyName" value="Clara Limpezas Airbnb & Terceirizados" required>
+          <form id="configForm">
+            <!-- ABA GERAL -->
+            <div class="config-tab-section active" id="tabGeneral">
+              <div class="config-card-group">
+                <div class="config-card-head">
+                  <div class="config-icon pink"><i data-lucide="building-2"></i></div>
+                  <div>
+                    <h3>Dados da Empresa</h3>
+                    <p>Informações exibidas em relatórios e comprovantes de repasse.</p>
+                  </div>
+                </div>
+                <div class="form-row" style="margin-bottom: 16px;">
+                  <label class="setting-label">Nome Comercial
+                    <input name="companyName" value="Clara Limpezas Airbnb & Terceirizados" class="setting-input">
                   </label>
-                  <label>CNPJ / Identificação Fiscal
-                    <input name="cnpj" value="12.345.678/0001-90" required>
+                  <label class="setting-label">CNPJ / Registro Fiscal
+                    <input name="cnpj" value="12.345.678/0001-90" class="setting-input">
                   </label>
                 </div>
-                <div class="form-row" style="margin-bottom:14px;">
-                  <label>E-mail do Administrador
-                    <input name="email" type="email" value="ruben@clara.com" required>
+                <div class="form-row">
+                  <label class="setting-label">E-mail Administrativo
+                    <input name="email" type="email" value="ruben@clara.com" class="setting-input">
                   </label>
-                  <label>Telefone / WhatsApp Comercial
-                    <input name="phone" value="(11) 99887-6655" required>
-                  </label>
-                </div>
-              </div>
-
-              <!-- ABA BANCO DE DADOS -->
-              <div class="config-tab-section" id="tabDb" style="display:none;">
-                <div class="form-row" style="margin-bottom:14px;">
-                  <label>SGBD / Banco de Dados
-                    <input value="PostgreSQL 18" readonly style="background:#faf7f9;">
-                  </label>
-                  <label>Nome do Banco
-                    <input value="crm_db" readonly style="background:#faf7f9;">
-                  </label>
-                </div>
-                <div class="form-row" style="margin-bottom:14px;">
-                  <label>Host / Servidor
-                    <input value="localhost:5432" readonly style="background:#faf7f9;">
-                  </label>
-                  <label>Status da Conexão
-                    <input value="Ativo e Persistente" readonly style="background:#eaf7f0;color:#3b8761;font-weight:700;">
+                  <label class="setting-label">WhatsApp Comercial
+                    <input name="phone" value="(11) 99887-6655" class="setting-input">
                   </label>
                 </div>
               </div>
 
-              <!-- ABA NOTIFICAÇÕES -->
-              <div class="config-tab-section" id="tabNotifications" style="display:none;">
-                <div class="form-row" style="margin-bottom:14px;">
-                  <label>Alertas no Aplicativo Mobile
-                    <input value="Ativados (Notificação PWA)" readonly style="background:#faf7f9;">
+              <div class="config-card-group" style="margin-top: 20px;">
+                <div class="config-card-head">
+                  <div class="config-icon lilac"><i data-lucide="badge-dollar-sign"></i></div>
+                  <div>
+                    <h3>Parâmetros Financeiros</h3>
+                    <p>Definições de cobrança e moeda padrão para cálculo de repasses.</p>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <label class="setting-label">Moeda Padrão
+                    <select name="currency" class="setting-select">
+                      <option value="BRL" selected>Real Brasileiro (R$)</option>
+                      <option value="USD">Dólar Americano ($)</option>
+                      <option value="EUR">Euro (€)</option>
+                    </select>
                   </label>
-                  <label>Sincronização em Tempo Real
-                    <input value="Ativa (30ms)" readonly style="background:#faf7f9;">
+                  <label class="setting-label">Tarifa Padrão Sugerida (R$/hora)
+                    <input name="defaultRate" type="number" value="120.00" step="0.50" class="setting-input">
                   </label>
                 </div>
               </div>
+            </div>
 
-              <div style="margin-top: 24px;">
-                <button class="primary" type="submit"><i data-lucide="save"></i> Salvar Alterações</button>
+            <!-- ABA APP DO PRESTADOR -->
+            <div class="config-tab-section" id="tabApp" style="display:none;">
+              <div class="config-card-group">
+                <div class="config-card-head">
+                  <div class="config-icon green"><i data-lucide="smartphone"></i></div>
+                  <div>
+                    <h3>Opções do Aplicativo Móvel</h3>
+                    <p>Controle recursos e notificações enviadas ao prestador de serviço.</p>
+                  </div>
+                </div>
+
+                <div class="setting-toggle-row">
+                  <div>
+                    <strong>Cronômetro em Tempo Real (30ms)</strong>
+                    <small>Permite que o prestador veja o contador de segundos e centésimos em tempo real.</small>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" checked id="toggleTimerPrecision">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-toggle-row">
+                  <div>
+                    <strong>Gráfico SVG Dinâmico de Ganhos</strong>
+                    <small>Exibe a curva de rendimento durante a realização do serviço no aplicativo.</small>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" checked id="toggleLiveChart">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+                <div class="setting-toggle-row">
+                  <div>
+                    <strong>Suporte a Instalação PWA (Android / iPhone)</strong>
+                    <small>Permite salvar o aplicativo na tela inicial do celular com Service Worker offline.</small>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" checked id="togglePwa">
+                    <span class="slider"></span>
+                  </label>
+                </div>
               </div>
-            </form>
-          </div>
+            </div>
+
+            <!-- ABA BANCO DE DADOS -->
+            <div class="config-tab-section" id="tabDb" style="display:none;">
+              <div class="config-card-group">
+                <div class="config-card-head">
+                  <div class="config-icon peach"><i data-lucide="database"></i></div>
+                  <div>
+                    <h3>PostgreSQL 18 (Banco Local)</h3>
+                    <p>Informações de conexão e persistência de dados do sistema.</p>
+                  </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom: 16px;">
+                  <label class="setting-label">Servidor / Host
+                    <input value="localhost:5432" readonly class="setting-input readonly-input">
+                  </label>
+                  <label class="setting-label">Nome do Banco
+                    <input value="crm_db" readonly class="setting-input readonly-input">
+                  </label>
+                </div>
+
+                <div class="form-row">
+                  <label class="setting-label">Usuário PostgreSQL
+                    <input value="postgres" readonly class="setting-input readonly-input">
+                  </label>
+                  <label class="setting-label">Status da Conexão
+                    <input value="🟢 Conectado e Persistente" readonly class="setting-input status-active-input">
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 28px; display:flex; justify-content:flex-end;">
+              <button class="primary" type="submit" style="padding:12px 24px;"><i data-lucide="check"></i> Salvar preferências</button>
+            </div>
+          </form>
         </section>
       </section>
     </main>
