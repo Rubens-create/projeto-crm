@@ -1,0 +1,24 @@
+{
+  "name": "Clara | Gestão de Limpeza Airbnb",
+  "short_name": "Clara Limpeza",
+  "description": "Aplicativo de gestão e cronômetro de limpeza terceirizada para imóveis Airbnb",
+  "start_url": "/prestador",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f0d13",
+  "theme_color": "#0f0d13",
+  "icons": [
+    {
+      "src": "/assets/loft.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/penthouse.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

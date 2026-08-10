@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clara | Pagamentos & Repasses</title>
+  <link rel="stylesheet" href="/static.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="admin-catalog-page">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">C</span>
+        <div>
+          <strong>clara</strong>
+          <small>gestão de serviços</small>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="nav-item" href="/"><i class="icon" data-lucide="home"></i> Início (Landing)</a>
+        <a class="nav-item" href="/admin/servicos"><i class="icon" data-lucide="clipboard-list"></i> Serviços</a>
+        <a class="nav-item" href="/admin/profissionais"><i class="icon" data-lucide="users-round"></i> Profissionais</a>
+        <a class="nav-item" href="/admin/clientes"><i class="icon" data-lucide="building-2"></i> Clientes</a>
+        <a class="nav-item active" href="/admin/pagamentos"><i class="icon" data-lucide="wallet-cards"></i> Pagamentos</a>
+        <a class="nav-item" href="/admin/relatorios"><i class="icon" data-lucide="chart-no-axes-combined"></i> Relatórios</a>
+        <a class="nav-item" href="/prestador"><i class="icon" data-lucide="smartphone"></i> App Prestador</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a class="nav-item" href="/admin/configuracoes"><i class="icon" data-lucide="settings-2"></i> Configurações</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Administração</span><i>/</i><strong>Central de Pagamentos</strong></div>
+        <div class="profile">
+          <span class="avatar">RC</span>
+          <span class="profile-copy"><strong>Ruben Costa</strong><small>Administrador</small></span>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="heading">
+          <div>
+            <p class="eyebrow">REPASSES & EXTRATO FINANCEIRO</p>
+            <h1>Central de Pagamentos</h1>
+            <p class="subtitle">Acompanhe os repasses devidos aos prestadores com base no tempo gravado no PostgreSQL.</p>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Total a Repassar</span>
+              <span class="stat-icon pink"><i data-lucide="wallet"></i></span>
+            </div>
+            <strong id="payoutPendingTotal">R$ 4.280,00</strong>
+            <p class="trend neutral">Próximo fechamento em 2 dias</p>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Repasses Efetuados</span>
+              <span class="stat-icon green"><i data-lucide="check-circle-2"></i></span>
+            </div>
+            <strong id="payoutDoneTotal">R$ 18.560,00</strong>
+            <p class="trend up">100% liquidados em dia</p>
+          </article>
+        </div>
+
+        <!-- EXTRATO DE REPASSES -->
+        <section class="panel catalog-list">
+          <div class="panel-head">
+            <div>
+              <h2>Extrato de Repasses de Limpeza</h2>
+              <p>Horas trabalhadas e valores por prestador.</p>
+            </div>
+            <span class="catalog-label"><i data-lucide="database"></i> Calculado via PostgreSQL</span>
+          </div>
+
+          <div class="table-wrap">
+            <table class="simple-table" id="paymentsTable">
+              <thead>
+                <tr>
+                  <th>Prestador</th>
+                  <th>Serviço / Imóvel</th>
+                  <th>Horas Gravadas</th>
+                  <th>Tarifa Horária</th>
+                  <th>Valor Total</th>
+                  <th>Status</th>
+                  <th>Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Marina Costa</strong></td>
+                  <td>Loft Jardins (Check-out + Enxoval)</td>
+                  <td>6.5h</td>
+                  <td>R$ 120,00/h</td>
+                  <td><strong>R$ 780,00</strong></td>
+                  <td><span class="status done">Pago</span></td>
+                  <td><button class="action-mini-btn disabled" disabled>Concluído</button></td>
+                </tr>
+                <tr>
+                  <td><strong>Rafael Mendes</strong></td>
+                  <td>Apt Copacabana (Turno Rápido)</td>
+                  <td>4.0h</td>
+                  <td>R$ 85,00/h</td>
+                  <td><strong>R$ 340,00</strong></td>
+                  <td><span class="status wait">Pendente</span></td>
+                  <td><button class="action-mini-btn pay-btn" data-name="Rafael Mendes">Liberar Repasse</button></td>
+                </tr>
+                <tr>
+                  <td><strong>Beatriz Lima</strong></td>
+                  <td>Studio Pinheiros (Limpeza Geral)</td>
+                  <td>8.0h</td>
+                  <td>R$ 110,00/h</td>
+                  <td><strong>R$ 880,00</strong></td>
+                  <td><span class="status done">Pago</span></td>
+                  <td><button class="action-mini-btn disabled" disabled>Concluído</button></td>
+                </tr>
+                <tr>
+                  <td><strong>Lucas Rocha</strong></td>
+                  <td>Penthouse Orla (Limpeza Profunda)</td>
+                  <td>5.5h</td>
+                  <td>R$ 180,00/h</td>
+                  <td><strong>R$ 990,00</strong></td>
+                  <td><span class="status wait">Pendente</span></td>
+                  <td><button class="action-mini-btn pay-btn" data-name="Lucas Rocha">Liberar Repasse</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">Repasse liberado com sucesso</div>
+
+  <script src="/admin-payments.js"></script>
+  <script>window.addEventListener('load',()=>lucide.createIcons());</script>
+</body>
+</html>

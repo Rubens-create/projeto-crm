@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clara | Configurações do Sistema</title>
+  <link rel="stylesheet" href="/static.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="admin-catalog-page">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">C</span>
+        <div>
+          <strong>clara</strong>
+          <small>gestão de serviços</small>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="nav-item" href="/"><i class="icon" data-lucide="home"></i> Início (Landing)</a>
+        <a class="nav-item" href="/admin/servicos"><i class="icon" data-lucide="clipboard-list"></i> Serviços</a>
+        <a class="nav-item" href="/admin/profissionais"><i class="icon" data-lucide="users-round"></i> Profissionais</a>
+        <a class="nav-item" href="/admin/clientes"><i class="icon" data-lucide="building-2"></i> Clientes</a>
+        <a class="nav-item" href="/admin/pagamentos"><i class="icon" data-lucide="wallet-cards"></i> Pagamentos</a>
+        <a class="nav-item" href="/admin/relatorios"><i class="icon" data-lucide="chart-no-axes-combined"></i> Relatórios</a>
+        <a class="nav-item" href="/prestador"><i class="icon" data-lucide="smartphone"></i> App Prestador</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a class="nav-item active" href="/admin/configuracoes"><i class="icon" data-lucide="settings-2"></i> Configurações</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Administração</span><i>/</i><strong>Configurações da Empresa</strong></div>
+        <div class="profile">
+          <span class="avatar">RC</span>
+          <span class="profile-copy"><strong>Ruben Costa</strong><small>Administrador</small></span>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="heading">
+          <div>
+            <p class="eyebrow">PARÂMETROS & OPERAÇÃO</p>
+            <h1>Configurações do CRM</h1>
+            <p class="subtitle">Ajuste dados da empresa, integração com banco de dados e preferências da plataforma.</p>
+          </div>
+        </div>
+
+        <section class="panel catalog-form">
+          <div class="panel-head">
+            <div>
+              <h2>Dados da Empresa & Plataforma</h2>
+              <p>Informações de identificação da empresa de limpeza terceirizada.</p>
+            </div>
+            <span class="how-icon"><i data-lucide="settings"></i></span>
+          </div>
+
+          <form id="systemConfigForm">
+            <div class="admin-form-grid">
+              <label>
+                Nome Comercial da Empresa
+                <input name="companyName" value="Clara Limpezas Airbnb & Terceirizados" required>
+              </label>
+              <label>
+                CNPJ / Identificação Fiscal
+                <input name="cnpj" value="12.345.678/0001-90" required>
+              </label>
+              <label>
+                Moeda Padrão do Sistema
+                <input name="currency" value="BRL - Real Brasileiro (R$)" readonly>
+              </label>
+              <label>
+                Banco de Dados em Produção
+                <input name="dbStatus" value="PostgreSQL 18 (Localhost)" readonly>
+              </label>
+            </div>
+            <button class="primary admin-submit-btn" type="submit">
+              <i data-lucide="save"></i> Salvar Preferências
+            </button>
+          </form>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">Configurações salvas com sucesso</div>
+
+  <script src="/admin-config.js"></script>
+  <script>window.addEventListener('load',()=>lucide.createIcons());</script>
+</body>
+</html>

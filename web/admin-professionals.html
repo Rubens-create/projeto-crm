@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clara | Gestão de Profissionais</title>
+  <link rel="stylesheet" href="/static.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="admin-catalog-page">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">C</span>
+        <div>
+          <strong>clara</strong>
+          <small>gestão de serviços</small>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="nav-item" href="/"><i class="icon" data-lucide="home"></i> Início (Landing)</a>
+        <a class="nav-item" href="/admin/servicos"><i class="icon" data-lucide="clipboard-list"></i> Serviços</a>
+        <a class="nav-item active" href="/admin/profissionais"><i class="icon" data-lucide="users-round"></i> Profissionais</a>
+        <a class="nav-item" href="/admin/clientes"><i class="icon" data-lucide="building-2"></i> Clientes</a>
+        <a class="nav-item" href="/admin/pagamentos"><i class="icon" data-lucide="wallet-cards"></i> Pagamentos</a>
+        <a class="nav-item" href="/admin/relatorios"><i class="icon" data-lucide="chart-no-axes-combined"></i> Relatórios</a>
+        <a class="nav-item" href="/prestador"><i class="icon" data-lucide="smartphone"></i> App Prestador</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a class="nav-item" href="/admin/configuracoes"><i class="icon" data-lucide="settings-2"></i> Configurações</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Administração</span><i>/</i><strong>Equipe de Profissionais</strong></div>
+        <div class="profile">
+          <span class="avatar">RC</span>
+          <span class="profile-copy"><strong>Ruben Costa</strong><small>Administrador</small></span>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="heading">
+          <div>
+            <p class="eyebrow">EQUIPE & PRESTADORES</p>
+            <h1>Gestão de Profissionais</h1>
+            <p class="subtitle">Cadastre e acompanhe os prestadores de serviços de limpeza terceirizada.</p>
+          </div>
+        </div>
+
+        <!-- FORMULÁRIO DE CADASTRO -->
+        <section class="panel catalog-form">
+          <div class="panel-head">
+            <div>
+              <h2>Adicionar novo profissional</h2>
+              <p>Cadastre um novo prestador para ter acesso ao app mobile do prestador.</p>
+            </div>
+            <span class="how-icon"><i data-lucide="user-plus"></i></span>
+          </div>
+
+          <form id="proForm">
+            <div class="admin-form-grid">
+              <label>
+                Nome Completo
+                <input name="name" placeholder="Ex.: Fernanda Souza" required>
+              </label>
+              <label>
+                Especialidade / Perfil
+                <input name="specialty" placeholder="Ex.: Limpeza Pós Check-out & Enxoval" required>
+              </label>
+              <label>
+                Telefone / WhatsApp
+                <input name="phone" placeholder="(11) 99887-6655" required>
+              </label>
+              <label>
+                Tarifa Horária Padrão (R$)
+                <input name="rate" type="number" step="0.50" min="1" placeholder="100.00" required>
+              </label>
+            </div>
+            <button class="primary admin-submit-btn" type="submit">
+              <i data-lucide="plus"></i> Cadastrar Profissional
+            </button>
+          </form>
+        </section>
+
+        <!-- LISTA DE PROFISSIONAIS -->
+        <section class="panel catalog-list">
+          <div class="panel-head">
+            <div>
+              <h2>Prestadores Ativos</h2>
+              <p>Equipe registrada na plataforma.</p>
+            </div>
+            <span class="catalog-label"><i data-lucide="users"></i> Profissionais Ativos</span>
+          </div>
+
+          <div class="pro-page-grid" id="proList">
+            <article class="pro-detail-card">
+              <span class="avatar big">MC</span>
+              <div class="pro-detail-info">
+                <h3>Marina Costa</h3>
+                <p>Especialista Pós Check-out & Enxoval</p>
+                <div class="pro-meta-badges">
+                  <span><i data-lucide="phone"></i> (11) 98765-4321</span>
+                  <span><i data-lucide="star"></i> ⭐ 4.9 (48 limpezas)</span>
+                </div>
+              </div>
+              <div class="pro-detail-rate">
+                <strong>R$ 120,00</strong>
+                <small>/ hora</small>
+                <span class="status-pill active"><i data-lucide="check"></i> Ativa</span>
+              </div>
+            </article>
+
+            <article class="pro-detail-card">
+              <span class="avatar big">RM</span>
+              <div class="pro-detail-info">
+                <h3>Rafael Mendes</h3>
+                <p>Turno Rápido Roupas & Banheiros</p>
+                <div class="pro-meta-badges">
+                  <span><i data-lucide="phone"></i> (11) 97654-3210</span>
+                  <span><i data-lucide="star"></i> ⭐ 4.8 (35 limpezas)</span>
+                </div>
+              </div>
+              <div class="pro-detail-rate">
+                <strong>R$ 85,00</strong>
+                <small>/ hora</small>
+                <span class="status-pill active"><i data-lucide="check"></i> Ativo</span>
+              </div>
+            </article>
+
+            <article class="pro-detail-card">
+              <span class="avatar big">BL</span>
+              <div class="pro-detail-info">
+                <h3>Beatriz Lima</h3>
+                <p>Limpeza Geral Pós Hospedagem</p>
+                <div class="pro-meta-badges">
+                  <span><i data-lucide="phone"></i> (11) 96543-2109</span>
+                  <span><i data-lucide="star"></i> ⭐ 5.0 (62 limpezas)</span>
+                </div>
+              </div>
+              <div class="pro-detail-rate">
+                <strong>R$ 110,00</strong>
+                <small>/ hora</small>
+                <span class="status-pill active"><i data-lucide="check"></i> Ativa</span>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">Profissional cadastrado com sucesso</div>
+
+  <script src="/admin-professionals.js"></script>
+  <script>window.addEventListener('load',()=>lucide.createIcons());</script>
+</body>
+</html>

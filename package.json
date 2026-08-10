@@ -1,0 +1,23 @@
+{
+  "name": "clara-crm-limpeza",
+  "version": "1.0.0",
+  "description": "Aplicativo móvel nativo e PWA para gestão de limpezas terceirizadas em imóveis Airbnb",
+  "main": "main.go",
+  "scripts": {
+    "start": "go run .",
+    "cap:init": "npx cap init \"Clara Limpeza\" com.clara.airbnb.cleaning --web-dir web",
+    "cap:add:android": "npx cap add android",
+    "cap:add:ios": "npx cap add ios",
+    "cap:sync": "npx cap sync",
+    "cap:open:android": "npx cap open android",
+    "cap:open:ios": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/ios": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0"
+  }
+}

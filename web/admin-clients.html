@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clara | Gestão de Clientes & Imóveis</title>
+  <link rel="stylesheet" href="/static.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="admin-catalog-page">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">C</span>
+        <div>
+          <strong>clara</strong>
+          <small>gestão de serviços</small>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="nav-item" href="/"><i class="icon" data-lucide="home"></i> Início (Landing)</a>
+        <a class="nav-item" href="/admin/servicos"><i class="icon" data-lucide="clipboard-list"></i> Serviços</a>
+        <a class="nav-item" href="/admin/profissionais"><i class="icon" data-lucide="users-round"></i> Profissionais</a>
+        <a class="nav-item active" href="/admin/clientes"><i class="icon" data-lucide="building-2"></i> Clientes</a>
+        <a class="nav-item" href="/admin/pagamentos"><i class="icon" data-lucide="wallet-cards"></i> Pagamentos</a>
+        <a class="nav-item" href="/admin/relatorios"><i class="icon" data-lucide="chart-no-axes-combined"></i> Relatórios</a>
+        <a class="nav-item" href="/prestador"><i class="icon" data-lucide="smartphone"></i> App Prestador</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <a class="nav-item" href="/admin/configuracoes"><i class="icon" data-lucide="settings-2"></i> Configurações</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Administração</span><i>/</i><strong>Clientes & Proprietários</strong></div>
+        <div class="profile">
+          <span class="avatar">RC</span>
+          <span class="profile-copy"><strong>Ruben Costa</strong><small>Administrador</small></span>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="heading">
+          <div>
+            <p class="eyebrow">PROPRIEDADES & CONTRATANTES</p>
+            <h1>Clientes & Imóveis Airbnb</h1>
+            <p class="subtitle">Gerencie os proprietários parceiros e seus imóveis cadastrados para higienização.</p>
+          </div>
+        </div>
+
+        <!-- FORMULÁRIO DE NOVO CLIENTE -->
+        <section class="panel catalog-form">
+          <div class="panel-head">
+            <div>
+              <h2>Cadastrar novo cliente / proprietário</h2>
+              <p>Vincule um novo imóvel Airbnb aos serviços da empresa.</p>
+            </div>
+            <span class="how-icon"><i data-lucide="building"></i></span>
+          </div>
+
+          <form id="clientForm">
+            <div class="admin-form-grid">
+              <label>
+                Nome do Proprietário / Empresa
+                <input name="name" placeholder="Ex.: Dra. Camila Rocha" required>
+              </label>
+              <label>
+                Nome do Imóvel / Airbnb
+                <input name="propertyName" placeholder="Ex.: Loft Jardins" required>
+              </label>
+              <label>
+                Endereço da Propriedade
+                <input name="address" placeholder="Alameda Santos, 1400 - Jardins" required>
+              </label>
+              <label>
+                Telefone / Contato
+                <input name="phone" placeholder="(11) 91122-3344" required>
+              </label>
+            </div>
+            <button class="primary admin-submit-btn" type="submit">
+              <i data-lucide="plus"></i> Cadastrar Proprietário
+            </button>
+          </form>
+        </section>
+
+        <!-- LISTA DE CLIENTES -->
+        <section class="panel catalog-list">
+          <div class="panel-head">
+            <div>
+              <h2>Proprietários Parceiros</h2>
+              <p>Histórico de propriedades cadastradas no sistema.</p>
+            </div>
+            <span class="catalog-label"><i data-lucide="building-2"></i> Clientes Ativos</span>
+          </div>
+
+          <div class="client-page-grid" id="clientList">
+            <article class="client-card">
+              <div class="client-card-icon"><i data-lucide="home"></i></div>
+              <div class="client-card-details">
+                <h3>Dra. Camila Rocha</h3>
+                <p>Proprietária: <strong>Loft Jardins</strong></p>
+                <small><i data-lucide="map-pin"></i> Alameda Santos, 1400 - Jardins, São Paulo - SP</small>
+                <small><i data-lucide="phone"></i> (11) 91122-3344</small>
+              </div>
+              <div class="client-card-badge">
+                <span class="badge-tag">Contrato Ativo</span>
+              </div>
+            </article>
+
+            <article class="client-card">
+              <div class="client-card-icon"><i data-lucide="building"></i></div>
+              <div class="client-card-details">
+                <h3>Carlos Eduardo</h3>
+                <p>Proprietário: <strong>Apt Copacabana</strong></p>
+                <small><i data-lucide="map-pin"></i> Av. Atlântica, 2200 - Copacabana, Rio de Janeiro - RJ</small>
+                <small><i data-lucide="phone"></i> (21) 98877-6655</small>
+              </div>
+              <div class="client-card-badge">
+                <span class="badge-tag">Contrato Ativo</span>
+              </div>
+            </article>
+
+            <article class="client-card">
+              <div class="client-card-icon"><i data-lucide="sparkles"></i></div>
+              <div class="client-card-details">
+                <h3>Grupo Hoteleiro Orla</h3>
+                <p>Proprietários: <strong>Penthouse Orla & Studio Pinheiros</strong></p>
+                <small><i data-lucide="map-pin"></i> Av. Brig. Faria Lima, 3400 - Pinheiros, São Paulo - SP</small>
+                <small><i data-lucide="phone"></i> (11) 3090-8000</small>
+              </div>
+              <div class="client-card-badge">
+                <span class="badge-tag">Contrato Ativo</span>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">Proprietário cadastrado com sucesso</div>
+
+  <script src="/admin-clients.js"></script>
+  <script>window.addEventListener('load',()=>lucide.createIcons());</script>
+</body>
+</html>
