@@ -2106,9 +2106,9 @@
 }
 
 .nav-item.active {
-  background: #d86295 !important; /* Rosa forte e vibrante */
+  background: var(--pink-strong) !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(216, 98, 149, 0.35);
+  box-shadow: none !important;
 }
 
 .nav-item.active .icon,
