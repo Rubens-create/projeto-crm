@@ -33,7 +33,7 @@
 
     <main class="main">
       <header class="topbar">
-        <div class="breadcrumb"><span>Administração</span><i>/</i><strong>Equipe de Profissionais</strong></div>
+        <div class="breadcrumb"><span>Início</span><i>/</i><strong>Profissionais</strong></div>
         <div class="profile">
           <span class="avatar">RC</span>
           <span class="profile-copy"><strong>Ruben Costa</strong><small>Administrador</small></span>
@@ -43,115 +43,123 @@
       <section class="content">
         <div class="heading">
           <div>
-            <p class="eyebrow">EQUIPE & PRESTADORES</p>
-            <h1>Gestão de Profissionais</h1>
-            <p class="subtitle">Cadastre e acompanhe os prestadores de serviços de limpeza terceirizada.</p>
+            <p class="eyebrow">EQUIPE & ATENDIMENTO AIRBNB</p>
+            <h1>Profissionais</h1>
+            <p class="subtitle">Gerencie prestadores, especialidades, horas trabalhadas e repasses.</p>
           </div>
+          <button class="primary" id="newProfessional"><i data-lucide="plus"></i> Novo profissional</button>
         </div>
 
-        <!-- FORMULÁRIO DE CADASTRO -->
-        <section class="panel catalog-form">
+        <!-- 4 STAT CARDS DA PÁGINA PROFISSIONAIS -->
+        <div class="professional-stats">
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Total de profissionais</span>
+              <span class="stat-icon pink"><i data-lucide="users"></i></span>
+            </div>
+            <strong id="totalProfessionals">3</strong>
+            <p class="trend neutral">Todos os cadastros</p>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Profissionais ativos</span>
+              <span class="stat-icon green"><i data-lucide="user-check"></i></span>
+            </div>
+            <strong id="activeProfessionals">3</strong>
+            <p class="trend up">Disponíveis no aplicativo</p>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Horas neste período</span>
+              <span class="stat-icon lilac"><i data-lucide="clock-3"></i></span>
+            </div>
+            <strong id="totalProfessionalHours">18.5h</strong>
+            <p class="trend up">Horas registradas</p>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Total pago</span>
+              <span class="stat-icon peach"><i data-lucide="badge-dollar-sign"></i></span>
+            </div>
+            <strong id="totalProfessionalEarned">R$ 2.000,00</strong>
+            <p class="trend neutral">Ganhos acumulados</p>
+          </article>
+        </div>
+
+        <!-- PAINEL E TABELA COM FILTROS -->
+        <section class="panel professionals-panel">
           <div class="panel-head">
             <div>
-              <h2>Adicionar novo profissional</h2>
-              <p>Cadastre um novo prestador para ter acesso ao app mobile do prestador.</p>
+              <h2>Prestadores cadastrados</h2>
+              <p>Acompanhe os dados de cada profissional, tarifa por hora e seu status.</p>
             </div>
-            <span class="how-icon"><i data-lucide="user-plus"></i></span>
+            <div class="list-filter">
+              <button class="filter active" data-filter="all">Todos</button>
+              <button class="filter" data-filter="active">Ativos</button>
+              <button class="filter" data-filter="inactive">Desativados</button>
+            </div>
           </div>
 
-          <form id="proForm">
-            <div class="admin-form-grid">
-              <label>
-                Nome Completo
-                <input name="name" placeholder="Ex.: Fernanda Souza" required>
-              </label>
-              <label>
-                Especialidade / Perfil
-                <input name="specialty" placeholder="Ex.: Limpeza Pós Check-out & Enxoval" required>
-              </label>
-              <label>
-                Telefone / WhatsApp
-                <input name="phone" placeholder="(11) 99887-6655" required>
-              </label>
-              <label>
-                Tarifa Horária Padrão (R$)
-                <input name="rate" type="number" step="0.50" min="1" placeholder="100.00" required>
-              </label>
-            </div>
-            <button class="primary admin-submit-btn" type="submit">
-              <i data-lucide="plus"></i> Cadastrar Profissional
-            </button>
-          </form>
-        </section>
-
-        <!-- LISTA DE PROFISSIONAIS -->
-        <section class="panel catalog-list">
-          <div class="panel-head">
-            <div>
-              <h2>Prestadores Ativos</h2>
-              <p>Equipe registrada na plataforma.</p>
-            </div>
-            <span class="catalog-label"><i data-lucide="users"></i> Profissionais Ativos</span>
-          </div>
-
-          <div class="pro-page-grid" id="proList">
-            <article class="pro-detail-card">
-              <span class="avatar big">MC</span>
-              <div class="pro-detail-info">
-                <h3>Marina Costa</h3>
-                <p>Especialista Pós Check-out & Enxoval</p>
-                <div class="pro-meta-badges">
-                  <span><i data-lucide="phone"></i> (11) 98765-4321</span>
-                  <span><i data-lucide="star"></i> ⭐ 4.9 (48 limpezas)</span>
-                </div>
-              </div>
-              <div class="pro-detail-rate">
-                <strong>R$ 120,00</strong>
-                <small>/ hora</small>
-                <span class="status-pill active"><i data-lucide="check"></i> Ativa</span>
-              </div>
-            </article>
-
-            <article class="pro-detail-card">
-              <span class="avatar big">RM</span>
-              <div class="pro-detail-info">
-                <h3>Rafael Mendes</h3>
-                <p>Turno Rápido Roupas & Banheiros</p>
-                <div class="pro-meta-badges">
-                  <span><i data-lucide="phone"></i> (11) 97654-3210</span>
-                  <span><i data-lucide="star"></i> ⭐ 4.8 (35 limpezas)</span>
-                </div>
-              </div>
-              <div class="pro-detail-rate">
-                <strong>R$ 85,00</strong>
-                <small>/ hora</small>
-                <span class="status-pill active"><i data-lucide="check"></i> Ativo</span>
-              </div>
-            </article>
-
-            <article class="pro-detail-card">
-              <span class="avatar big">BL</span>
-              <div class="pro-detail-info">
-                <h3>Beatriz Lima</h3>
-                <p>Limpeza Geral Pós Hospedagem</p>
-                <div class="pro-meta-badges">
-                  <span><i data-lucide="phone"></i> (11) 96543-2109</span>
-                  <span><i data-lucide="star"></i> ⭐ 5.0 (62 limpezas)</span>
-                </div>
-              </div>
-              <div class="pro-detail-rate">
-                <strong>R$ 110,00</strong>
-                <small>/ hora</small>
-                <span class="status-pill active"><i data-lucide="check"></i> Ativa</span>
-              </div>
-            </article>
+          <div class="professional-table-wrap">
+            <table class="professional-table">
+              <thead>
+                <tr>
+                  <th>Profissional</th>
+                  <th>Especialidade</th>
+                  <th>Valor/hora</th>
+                  <th>Horas trabalhadas</th>
+                  <th>Total ganho</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="professionalsBody"></tbody>
+            </table>
           </div>
         </section>
       </section>
     </main>
   </div>
 
-  <div class="toast" id="toast">Profissional cadastrado com sucesso</div>
+  <!-- MODAL DE CADASTRO DE PROFISSIONAL -->
+  <div class="modal-backdrop" id="professionalModal">
+    <section class="modal">
+      <div class="modal-head">
+        <div>
+          <h2>Novo profissional</h2>
+          <p>Cadastre um prestador de serviço para acesso à plataforma.</p>
+        </div>
+        <button class="modal-close" id="closeModal" aria-label="Fechar"><i data-lucide="x"></i></button>
+      </div>
+      <form id="professionalForm">
+        <label>Nome completo
+          <input name="name" required placeholder="Ex.: Ana Souza">
+        </label>
+        <div class="form-row">
+          <label>E-mail
+            <input name="email" type="email" required placeholder="ana@email.com">
+          </label>
+          <label>Telefone
+            <input name="phone" placeholder="(11) 99999-9999">
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Especialidade
+            <input name="specialty" required placeholder="Ex.: Limpeza Pós Check-out & Enxoval">
+          </label>
+          <label>Valor por hora (R$)
+            <input name="rate" type="number" min="1" step="0.50" required placeholder="120.00">
+          </label>
+        </div>
+        <button class="primary" type="submit"><i data-lucide="user-plus"></i> Cadastrar profissional</button>
+      </form>
+    </section>
+  </div>
+
+  <div class="toast" id="toast">Operação realizada com sucesso</div>
 
   <script src="/admin-professionals.js"></script>
   <script>window.addEventListener('load',()=>lucide.createIcons());</script>
