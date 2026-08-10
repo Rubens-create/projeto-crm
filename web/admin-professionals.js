@@ -1,9 +1,9 @@
 const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 }).format(value);
 
 let professionals = [
-  { id: 'PRO-01', name: 'Marina Costa', email: 'marina@clara.com', phone: '(11) 98765-4321', specialty: 'Especialista Pós Check-out & Enxoval', rate: 120.00, hours: 6.5, earned: 780.00, active: true },
-  { id: 'PRO-02', name: 'Rafael Mendes', email: 'rafael@clara.com', phone: '(11) 97654-3210', specialty: 'Turno Rápido Roupas & Banheiros', rate: 85.00, hours: 4.0, earned: 340.00, active: true },
-  { id: 'PRO-03', name: 'Beatriz Lima', email: 'beatriz@clara.com', phone: '(11) 96543-2109', specialty: 'Limpeza Geral Pós Hospedagem', rate: 110.00, hours: 8.0, earned: 880.00, active: true }
+  { id: 'PRO-01', name: 'Marina Costa', email: 'marina@zygg.com', phone: '(11) 98765-4321', specialty: 'Especialista Pós Check-out & Enxoval', rate: 120.00, hours: 6.5, earned: 780.00, active: true },
+  { id: 'PRO-02', name: 'Rafael Mendes', email: 'rafael@zygg.com', phone: '(11) 97654-3210', specialty: 'Turno Rápido Roupas & Banheiros', rate: 85.00, hours: 4.0, earned: 340.00, active: true },
+  { id: 'PRO-03', name: 'Beatriz Lima', email: 'beatriz@zygg.com', phone: '(11) 96543-2109', specialty: 'Limpeza Geral Pós Hospedagem', rate: 110.00, hours: 8.0, earned: 880.00, active: true }
 ];
 
 let currentFilter = 'all';

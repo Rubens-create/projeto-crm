@@ -261,7 +261,7 @@ load();
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').then(reg => {
-      console.log('Service Worker Clara registrado com sucesso:', reg.scope);
+      console.log('Service Worker Zygg registrado com sucesso:', reg.scope);
     }).catch(err => {
       console.error('Falha no Service Worker:', err);
     });
@@ -272,5 +272,5 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  console.log('Aplicativo Clara pronto para instalacao no celular!');
+  console.log('Aplicativo Zygg pronto para instalacao no celular!');
 });

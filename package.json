@@ -1,11 +1,10 @@
 {
-  "name": "clara-crm-limpeza",
+  "name": "zygg-crm-limpeza",
   "version": "1.0.0",
-  "description": "Aplicativo móvel nativo e PWA para gestão de limpezas terceirizadas em imóveis Airbnb",
+  "description": "CRM e Aplicativo Cross-Platform Zygg Limpeza Airbnb",
   "main": "main.go",
   "scripts": {
-    "start": "go run .",
-    "cap:init": "npx cap init \"Clara Limpeza\" com.clara.airbnb.cleaning --web-dir web",
+    "cap:init": "npx cap init \"Zygg Limpeza\" com.zygg.airbnb.cleaning --web-dir web",
     "cap:add:android": "npx cap add android",
     "cap:add:ios": "npx cap add ios",
     "cap:sync": "npx cap sync",

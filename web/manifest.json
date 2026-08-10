@@ -1,24 +1,21 @@
 {
-  "name": "Clara | Gestão de Limpeza Airbnb",
-  "short_name": "Clara Limpeza",
-  "description": "Aplicativo de gestão e cronômetro de limpeza terceirizada para imóveis Airbnb",
+  "name": "Zygg | Gestão de Limpeza Airbnb",
+  "short_name": "Zygg Limpeza",
+  "description": "Aplicativo mobile-first para prestadores de serviço com cronômetro em tempo real.",
   "start_url": "/prestador",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#0f0d13",
-  "theme_color": "#0f0d13",
+  "background_color": "#fcfbfc",
+  "theme_color": "#f282af",
   "icons": [
     {
       "src": "/assets/loft.jpg",
       "sizes": "192x192",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "type": "image/jpeg"
     },
     {
-      "src": "/assets/penthouse.jpg",
+      "src": "/assets/loft.jpg",
       "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "type": "image/jpeg"
     }
   ]
 }

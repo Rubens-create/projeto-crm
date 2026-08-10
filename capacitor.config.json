@@ -1,19 +1,6 @@
 {
-  "appId": "com.clara.airbnb.cleaning",
-  "appName": "Clara Limpeza",
+  "appId": "com.zygg.airbnb.cleaning",
+  "appName": "Zygg Limpeza",
   "webDir": "web",
-  "bundledWebRuntime": false,
-  "server": {
-    "url": "http://localhost:8080/prestador",
-    "cleartext": true
-  },
-  "android": {
-    "allowMixedContent": true,
-    "captureInput": true,
-    "backgroundColor": "#0f0d13"
-  },
-  "ios": {
-    "allowsLinkPreview": false,
-    "backgroundColor": "#0f0d13"
-  }
+  "bundledWebRuntime": false
 }

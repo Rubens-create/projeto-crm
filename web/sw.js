@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clara-limpeza-v1';
+const CACHE_NAME = 'zygg-limpeza-v1';
 const ASSETS_TO_CACHE = [
   '/prestador',
   '/static.css',
@@ -10,40 +10,31 @@ const ASSETS_TO_CACHE = [
   '/assets/penthouse.jpg'
 ];
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
+    caches.open(CACHE_NAME).then(cache => {
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
   self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then(keys => {
       return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
-          }
-        })
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
       );
     })
   );
   self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-  // Ignora requisições de API para garantir dados em tempo real do PostgreSQL
-  if (event.request.url.includes('/api/')) {
-    return;
-  }
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request).then((networkResponse) => {
-        return networkResponse;
-      });
+    caches.match(event.request).then(cached => {
+      return cached || fetch(event.request);
     })
   );
 });
