@@ -2099,3 +2099,26 @@
   cursor: pointer;
 }
 
+/* Estilo Destacado para o Item de Menu Ativo (Sidebar Nav Active) */
+.nav-item:hover {
+  background: #fdf0f4;
+  color: var(--pink-dark);
+}
+
+.nav-item.active {
+  background: #d86295 !important; /* Rosa forte e vibrante */
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(216, 98, 149, 0.35);
+}
+
+.nav-item.active .icon,
+.nav-item.active svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.nav-item.active b {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+
