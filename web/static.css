@@ -2387,3 +2387,23 @@ input:checked + .slider:before {
   vertical-align: middle !important;
 }
 
+/* Ajuste Fino para Ícones em elementos <small> (Telefone, E-mail, Contato) */
+small svg,
+small [data-lucide],
+td small svg,
+td small [data-lucide] {
+  width: 12px !important;
+  height: 12px !important;
+  vertical-align: -2px !important;
+  display: inline-block !important;
+  flex: none !important;
+  stroke-width: 2.2 !important;
+}
+
+.professional-cell small {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin-top: 2px !important;
+}
+
