@@ -72,6 +72,21 @@ func (d *DB) StartExecution(professionalID, serviceID string, now time.Time) (mo
 	return model.TimerState{Active: true, ServiceID: serviceID, ExecutionID: execution.ID, StartedAt: now}, execution, nil
 }
 
+func (d *DB) capElapsedAtExecutionLifetime(executionID, professionalID string, elapsed int64, now time.Time) (int64, error) {
+	var startedAt time.Time
+	if err := d.conn.QueryRow("SELECT started_at FROM service_executions WHERE id = $1 AND professional_id = $2", executionID, professionalID).Scan(&startedAt); err != nil {
+		return 0, ErrExecutionNotFound
+	}
+	maxElapsed := int64(now.Sub(startedAt).Seconds())
+	if maxElapsed < 0 {
+		return 0, ErrExecutionState
+	}
+	if elapsed > maxElapsed {
+		return maxElapsed, nil
+	}
+	return elapsed, nil
+}
+
 func (d *DB) PauseExecution(professionalID string, now time.Time) (model.TimerState, error) {
 	timer, err := d.GetTimerState(professionalID)
 	if err != nil {
@@ -83,6 +98,10 @@ func (d *DB) PauseExecution(professionalID string, now time.Time) (model.TimerSt
 	elapsed := timer.ElapsedSeconds + int64(now.Sub(timer.StartedAt).Seconds())
 	if elapsed < timer.ElapsedSeconds {
 		return model.TimerState{}, ErrExecutionState
+	}
+	elapsed, err = d.capElapsedAtExecutionLifetime(timer.ExecutionID, professionalID, elapsed, now)
+	if err != nil {
+		return model.TimerState{}, err
 	}
 	if _, err := d.conn.Exec("UPDATE provider_timer_state SET active = false, paused_at = $1, elapsed_seconds = $2 WHERE professional_id = $3", now, elapsed, professionalID); err != nil {
 		return model.TimerState{}, err
@@ -101,14 +120,22 @@ func (d *DB) ResumeExecution(professionalID string, now time.Time) (model.TimerS
 	if timer.Active || timer.ExecutionID == "" {
 		return model.TimerState{}, ErrExecutionState
 	}
+	var startedAt time.Time
 	var status string
-	if err := d.conn.QueryRow("SELECT status FROM service_executions WHERE id = $1 AND professional_id = $2", timer.ExecutionID, professionalID).Scan(&status); err != nil {
+	if err := d.conn.QueryRow("SELECT started_at, status FROM service_executions WHERE id = $1 AND professional_id = $2", timer.ExecutionID, professionalID).Scan(&startedAt, &status); err != nil {
 		return model.TimerState{}, ErrExecutionNotFound
 	}
 	if status != model.ExecutionInProgress {
 		return model.TimerState{}, ErrExecutionState
 	}
-	if _, err := d.conn.Exec("UPDATE provider_timer_state SET active = true, started_at = $1, paused_at = NULL WHERE professional_id = $2", now, professionalID); err != nil {
+	maxElapsed := int64(now.Sub(startedAt).Seconds())
+	if maxElapsed < 0 {
+		return model.TimerState{}, ErrExecutionState
+	}
+	if timer.ElapsedSeconds > maxElapsed {
+		timer.ElapsedSeconds = maxElapsed
+	}
+	if _, err := d.conn.Exec("UPDATE provider_timer_state SET active = true, started_at = $1, paused_at = NULL, elapsed_seconds = $2 WHERE professional_id = $3", now, timer.ElapsedSeconds, professionalID); err != nil {
 		return model.TimerState{}, err
 	}
 	timer.Active = true
