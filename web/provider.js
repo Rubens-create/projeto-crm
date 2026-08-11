@@ -12,9 +12,11 @@ const selectedServiceLabel = document.querySelector('#selectedServiceLabel');
 const button = document.querySelector('#timerButton');
 const finishButton = document.querySelector('#finishExecutionButton');
 
+let clockSkew = 0;
+
 function elapsedExact() {
   if (!timerState.active) return timerState.elapsedSeconds;
-  const now = Date.now();
+  const now = Date.now() - clockSkew;
   const start = new Date(timerState.startedAt).getTime();
   return timerState.elapsedSeconds + ((now - start) / 1000);
 }
@@ -164,6 +166,9 @@ async function load() {
     const response = await fetch('/api/provider');
     if (!response.ok) return;
     const data = await response.json();
+    if (data.serverTime) {
+      clockSkew = Date.now() - new Date(data.serverTime).getTime();
+    }
     timerState = data.timer;
     allOptions = data.options.filter(o => o.active);
 
@@ -241,6 +246,9 @@ button.addEventListener('click', async () => {
   });
   if (!response.ok) return;
   const payload = await response.json();
+  if (payload.serverTime) {
+    clockSkew = Date.now() - new Date(payload.serverTime).getTime();
+  }
   timerState = payload.timer;
   if (timerState.active && !tick) tick = setInterval(renderTimer, 30);
   if (!timerState.active) {

@@ -98,6 +98,7 @@ type ExecutionSummary struct {
 }
 
 type ProviderView struct {
+	ServerTime   time.Time          `json:"serverTime"`
 	Options      []ServiceOption    `json:"options"`
 	Timer        TimerState         `json:"timer"`
 	Professional Professional       `json:"professional"`

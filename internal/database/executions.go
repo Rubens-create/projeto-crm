@@ -95,7 +95,7 @@ func (d *DB) PauseExecution(professionalID string, now time.Time) (model.TimerSt
 	if !timer.Active || timer.ExecutionID == "" {
 		return model.TimerState{}, ErrExecutionState
 	}
-	elapsed := timer.ElapsedSeconds + int64(now.Sub(timer.StartedAt).Seconds())
+	elapsed := timer.ElapsedSeconds + int64(math.Round(now.Sub(timer.StartedAt).Seconds()))
 	if elapsed < timer.ElapsedSeconds {
 		return model.TimerState{}, ErrExecutionState
 	}

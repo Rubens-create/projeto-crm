@@ -70,6 +70,7 @@ func (h *Handler) Provider(w http.ResponseWriter, r *http.Request) {
 	todayEarned := sessionHours * rate
 
 	h.jsonResponse(w, model.ProviderView{
+		ServerTime:   time.Now(),
 		Options:      options,
 		Timer:        timer,
 		Professional: professional,
