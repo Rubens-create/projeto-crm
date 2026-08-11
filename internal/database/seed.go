@@ -15,10 +15,10 @@ func (d *DB) Seed() error {
 
 	if count == 0 {
 		options := []model.ServiceOption{
-			{ID: "OPT-01", Name: "Loft Jardins", Description: "Limpeza Pós Check-out + Enxoval", Rate: 120.00, Active: true, Bedrooms: 1, Bathrooms: 1, LivingRooms: 1, Sqm: 55, Rooms: "3 cômodos (1 Q, 1 S, 1 B)", Image: "/assets/loft.jpg", EstTime: "2.5h"},
-			{ID: "OPT-02", Name: "Apt Copacabana", Description: "Turno Rápido Roupas & Banheiro", Rate: 85.00, Active: true, Bedrooms: 1, Bathrooms: 1, LivingRooms: 0, Sqm: 38, Rooms: "2 cômodos (1 Q, 1 B)", Image: "/assets/bedroom.jpg", EstTime: "1.5h"},
-			{ID: "OPT-03", Name: "Studio Pinheiros", Description: "Limpeza Geral Pós Hospedagem", Rate: 110.00, Active: true, Bedrooms: 1, Bathrooms: 1, LivingRooms: 1, Sqm: 42, Rooms: "2 cômodos (Studio)", Image: "/assets/studio.jpg", EstTime: "2.0h"},
-			{ID: "OPT-04", Name: "Penthouse Orla", Description: "Limpeza Profunda Pós Checkout", Rate: 180.00, Active: true, Bedrooms: 2, Bathrooms: 2, LivingRooms: 1, Sqm: 120, Rooms: "5 cômodos (2 Q, 2 B, Varanda)", Image: "/assets/penthouse.jpg", EstTime: "4.0h"},
+			{ID: "OPT-01", Name: "Loft Jardins", Description: "Limpeza Pós Check-out + Enxoval", Rate: 120.00, Active: true, Bedrooms: 1, Bathrooms: 1, LivingRooms: 1, Sqm: 55, Rooms: "3 cômodos (1 Q, 1 S, 1 B)", Image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=85", EstTime: "2.5h"},
+			{ID: "OPT-02", Name: "Apt Copacabana", Description: "Turno Rápido Roupas & Banheiro", Rate: 85.00, Active: true, Bedrooms: 1, Bathrooms: 1, LivingRooms: 0, Sqm: 38, Rooms: "2 cômodos (1 Q, 1 B)", Image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=85", EstTime: "1.5h"},
+			{ID: "OPT-03", Name: "Studio Pinheiros", Description: "Limpeza Geral Pós Hospedagem", Rate: 110.00, Active: true, Bedrooms: 1, Bathrooms: 1, LivingRooms: 1, Sqm: 42, Rooms: "2 cômodos (Studio)", Image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=85", EstTime: "2.0h"},
+			{ID: "OPT-04", Name: "Penthouse Orla", Description: "Limpeza Profunda Pós Checkout", Rate: 180.00, Active: true, Bedrooms: 2, Bathrooms: 2, LivingRooms: 1, Sqm: 120, Rooms: "5 cômodos (2 Q, 2 B, Varanda)", Image: "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=1200&q=85", EstTime: "4.0h"},
 		}
 		stmt, err := d.conn.Prepare("INSERT INTO service_options (id, name, description, rate, active, bedrooms, bathrooms, living_rooms, sqm, rooms, image, est_time) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)")
 		if err != nil {
@@ -124,6 +124,18 @@ func (d *DB) Seed() error {
 	_ = d.conn.QueryRow("SELECT COUNT(*) FROM settings").Scan(&count)
 	if count == 0 {
 		_, _ = d.conn.Exec("INSERT INTO settings (id, company_name, cnpj, email, phone, currency, default_rate, language) VALUES (1, 'Zygg Limpezas Airbnb & Terceirizados', '12.345.678/0001-90', 'ruben@zygg.com', '(11) 99887-6655', 'BRL', 120.00, 'pt')")
+	}
+
+	imageURLs := map[string]string{
+		"OPT-01": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=85",
+		"OPT-02": "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=85",
+		"OPT-03": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=85",
+		"OPT-04": "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=1200&q=85",
+	}
+	for id, imageURL := range imageURLs {
+		if _, err := d.conn.Exec("UPDATE service_options SET image = $1 WHERE id = $2", imageURL, id); err != nil {
+			log.Printf("Erro atualizando imagem do serviço %s: %v", id, err)
+		}
 	}
 
 	return nil
