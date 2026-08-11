@@ -4,18 +4,19 @@ services:
     container_name: crm_db
     restart: always
     environment:
-      POSTGRES_DB: crm_db
-      POSTGRES_USER: crm
-      POSTGRES_PASSWORD: crmpass
+      POSTGRES_DB: ${DB_NAME:-crm_db}
+      POSTGRES_USER: ${DB_USER:-crm}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-crmpass}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U crm -d crm_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-crm} -d ${DB_NAME:-crm_db}"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 20s
 
   app:
     build:
@@ -28,9 +29,9 @@ services:
     environment:
       - DB_HOST=db
       - DB_PORT=5432
-      - DB_USER=crm
-      - DB_PASSWORD=crmpass
-      - DB_NAME=crm_db
+      - DB_USER=${DB_USER:-crm}
+      - DB_PASSWORD=${DB_PASSWORD:-crmpass}
+      - DB_NAME=${DB_NAME:-crm_db}
       - DB_SSLMODE=disable
     depends_on:
       db:
