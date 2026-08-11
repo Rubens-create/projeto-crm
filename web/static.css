@@ -2628,7 +2628,7 @@ button.nav-item,
 .zygg-notice-details dd { margin: 0; color: #332e36; font-size: 12px; font-weight: 700; text-align: right; }
 .zygg-notice-card .primary { width: 100%; justify-content: center; min-height: 44px; }
 
-/* Premium public landing — intentionally scoped so admin/provider surfaces stay unchanged. */
+/* Premium public landing - intentionally scoped so admin/provider surfaces stay unchanged. */
 .zygg-landing { --ink:#222128; --muted:#726c73; --paper:#fbfaf8; --rose:#e86694; --rose-soft:#fae8ee; --line:#e9e5e3; --mint:#d9eee6; background:var(--paper); color:var(--ink); font-family:Manrope,Inter,sans-serif; }
 .zygg-landing * { box-sizing:border-box; }
 .zygg-landing .landing-background-glow { display:none; }
