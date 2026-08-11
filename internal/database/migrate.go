@@ -138,30 +138,32 @@ func (d *DB) Migrate() error {
 	}
 
 	// Garante que colunas adicionadas em atualizações do sistema existam em bancos preexistentes
-	alterQueries := []string{
-		`ALTER TABLE service_options ADD COLUMN property_id VARCHAR(50) NOT NULL DEFAULT '';`,
-		`ALTER TABLE service_options ADD COLUMN est_time VARCHAR(50) NOT NULL DEFAULT '2.5h';`,
-		`ALTER TABLE service_options ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE;`,
-		`ALTER TABLE service_options ADD COLUMN rate NUMERIC(10, 2) NOT NULL DEFAULT 0.00;`,
-		`ALTER TABLE service_options ADD COLUMN description TEXT NOT NULL DEFAULT '';`,
-		`ALTER TABLE properties ADD COLUMN client_id VARCHAR(50) NULL;`,
-		`ALTER TABLE properties ADD COLUMN bedrooms INT NOT NULL DEFAULT 1;`,
-		`ALTER TABLE properties ADD COLUMN bathrooms INT NOT NULL DEFAULT 1;`,
-		`ALTER TABLE properties ADD COLUMN living_rooms INT NOT NULL DEFAULT 0;`,
-		`ALTER TABLE properties ADD COLUMN sqm INT NOT NULL DEFAULT 0;`,
-		`ALTER TABLE properties ADD COLUMN rooms TEXT NOT NULL DEFAULT '';`,
-		`ALTER TABLE properties ADD COLUMN image TEXT NOT NULL DEFAULT '';`,
-		`ALTER TABLE properties ADD COLUMN estimated_time VARCHAR(50) NOT NULL DEFAULT '';`,
-		`ALTER TABLE properties ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO';`,
-		`ALTER TABLE professionals ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE;`,
-		`ALTER TABLE professionals ADD COLUMN hours NUMERIC(10, 2) NOT NULL DEFAULT 0.00;`,
-		`ALTER TABLE professionals ADD COLUMN earned NUMERIC(10, 2) NOT NULL DEFAULT 0.00;`,
-		`ALTER TABLE clients ADD COLUMN monthly_spend NUMERIC(10, 2) NOT NULL DEFAULT 0.00;`,
-		`ALTER TABLE clients ADD COLUMN status VARCHAR(50) NOT NULL DEFAULT 'Ativo';`,
+	columnsToAdd := []struct {
+		table, column, colDef string
+	}{
+		{"service_options", "property_id", "VARCHAR(50) NOT NULL DEFAULT ''"},
+		{"service_options", "est_time", "VARCHAR(50) NOT NULL DEFAULT '2.5h'"},
+		{"service_options", "active", "BOOLEAN NOT NULL DEFAULT TRUE"},
+		{"service_options", "rate", "NUMERIC(10, 2) NOT NULL DEFAULT 0.00"},
+		{"service_options", "description", "TEXT NOT NULL DEFAULT ''"},
+		{"properties", "client_id", "VARCHAR(50) NULL"},
+		{"properties", "bedrooms", "INT NOT NULL DEFAULT 1"},
+		{"properties", "bathrooms", "INT NOT NULL DEFAULT 1"},
+		{"properties", "living_rooms", "INT NOT NULL DEFAULT 0"},
+		{"properties", "sqm", "INT NOT NULL DEFAULT 0"},
+		{"properties", "rooms", "TEXT NOT NULL DEFAULT ''"},
+		{"properties", "image", "TEXT NOT NULL DEFAULT ''"},
+		{"properties", "estimated_time", "VARCHAR(50) NOT NULL DEFAULT ''"},
+		{"properties", "status", "VARCHAR(20) NOT NULL DEFAULT 'ATIVO'"},
+		{"professionals", "active", "BOOLEAN NOT NULL DEFAULT TRUE"},
+		{"professionals", "hours", "NUMERIC(10, 2) NOT NULL DEFAULT 0.00"},
+		{"professionals", "earned", "NUMERIC(10, 2) NOT NULL DEFAULT 0.00"},
+		{"clients", "monthly_spend", "NUMERIC(10, 2) NOT NULL DEFAULT 0.00"},
+		{"clients", "status", "VARCHAR(50) NOT NULL DEFAULT 'Ativo'"},
 	}
 
-	for _, query := range alterQueries {
-		_, _ = d.conn.Exec(query)
+	for _, col := range columnsToAdd {
+		d.addColumnIfNotExists(col.table, col.column, col.colDef)
 	}
 
 	indexQueries := []string{
@@ -178,4 +180,15 @@ func (d *DB) Migrate() error {
 	}
 
 	return nil
+}
+
+func (d *DB) addColumnIfNotExists(table, column, colDef string) {
+	checkQuery := fmt.Sprintf("SELECT %s FROM %s LIMIT 0", column, table)
+	rows, err := d.conn.Query(checkQuery)
+	if err == nil {
+		rows.Close()
+		return
+	}
+	alterQuery := fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s %s", table, column, colDef)
+	_, _ = d.conn.Exec(alterQuery)
 }
