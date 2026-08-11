@@ -647,6 +647,12 @@
   animation: dotPulse 1.5s infinite;
 }
 
+@media (min-width: 769px) {
+  .live-chart-wrapper {
+    height: 150px;
+  }
+}
+
 @keyframes dotPulse {
   0% { r: 4px; }
   50% { r: 6px; }
