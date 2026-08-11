@@ -922,31 +922,6 @@
   border-color: #f282af;
 }
 
-.save-rate-btn {
-  border: 1px solid #f0cada;
-  background: #fff8fb;
-  color: var(--pink-dark);
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.2s ease;
-}
-
-.save-rate-btn:hover {
-  background: var(--pink-strong);
-  color: #ffffff;
-  border-color: var(--pink-strong);
-}
-
-.save-rate-btn svg {
-  width: 13px;
-  height: 13px;
-}
 
 .toggle-active-btn {
   width: 100%;

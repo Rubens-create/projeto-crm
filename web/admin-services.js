@@ -127,12 +127,6 @@ function render() {
       </td>
       <td><strong>${s.estTime || '2.5h'}</strong></td>
       <td>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <input type="number" step="0.50" min="1" id="rateInput_${s.id}" value="${s.rate.toFixed(2)}" style="width:80px;padding:6px;border:1px solid var(--line);border-radius:6px;font-size:11px;font-weight:700;">
-          <button class="save-rate-btn" data-id="${s.id}" style="border:1px solid var(--pink-strong);background:var(--pink-strong);color:#fff;padding:6px 10px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;">${window.i18n ? window.i18n.t('services.save') : 'Salvar'}</button>
-        </div>
-      </td>
-      <td>
         <span class="professional-status ${s.active ? 'active' : 'inactive'}">
           <i data-lucide="${s.active ? 'check' : 'eye-off'}"></i>${s.active ? (window.i18n ? window.i18n.t('services.active') : 'Ativo') : (window.i18n ? window.i18n.t('services.disabled') : 'Desativado')}
         </span>
@@ -183,12 +177,6 @@ function render() {
     };
   });
 
-  document.querySelectorAll('.save-rate-btn').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      saveRate(btn.dataset.id);
-    };
-  });
 }
 
 async function toggleStatus(id) {
@@ -204,25 +192,6 @@ async function toggleStatus(id) {
   }
 }
 
-async function saveRate(id) {
-  const rateInput = document.querySelector(`#rateInput_${id}`);
-  if (!rateInput) return;
-  const newRate = parseFloat(rateInput.value);
-  if (isNaN(newRate) || newRate <= 0) {
-    showToast('Insira um valor por hora válido.');
-    return;
-  }
-  const res = await fetch('/api/admin/services', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'update', id, rate: newRate })
-  });
-  if (res.ok) {
-    services = await res.json();
-    render();
-    showToast(`Tarifa por hora atualizada para ${money(newRate)}!`);
-  }
-}
 
 async function load() {
   try {

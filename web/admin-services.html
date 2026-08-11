@@ -89,7 +89,6 @@
                   <th data-i18n="services.thType">Tipo de Higienização</th>
                   <th data-i18n="services.thRooms">Cômodos / m²</th>
                   <th data-i18n="services.thTime">Tempo Estimado</th>
-                  <th data-i18n="services.thRate">Tarifa Horária</th>
                   <th data-i18n="services.thVisibility">Visibilidade no App</th>
                   <th data-i18n="services.thActions">Ações</th>
                 </tr>
@@ -144,17 +143,17 @@
           </label>
         </div>
         <label>Foto do Imóvel
-          <input type="hidden" name="image" id="newServiceImage" value="/assets/loft.jpg">
+          <input type="hidden" name="image" id="newServiceImage" value="">
           <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
             <label for="newServiceFileInput" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:#f8f6f9;border:1px dashed #d5ced9;border-radius:9px;font-size:12px;font-weight:600;color:#655d68;cursor:pointer;transition:all 0.2s ease;">
               <i data-lucide="upload"></i> Escolher e Enviar Foto do Imóvel...
               <input type="file" id="newServiceFileInput" accept="image/*" style="display:none;">
             </label>
             <div id="newServiceImgPreviewWrap" style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#faf8fa;border:1px solid var(--line);border-radius:9px;">
-              <img id="newServiceImgPreview" src="/assets/loft.jpg" style="width:40px;height:40px;border-radius:8px;object-fit:cover;flex:none;">
+              <img id="newServiceImgPreview" src="" alt="" style="width:40px;height:40px;border-radius:8px;object-fit:cover;flex:none;">
               <div style="font-size:11px;color:#89838d;overflow:hidden;">
                 <strong style="display:block;color:#332e36;font-size:11px;" id="newServiceImgPreviewName">Pré-visualização</strong>
-                <span id="newServiceImgPreviewUrl" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;">/assets/loft.jpg</span>
+                <span id="newServiceImgPreviewUrl" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;"></span>
               </div>
             </div>
           </div>
@@ -207,17 +206,17 @@
           </label>
         </div>
         <label><span data-i18n="services.fieldPhoto">Foto do Imóvel</span>
-          <input type="hidden" name="image" id="editServiceImage" value="/assets/loft.jpg">
+          <input type="hidden" name="image" id="editServiceImage" value="">
           <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
             <label for="editServiceFileInput" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:#f8f6f9;border:1px dashed #d5ced9;border-radius:9px;font-size:12px;font-weight:600;color:#655d68;cursor:pointer;transition:all 0.2s ease;" data-i18n="services.editUploadBtn">
               <i data-lucide="upload"></i> Escolher e Alterar Foto...
               <input type="file" id="editServiceFileInput" accept="image/*" style="display:none;">
             </label>
             <div id="editServiceImgPreviewWrap" style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#faf8fa;border:1px solid var(--line);border-radius:9px;">
-              <img id="editServiceImgPreview" src="/assets/loft.jpg" style="width:40px;height:40px;border-radius:8px;object-fit:cover;flex:none;">
+              <img id="editServiceImgPreview" src="" alt="" style="width:40px;height:40px;border-radius:8px;object-fit:cover;flex:none;">
               <div style="font-size:11px;color:#89838d;overflow:hidden;">
                 <strong style="display:block;color:#332e36;font-size:11px;" id="editServiceImgPreviewName">Foto atual do imóvel</strong>
-                <span id="editServiceImgPreviewUrl" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;">/assets/loft.jpg</span>
+                <span id="editServiceImgPreviewUrl" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;"></span>
               </div>
             </div>
           </div>
