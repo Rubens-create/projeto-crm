@@ -2,10 +2,11 @@ const requestedRole = new URLSearchParams(window.location.search).get('role');
 const form = document.querySelector('#loginForm');
 const error = document.querySelector('#loginError');
 
-if (requestedRole === 'admin') {
-  document.querySelector('#loginHint').textContent = 'Entre com sua conta administrativa.';
-} else if (requestedRole === 'provider') {
-  document.querySelector('#loginHint').textContent = 'Entre com sua conta de prestador.';
+const loginHint = document.querySelector('#loginHint');
+if (requestedRole === 'admin' && loginHint) {
+  loginHint.textContent = 'Entre com sua conta administrativa.';
+} else if (requestedRole === 'provider' && loginHint) {
+  loginHint.textContent = 'Entre com sua conta de prestador.';
 }
 
 form.addEventListener('submit', async (event) => {

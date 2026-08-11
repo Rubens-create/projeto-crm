@@ -182,9 +182,9 @@ async function load() {
       if (avatar && data.professional.name) avatar.textContent = data.professional.name.split(' ').map(part => part[0]).slice(0, 2).join('');
     }
 
-    document.querySelector('#totalHours').textContent = data.totalHours.toFixed(1).replace('.', ',') + 'h';
-    document.querySelector('#totalEarned').textContent = money(data.totalEarned);
-    document.querySelector('#todayEarned').textContent = money(data.todayEarned);
+    const thEl = document.querySelector('#totalHours'); if (thEl) thEl.textContent = (data.totalHours || 0).toFixed(1).replace('.', ',') + 'h';
+    const teEl = document.querySelector('#totalEarned'); if (teEl) teEl.textContent = money(data.totalEarned);
+    const tdEl = document.querySelector('#todayEarned'); if (tdEl) tdEl.textContent = money(data.todayEarned);
 
     select.innerHTML = '<option value="">Selecione um serviço</option>' +
       allOptions.map(o => `<option value="${o.id}">${o.name} · ${money(o.rate)}/h</option>`).join('');
