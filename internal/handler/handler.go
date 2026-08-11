@@ -15,6 +15,10 @@ func New(db *database.DB) *Handler {
 	return &Handler{db: db}
 }
 
+func (h *Handler) Database() *database.DB {
+	return h.db
+}
+
 func (h *Handler) jsonResponse(w http.ResponseWriter, data any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	_ = json.NewEncoder(w).Encode(data)

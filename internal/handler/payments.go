@@ -13,6 +13,7 @@ func (h *Handler) AdminPayments(w http.ResponseWriter, r *http.Request) {
 		var payload struct {
 			Action       string  `json:"action"`
 			ID           string  `json:"id"`
+			ExecutionID  string  `json:"executionId"`
 			Professional string  `json:"professional"`
 			Amount       float64 `json:"amount"`
 			Hours        float64 `json:"hours"`
@@ -23,7 +24,12 @@ func (h *Handler) AdminPayments(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if payload.Action == "mark_paid" && payload.ID != "" {
+		if payload.Action == "create_from_execution" && payload.ExecutionID != "" {
+			if err := h.db.CreatePaymentForExecution(payload.ExecutionID, time.Now()); err != nil {
+				h.executionError(w, err)
+				return
+			}
+		} else if payload.Action == "mark_paid" && payload.ID != "" {
 			if err := h.db.UpdatePaymentStatus(payload.ID, "Pago"); err != nil {
 				h.jsonError(w, "database error", 500)
 				return

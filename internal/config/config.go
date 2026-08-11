@@ -16,9 +16,15 @@ type DatabaseConfig struct {
 	URL      string
 }
 
+type AuthConfig struct {
+	BootstrapAdminEmail    string
+	BootstrapAdminPassword string
+}
+
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
+	Auth     AuthConfig
 }
 
 func getEnv(key, fallback string) string {
@@ -41,6 +47,10 @@ func Load() Config {
 			DBName:   getEnv("DB_NAME", "crm_db"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 			URL:      os.Getenv("DATABASE_URL"),
+		},
+		Auth: AuthConfig{
+			BootstrapAdminEmail:    getEnv("ADMIN_EMAIL", "admin@zygg.com"),
+			BootstrapAdminPassword: getEnv("ADMIN_PASSWORD", "admin123"),
 		},
 	}
 }

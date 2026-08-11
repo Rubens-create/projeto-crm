@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zygg | Entrar</title>
+  <link rel="stylesheet" href="/static.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="landing-page-body login-page-body">
+  <div class="landing-background-glow"></div>
+  <main class="login-main">
+    <section class="login-card" aria-labelledby="loginTitle">
+      <a class="login-brand" href="/" aria-label="Voltar para a Zygg"><span class="landing-mark">Z</span><span><strong>zygg</strong><small>gestão de serviços</small></span></a>
+      <div class="login-intro">
+        <p class="eyebrow">ACESSO SEGURO</p>
+        <h1 id="loginTitle">Entrar na Zygg</h1>
+        <p class="subtitle" id="loginHint">Use suas credenciais administrativas ou de prestador.</p>
+      </div>
+      <form id="loginForm" class="login-form">
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" autocomplete="username" placeholder="voce@empresa.com" required>
+        <label for="password">Senha</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Sua senha" required>
+        <p id="loginError" role="alert" aria-live="polite"></p>
+        <button class="primary" type="submit"><i data-lucide="log-in"></i> Entrar</button>
+      </form>
+    </section>
+  </main>
+  <script src="/login.js"></script>
+  <script>window.addEventListener('load', () => lucide.createIcons());</script>
+</body>
+</html>

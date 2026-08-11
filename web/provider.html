@@ -12,6 +12,7 @@
   <title>Zygg | Área do prestador</title>
   <link rel="stylesheet" href="/static.css">
   <script src="/i18n.js"></script>
+  <script src="/auth.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="provider-page">
@@ -64,6 +65,21 @@
             </div>
           </article>
         </div>
+        <section class="panel available-services" style="margin-top:16px;">
+          <div class="panel-head"><div><h2>Meus serviços</h2><p>Histórico das minhas execuções.</p></div></div>
+          <div id="executionsList"></div>
+        </section>
+        <section class="panel earning-card" style="margin-top:16px;">
+          <div class="panel-head">
+            <div><h2>Como funciona</h2><p>Seu pagamento é calculado por hora.</p></div>
+            <span class="how-icon"><i data-lucide="circle-help"></i></span>
+          </div>
+          <ol class="steps">
+            <li><span>1</span><div><strong>Escolha um serviço</strong><small>Veja as atividades disponíveis e o valor por hora.</small></div></li>
+            <li><span>2</span><div><strong>Inicie o cronômetro</strong><small>Registre exatamente o tempo trabalhado.</small></div></li>
+            <li><span>3</span><div><strong>Finalize o serviço</strong><small>Confirme o total calculado para receber o repasse.</small></div></li>
+          </ol>
+        </section>
       </section>
 
       <!-- SEÇÃO 2: CRONÔMETRO -->
@@ -78,9 +94,10 @@
               <span class="live-label" id="timerStatus"><i data-lucide="pause"></i> Parado</span>
             </div>
             <div class="timer-display" id="timerDisplay">00:00:00</div>
-            <div class="timer-service">
+            <div class="timer-service" aria-live="polite">
               <i data-lucide="briefcase-business"></i>
-              <select id="serviceSelect">
+              <span id="selectedServiceLabel">Selecione um serviço na aba Serviços</span>
+              <select id="serviceSelect" hidden aria-hidden="true" tabindex="-1">
                 <option value="">Selecione um serviço</option>
               </select>
             </div>
@@ -117,39 +134,7 @@
             <p class="timer-note">
               <i data-lucide="shield-check"></i> O tempo e os ganhos são registrados em tempo real.
             </p>
-          </section>
-
-          <section class="panel earning-card">
-            <div class="panel-head">
-              <div>
-                <h2>Como funciona</h2>
-                <p>Seu pagamento é calculado por hora.</p>
-              </div>
-              <span class="how-icon"><i data-lucide="circle-help"></i></span>
-            </div>
-            <ol class="steps">
-              <li>
-                <span>1</span>
-                <div>
-                  <strong>Escolha um serviço</strong>
-                  <small>Veja as atividades disponíveis e o valor por hora.</small>
-                </div>
-              </li>
-              <li>
-                <span>2</span>
-                <div>
-                  <strong>Inicie o cronômetro</strong>
-                  <small>Registre exatamente o tempo trabalhado.</small>
-                </div>
-              </li>
-              <li>
-                <span>3</span>
-                <div>
-                  <strong>Receba por hora</strong>
-                  <small>O valor é calculado automaticamente.</small>
-                </div>
-              </li>
-            </ol>
+            <button class="primary" id="finishExecutionButton" type="button" disabled style="width:100%; margin-top:4px;"><i data-lucide="check"></i> Finalizar serviço</button>
           </section>
         </div>
       </section>

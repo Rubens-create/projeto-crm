@@ -9,6 +9,8 @@ import (
 func (h *Handler) Pages(w http.ResponseWriter, r *http.Request) {
 	file := "index.html"
 	switch r.URL.Path {
+	case "/login":
+		file = "login.html"
 	case "/prestador":
 		file = "provider.html"
 	case "/admin/servicos":
@@ -19,6 +21,8 @@ func (h *Handler) Pages(w http.ResponseWriter, r *http.Request) {
 		file = "admin-clients.html"
 	case "/admin/pagamentos":
 		file = "admin-payments.html"
+	case "/admin/executions":
+		file = "admin-executions.html"
 	case "/admin/relatorios":
 		file = "admin-reports.html"
 	case "/admin/configuracoes":

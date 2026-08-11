@@ -20,15 +20,16 @@ func (h *Handler) AdminReports(w http.ResponseWriter, r *http.Request) {
 
 	switch tipo {
 	case "geral":
-		headers = []string{"ID", "Cliente", "Profissional", "Serviço", "Horas", "Valor Bruto", "Status", "Data"}
-		dbRows, err := h.db.Query("SELECT id, client, professional, service, hours, rate * hours, status, date_str FROM services ORDER BY created_at DESC")
+		headers = []string{"ID", "Cliente", "Profissional", "Serviço", "Duração", "Valor", "Status", "Data"}
+		dbRows, err := h.db.Query("SELECT e.id, COALESCE(c.name, ''), p.name, s.name, e.duration_seconds, e.total_value_cents, e.status, e.started_at FROM service_executions e JOIN professionals p ON p.id=e.professional_id JOIN service_options s ON s.id=e.service_id LEFT JOIN clients c ON c.id=e.client_id ORDER BY e.started_at DESC")
 		if err == nil {
 			defer dbRows.Close()
 			for dbRows.Next() {
-				var id, client, prof, serv, status, date string
-				var hours, val float64
-				if err := dbRows.Scan(&id, &client, &prof, &serv, &hours, &val, &status, &date); err == nil {
-					rows = append(rows, []any{id, client, prof, serv, hours, val, status, date})
+				var id, client, prof, serv, status string
+				var seconds, cents int64
+				var started any
+				if err := dbRows.Scan(&id, &client, &prof, &serv, &seconds, &cents, &status, &started); err == nil {
+					rows = append(rows, []any{id, client, prof, serv, float64(seconds) / 3600, float64(cents) / 100, status, started})
 				}
 			}
 		}
@@ -97,8 +98,20 @@ func (h *Handler) AdminReports(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	summary, err := h.db.ExecutionSummary()
+	if err != nil {
+		h.jsonError(w, "database error", http.StatusInternalServerError)
+		return
+	}
 	h.jsonResponse(w, map[string]any{
 		"headers": headers,
 		"rows":    rows,
+		"stats": map[string]any{
+			"totalServices": summary.TotalExecutions,
+			"totalHours":    float64(summary.TotalSeconds) / 3600,
+			"totalRevenue":  float64(summary.TotalValueCents) / 100,
+			"totalPayouts":  float64(summary.PaidValueCents) / 100,
+			"totalPending":  float64(summary.PendingValueCents) / 100,
+		},
 	})
 }

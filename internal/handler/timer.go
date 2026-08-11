@@ -2,82 +2,80 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
+
+	"crm-terceirizados/internal/database"
+	"crm-terceirizados/internal/middleware"
 )
 
 func (h *Handler) Timer(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		h.jsonError(w, "method not allowed", 405)
+		h.jsonError(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	var input struct {
 		Action    string `json:"action"`
 		ServiceID string `json:"serviceId"`
+		Notes     string `json:"notes"`
 	}
 	if json.NewDecoder(r.Body).Decode(&input) != nil {
-		h.jsonError(w, "invalid json", 400)
+		h.jsonError(w, "invalid json", http.StatusBadRequest)
 		return
 	}
 
-	timer, err := h.db.GetTimerState()
-	if err != nil {
-		h.jsonError(w, "database error", 500)
+	user, ok := middleware.CurrentUser(r)
+	if !ok || user.ProfessionalID == "" {
+		h.jsonError(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 
+	now := time.Now()
 	switch input.Action {
 	case "start":
-		if timer.Active {
-			h.jsonError(w, "timer already active", 409)
-			return
-		}
-
-		options, err := h.db.GetActiveOptions()
+		timer, execution, err := h.db.StartExecution(user.ProfessionalID, input.ServiceID, now)
 		if err != nil {
-			h.jsonError(w, "database error", 500)
+			h.executionError(w, err)
 			return
 		}
-
-		found := false
-		for _, opt := range options {
-			if opt.ID == input.ServiceID {
-				found = true
-				break
-			}
-		}
-		if !found {
-			h.jsonError(w, "service not found", 404)
-			return
-		}
-
-		now := time.Now()
-		err = h.db.StartTimer(input.ServiceID, now)
+		h.jsonResponse(w, map[string]any{"timer": timer, "execution": execution})
+	case "pause", "stop":
+		timer, err := h.db.PauseExecution(user.ProfessionalID, now)
 		if err != nil {
-			h.jsonError(w, "database error", 500)
+			h.executionError(w, err)
 			return
 		}
-		timer.Active = true
-		timer.ServiceID = input.ServiceID
-		timer.StartedAt = now
-
-	case "stop":
-		if timer.Active {
-			additional := int64(time.Since(timer.StartedAt).Seconds())
-			newElapsed := timer.ElapsedSeconds + additional
-			err = h.db.StopTimer(newElapsed)
-			if err != nil {
-				h.jsonError(w, "database error", 500)
-				return
-			}
-			timer.Active = false
-			timer.ElapsedSeconds = newElapsed
+		h.jsonResponse(w, map[string]any{"timer": timer})
+	case "resume":
+		timer, err := h.db.ResumeExecution(user.ProfessionalID, now)
+		if err != nil {
+			h.executionError(w, err)
+			return
 		}
+		h.jsonResponse(w, map[string]any{"timer": timer})
+	case "finish":
+		execution, err := h.db.FinishExecution(user.ProfessionalID, input.Notes, now)
+		if err != nil {
+			h.executionError(w, err)
+			return
+		}
+		h.jsonResponse(w, map[string]any{"execution": execution, "timer": map[string]any{"active": false}})
 	default:
-		h.jsonError(w, "invalid action", 400)
-		return
+		h.jsonError(w, "invalid action", http.StatusBadRequest)
 	}
+}
 
-	h.jsonResponse(w, timer)
+func (h *Handler) executionError(w http.ResponseWriter, err error) {
+	switch {
+	case errors.Is(err, database.ErrExecutionNotFound):
+		h.jsonError(w, "execution or service not found", http.StatusNotFound)
+	case errors.Is(err, database.ErrExecutionActive):
+		h.jsonError(w, "execution already active", http.StatusConflict)
+	case errors.Is(err, database.ErrExecutionState):
+		h.jsonError(w, "invalid execution state", http.StatusConflict)
+	default:
+		h.jsonError(w, "database error", http.StatusInternalServerError)
+	}
 }

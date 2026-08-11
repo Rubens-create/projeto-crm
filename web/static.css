@@ -30,8 +30,8 @@
 }
 
 .timer-button.circular {
-  width: 96px;
-  height: 96px;
+  width: 240px;
+  height: 240px;
   border-radius: 50%;
   border: 0;
   background: linear-gradient(135deg, #f282af 0%, #d86295 100%);
@@ -62,8 +62,8 @@
 }
 
 .timer-button.circular svg {
-  width: 38px;
-  height: 38px;
+  width: 92px;
+  height: 92px;
   stroke-width: 2.2;
 }
 
@@ -550,8 +550,9 @@
     transition: transform 0.2s ease;
   }
   .bottom-nav-item.active {
-    color: var(--pink-dark);
-    background: #fdf0f4;
+    color: rgb(255, 255, 255) !important;
+    box-shadow: none !important;
+    background: var(--pink-strong) !important;
   }
   .bottom-nav-item.active svg {
     transform: scale(1.1);
@@ -577,7 +578,7 @@
 .live-earnings-container {
   display: none;
   background: #fff8fa;
-  border: 1px solid #f6dbe6;
+  border: 0;
   border-radius: 14px;
   padding: 14px;
   margin: 18px 0 12px;
@@ -631,7 +632,7 @@
   height: 70px;
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.65);
 }
 
@@ -639,6 +640,7 @@
   width: 100%;
   height: 100%;
   display: block;
+  border-radius: 0;
 }
 
 #chartDot {
@@ -2418,5 +2420,209 @@ button.nav-item,
   font-size: 14px !important;
   font-weight: 600 !important;
   letter-spacing: -0.1px;
+}
+
+/* Provider service details: keep this modal a mobile bottom sheet, separate from admin forms. */
+@media (max-width: 768px) {
+  #serviceModal.modal-backdrop {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    visibility: hidden;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  #serviceModal.modal-backdrop.open {
+    display: flex;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  #serviceModal .modal-card {
+    width: 100%;
+    max-width: none;
+    max-height: min(90dvh, calc(100dvh - env(safe-area-inset-top)));
+    margin: 0;
+    border-radius: 24px 24px 0 0;
+    transform: translateY(100%);
+  }
+
+  #serviceModal.open .modal-card {
+    transform: translateY(0);
+  }
+
+  #serviceModal .modal-body {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Dedicated login surface: avoids inherited admin panel and brand spacing. */
+.login-page-body {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-main {
+  width: min(100%, 440px);
+  position: relative;
+  z-index: 1;
+}
+
+.login-card {
+  background: rgba(30, 24, 38, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(16px);
+}
+
+.login-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+  margin-bottom: 30px;
+}
+
+.login-brand strong {
+  display: block;
+  color: #fff;
+  font: 700 22px Outfit, Georgia, serif;
+  letter-spacing: -0.5px;
+}
+
+.login-brand small {
+  display: block;
+  color: #a59caa;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.login-intro .eyebrow { color: #f282af; margin: 0 0 8px; }
+.login-intro h1 { color: #fff; font: 800 30px Outfit, sans-serif; margin: 0 0 10px; }
+.login-intro .subtitle { color: #b8b0bd; line-height: 1.5; margin: 0; }
+
+.login-form {
+  display: grid;
+  gap: 9px;
+  margin-top: 26px;
+}
+
+.login-form label {
+  color: #d8d1dc;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 5px;
+}
+
+.login-form input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  outline: none;
+  padding: 13px 14px;
+}
+
+.login-form input::placeholder { color: #8f8797; }
+.login-form input:focus { border-color: #f282af; box-shadow: 0 0 0 3px rgba(242, 130, 175, 0.16); }
+.login-form #loginError { min-height: 18px; margin: 6px 0 0; color: #ff9dbc; font-size: 12px; }
+.login-form .primary { width: 100%; justify-content: center; min-height: 46px; margin-top: 8px; }
+
+@media (max-width: 480px) {
+  .login-page-body { padding: 16px; }
+  .login-card { padding: 26px 22px; border-radius: 20px; }
+  .login-intro h1 { font-size: 27px; }
+}
+
+/* Light visual system shared by the landing page and login. */
+.landing-page-body {
+  background: #fcfbfc;
+  color: #332e36;
+}
+
+.landing-background-glow {
+  background: radial-gradient(circle, rgba(242, 130, 175, 0.2) 0%, rgba(196, 130, 242, 0.1) 42%, rgba(252, 251, 252, 0) 72%);
+}
+
+.landing-brand strong,
+.landing-hero h1,
+.features-header h2,
+.portal-content h3,
+.feature-card h3 { color: #332e36; }
+.landing-brand small { color: #817885; }
+.landing-nav-link { color: #655d68; }
+.landing-nav-link:hover { color: #332e36; background: #f7f0f4; }
+.landing-btn-header { background: #fff; border-color: #f2c4d6; color: #b44676; }
+.landing-subtitle, .features-header p { color: #746b78; }
+.portal-card, .feature-card { background: #fff; border-color: #eee4ea; box-shadow: 0 12px 32px rgba(61, 42, 58, 0.06); }
+.portal-card:hover { box-shadow: 0 18px 38px rgba(61, 42, 58, 0.12); }
+.portal-content p, .feature-card p { color: #746b78; }
+.landing-hero-badge { background: #fff5f8; border-color: #f4d8e4; color: #b44676; }
+.landing-footer { border-color: #eee7eb; color: #817885; }
+
+.login-card {
+  background: #fff;
+  border-color: #eee4ea;
+  box-shadow: 0 24px 60px rgba(61, 42, 58, 0.1);
+}
+.login-brand strong, .login-intro h1 { color: #332e36; }
+.login-brand small, .login-intro .subtitle { color: #746b78; }
+.login-form label { color: #514954; }
+.login-form input { background: #fff; border-color: #e4dce4; color: #332e36; }
+.login-form input::placeholder { color: #aaa1ac; }
+
+/* Reusable in-app notification, replacing browser-native alerts. */
+.zygg-notice-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(36, 27, 38, 0.32);
+  backdrop-filter: blur(5px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.zygg-notice-backdrop.open { opacity: 1; }
+
+.zygg-notice-card {
+  width: min(100%, 420px);
+  background: #fff;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 20px 52px rgba(47, 34, 44, 0.22);
+  text-align: center;
+  transform: translateY(24px);
+  transition: transform 0.25s ease;
+}
+
+.zygg-notice-backdrop.open .zygg-notice-card { transform: translateY(0); }
+.zygg-notice-icon { width: 46px; height: 46px; margin: 0 auto 12px; border-radius: 50%; display: grid; place-items: center; background: #e9f6ee; color: #3f946f; }
+.zygg-notice-icon svg { width: 25px; height: 25px; }
+.zygg-notice-card h2 { margin: 0; color: #332e36; font-size: 21px; }
+.zygg-notice-card > p { margin: 7px 0 18px; color: #746b78; font-size: 13px; }
+.zygg-notice-details { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 12px; margin: 0 0 20px; padding: 14px; text-align: left; background: #fdf8fa; border-radius: 13px; }
+.zygg-notice-details dt { color: #8b818d; font-size: 11px; }
+.zygg-notice-details dd { margin: 0; color: #332e36; font-size: 12px; font-weight: 700; text-align: right; }
+.zygg-notice-card .primary { width: 100%; justify-content: center; min-height: 44px; }
+
+@media (min-width: 769px) {
+  .zygg-notice-backdrop { align-items: center; }
+  .zygg-notice-card { transform: scale(0.96); }
+  .zygg-notice-backdrop.open .zygg-notice-card { transform: scale(1); }
 }
 

@@ -8,7 +8,9 @@ let allOptions = [];
 
 const display = document.querySelector('#timerDisplay');
 const select = document.querySelector('#serviceSelect');
+const selectedServiceLabel = document.querySelector('#selectedServiceLabel');
 const button = document.querySelector('#timerButton');
+const finishButton = document.querySelector('#finishExecutionButton');
 
 function elapsedExact() {
   if (!timerState.active) return timerState.elapsedSeconds;
@@ -24,6 +26,12 @@ function formatTime(seconds) {
   const s = String(totalSec % 60).padStart(2, '0');
   const ms = String(Math.floor((seconds % 1) * 100)).padStart(2, '0');
   return `${h}:${m}:${s}.${ms}`;
+}
+
+function updateSelectedServiceLabel() {
+  if (!selectedServiceLabel) return;
+  const option = allOptions.find(item => item.id === (select.value || timerState.serviceId));
+  selectedServiceLabel.textContent = option ? `${option.name} · ${money(option.rate)}/h` : 'Selecione um serviço na aba Serviços';
 }
 
 function getSelectedRate() {
@@ -48,13 +56,15 @@ function updateLiveChart(secExact, rate) {
   document.querySelector('#liveRateBadge').innerHTML = `<i data-lucide="zap"></i> ${money(rate)}/h`;
 
   // Desenhar curva dinâmica em tempo real (milissegundos)
-  const width = 300;
+  const chartWidth = 300;
+  const width = 288;
+  const xOffset = 6;
   const height = 70;
   const steps = 12;
   const points = [];
 
   for (let i = 0; i <= steps; i++) {
-    const x = (width / steps) * i;
+    const x = xOffset + (width / steps) * i;
     const tRatio = i / steps;
     const progressRatio = Math.min((secExact * tRatio) / 3600, 1.0);
     const eased = Math.pow(progressRatio, 0.5);
@@ -66,7 +76,7 @@ function updateLiveChart(secExact, rate) {
     return idx === 0 ? `M${p.x},${p.y}` : `${acc} L${p.x},${p.y}`;
   }, '');
 
-  const areaD = `${lineD} L${width},${height} L0,${height} Z`;
+  const areaD = `${lineD} L${chartWidth},${height} L0,${height} Z`;
   const lastPoint = points[points.length - 1];
 
   const lineEl = document.querySelector('#chartLine');
@@ -87,7 +97,11 @@ function renderTimer() {
   const secExact = elapsedExact();
   const rate = getSelectedRate();
   display.textContent = formatTime(secExact);
-  button.disabled = !timerState.active && !select.value;
+  button.disabled = !timerState.executionId && !select.value;
+  if (finishButton) {
+    finishButton.hidden = !(timerState.executionId || select.value);
+    finishButton.disabled = !timerState.executionId;
+  }
 
   if (lastRenderedActive !== timerState.active) {
     lastRenderedActive = timerState.active;
@@ -153,6 +167,16 @@ async function load() {
     timerState = data.timer;
     allOptions = data.options.filter(o => o.active);
 
+    if (data.professional) {
+      const firstName = (data.professional.name || '').split(' ')[0];
+      const heading = document.querySelector('.provider-heading h1');
+      const userName = document.querySelector('.provider-user strong');
+      const avatar = document.querySelector('.provider-user .avatar');
+      if (heading && firstName) heading.textContent = `Olá, ${firstName}`;
+      if (userName && firstName) userName.textContent = firstName;
+      if (avatar && data.professional.name) avatar.textContent = data.professional.name.split(' ').map(part => part[0]).slice(0, 2).join('');
+    }
+
     document.querySelector('#totalHours').textContent = data.totalHours.toFixed(1).replace('.', ',') + 'h';
     document.querySelector('#totalEarned').textContent = money(data.totalEarned);
     document.querySelector('#todayEarned').textContent = money(data.todayEarned);
@@ -160,6 +184,7 @@ async function load() {
     select.innerHTML = '<option value="">Selecione um serviço</option>' +
       allOptions.map(o => `<option value="${o.id}">${o.name} · ${money(o.rate)}/h</option>`).join('');
     select.value = timerState.serviceId;
+    updateSelectedServiceLabel();
 
     document.querySelector('#serviceOptions').innerHTML = allOptions.map(o => `
       <article class="service-card-airbnb" data-id="${o.id}">
@@ -187,6 +212,12 @@ async function load() {
       card.onclick = () => openServiceModal(option);
     });
 
+    const history = document.querySelector('#executionsList');
+    if (history) history.innerHTML = (data.executions || []).map(execution => `
+      <div class="professional-cell" style="padding:10px 0;border-bottom:1px solid var(--line);">
+        <div><strong>${execution.serviceName}</strong><small>${new Date(execution.startedAt).toLocaleDateString('pt-BR')} · ${formatTime(execution.durationSeconds).slice(0, 8)} · ${money(execution.totalValueCents / 100)} · ${execution.status}</small></div>
+      </div>`).join('') || '<small>Nenhum serviço executado ainda.</small>';
+
     if (timerState.active && !tick) {
       tick = setInterval(renderTimer, 30);
     }
@@ -201,7 +232,7 @@ async function load() {
 select.addEventListener('change', renderTimer);
 
 button.addEventListener('click', async () => {
-  const action = timerState.active ? 'stop' : 'start';
+  const action = timerState.executionId ? (timerState.active ? 'pause' : 'resume') : 'start';
   const body = action === 'start' ? { action, serviceId: select.value } : { action };
   const response = await fetch('/api/provider/timer', {
     method: 'POST',
@@ -209,14 +240,34 @@ button.addEventListener('click', async () => {
     body: JSON.stringify(body)
   });
   if (!response.ok) return;
-  timerState = await response.json();
+  const payload = await response.json();
+  timerState = payload.timer;
   if (timerState.active && !tick) tick = setInterval(renderTimer, 30);
   if (!timerState.active) {
     clearInterval(tick);
     tick = null;
-    load();
   }
   renderTimer();
+});
+
+if (finishButton) finishButton.addEventListener('click', async () => {
+  const response = await fetch('/api/provider/timer', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'finish' })
+  });
+  if (!response.ok) return;
+  const payload = await response.json();
+  const execution = payload.execution;
+  window.zyggNotify({
+    title: 'Serviço concluído',
+    message: execution.serviceName || 'A execução foi registrada com sucesso.',
+    details: [
+      { label: 'Duração', value: formatTime(execution.durationSeconds).slice(0, 8) },
+      { label: 'Tarifa', value: `${money(execution.hourlyRateCents / 100)}/h` },
+      { label: 'Total', value: money(execution.totalValueCents / 100) }
+    ]
+  });
+  clearInterval(tick); tick = null;
+  await load();
 });
 
 document.querySelectorAll('.bottom-nav-item').forEach(b => {
@@ -238,6 +289,7 @@ if (selectBtn) {
   selectBtn.onclick = () => {
     if (currentSelectedOption) {
       select.value = currentSelectedOption.id;
+      updateSelectedServiceLabel();
       closeServiceModal();
       switchTab('timer');
       renderTimer();

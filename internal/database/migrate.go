@@ -36,6 +36,7 @@ func (d *DB) Migrate() error {
 			started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			elapsed_seconds BIGINT NOT NULL DEFAULT 0
 		);`,
+
 		`CREATE TABLE IF NOT EXISTS professionals (
 			id VARCHAR(50) PRIMARY KEY,
 			name VARCHAR(255) NOT NULL,
@@ -82,6 +83,60 @@ func (d *DB) Migrate() error {
 			log.Printf("Aviso migração: %v", err)
 		}
 	}
+
+	authQueries := []string{
+		`CREATE TABLE IF NOT EXISTS users (
+			id VARCHAR(64) PRIMARY KEY,
+			email VARCHAR(255) NOT NULL UNIQUE,
+			password_hash TEXT NOT NULL,
+			role VARCHAR(20) NOT NULL,
+			professional_id VARCHAR(50) UNIQUE,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (professional_id) REFERENCES professionals(id)
+		);`,
+		`CREATE TABLE IF NOT EXISTS user_sessions (
+			id VARCHAR(64) PRIMARY KEY,
+			user_id VARCHAR(64) NOT NULL,
+			expires_at TIMESTAMP NOT NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (user_id) REFERENCES users(id)
+		);`,
+		`CREATE TABLE IF NOT EXISTS provider_timer_state (
+			professional_id VARCHAR(50) PRIMARY KEY,
+			active BOOLEAN NOT NULL DEFAULT FALSE,
+			service_id VARCHAR(50) NOT NULL DEFAULT '',
+			execution_id VARCHAR(64) NOT NULL DEFAULT '',
+			started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			paused_at TIMESTAMP NULL,
+			elapsed_seconds BIGINT NOT NULL DEFAULT 0,
+			FOREIGN KEY (professional_id) REFERENCES professionals(id)
+		);`,
+		`CREATE TABLE IF NOT EXISTS service_executions (
+			id VARCHAR(64) PRIMARY KEY,
+			service_id VARCHAR(50) NOT NULL,
+			professional_id VARCHAR(50) NOT NULL,
+			client_id VARCHAR(50) NULL,
+			started_at TIMESTAMP NOT NULL,
+			finished_at TIMESTAMP NULL,
+			duration_seconds BIGINT NOT NULL DEFAULT 0,
+			hourly_rate_cents BIGINT NOT NULL,
+			total_value_cents BIGINT NOT NULL DEFAULT 0,
+			status VARCHAR(20) NOT NULL,
+			notes TEXT NOT NULL DEFAULT '',
+			payment_id VARCHAR(50) NULL,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (service_id) REFERENCES service_options(id),
+			FOREIGN KEY (professional_id) REFERENCES professionals(id),
+			FOREIGN KEY (client_id) REFERENCES clients(id)
+		);`,
+	}
+	for _, q := range authQueries {
+		if _, err := d.conn.Exec(q); err != nil {
+			return err
+		}
+	}
+	// Existing installations already have provider_timer_state without execution_id.
+	_, _ = d.conn.Exec("ALTER TABLE provider_timer_state ADD COLUMN execution_id VARCHAR(64) NOT NULL DEFAULT ''")
 
 	return nil
 }

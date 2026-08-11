@@ -50,16 +50,16 @@ async function updateReportView(type) {
     const data = await res.json();
 
     if (data.stats) {
-      const s1 = document.querySelector('#totalServices');
+      const s1 = document.querySelector('#repTotalServices');
       if (s1) s1.textContent = data.stats.totalServices;
       
-      const s2 = document.querySelector('#totalHours');
+      const s2 = document.querySelector('#repTotalHours');
       if (s2) s2.textContent = (data.stats.totalHours || 0).toFixed(1).replace('.', ',') + 'h';
       
-      const s3 = document.querySelector('#totalRevenue');
+      const s3 = document.querySelector('#repTotalRevenue');
       if (s3) s3.textContent = money(data.stats.totalRevenue || 0);
       
-      const s4 = document.querySelector('#totalPayouts');
+      const s4 = document.querySelector('#repTotalPayouts');
       if (s4) s4.textContent = money(data.stats.totalPayouts || 0);
     }
 

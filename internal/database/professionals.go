@@ -28,6 +28,13 @@ func (d *DB) CreateProfessional(p model.Professional) error {
 	return err
 }
 
+func (d *DB) GetProfessionalByID(id string) (model.Professional, error) {
+	var p model.Professional
+	err := d.conn.QueryRow("SELECT id, name, email, phone, specialty, rate, hours, earned, active FROM professionals WHERE id = $1", id).
+		Scan(&p.ID, &p.Name, &p.Email, &p.Phone, &p.Specialty, &p.Rate, &p.Hours, &p.Earned, &p.Active)
+	return p, err
+}
+
 func (d *DB) ToggleProfessionalActive(id string) error {
 	_, err := d.conn.Exec("UPDATE professionals SET active = NOT active WHERE id = $1", id)
 	return err
