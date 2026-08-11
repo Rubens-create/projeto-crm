@@ -73,7 +73,7 @@ function openEditModal(id) {
   document.querySelector('#editServiceLivingRooms').value = service.livingRooms || 1;
   document.querySelector('#editServiceSqm').value = service.sqm || 45;
 
-  const imgSrc = service.image || '/assets/loft.jpg';
+  const imgSrc = service.image || '';
   const imgInput = document.querySelector('#editServiceImage');
   if (imgInput) imgInput.value = imgSrc;
 
@@ -108,7 +108,7 @@ function render() {
     <tr>
       <td>
         <div class="professional-cell">
-          <img src="${s.image || '/assets/loft.jpg'}" alt="${s.name}" style="width:36px;height:36px;border-radius:10px;object-fit:cover;flex:none;">
+          <img src="${s.image || ''}" alt="${s.name}" style="width:36px;height:36px;border-radius:10px;object-fit:cover;flex:none;">
           <div>
             <strong>${s.name}</strong>
             <small>ID: ${s.id}</small>

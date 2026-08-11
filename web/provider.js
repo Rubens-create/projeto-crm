@@ -139,7 +139,7 @@ function switchTab(tabName) {
 
 function openServiceModal(option) {
   currentSelectedOption = option;
-  document.querySelector('#modalImg').src = option.image || '/assets/loft.jpg';
+  document.querySelector('#modalImg').src = option.image || '';
   document.querySelector('#modalTitle').textContent = option.name;
   document.querySelector('#modalDesc').textContent = option.description;
   document.querySelector('#modalRate').textContent = money(option.rate);

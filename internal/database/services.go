@@ -3,7 +3,7 @@ package database
 import "crm-terceirizados/internal/model"
 
 func (d *DB) GetActiveOptions() ([]model.ServiceOption, error) {
-	rows, err := d.conn.Query("SELECT id, name, description, rate, active, COALESCE(bedrooms, 1), COALESCE(bathrooms, 1), COALESCE(living_rooms, 1), COALESCE(sqm, 45), COALESCE(rooms, '3 cômodos'), COALESCE(image, '/assets/loft.jpg'), COALESCE(est_time, '2.5h') FROM service_options WHERE active = true ORDER BY id ASC")
+	rows, err := d.conn.Query("SELECT id, name, description, rate, active, COALESCE(bedrooms, 1), COALESCE(bathrooms, 1), COALESCE(living_rooms, 1), COALESCE(sqm, 45), COALESCE(rooms, '3 cômodos'), COALESCE(image, ''), COALESCE(est_time, '2.5h') FROM service_options WHERE active = true ORDER BY id ASC")
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +21,7 @@ func (d *DB) GetActiveOptions() ([]model.ServiceOption, error) {
 }
 
 func (d *DB) GetAllOptions() ([]model.ServiceOption, error) {
-	rows, err := d.conn.Query("SELECT id, name, description, rate, active, COALESCE(bedrooms, 1), COALESCE(bathrooms, 1), COALESCE(living_rooms, 1), COALESCE(sqm, 45), COALESCE(rooms, '3 cômodos'), COALESCE(image, '/assets/loft.jpg'), COALESCE(est_time, '2.5h') FROM service_options ORDER BY id ASC")
+	rows, err := d.conn.Query("SELECT id, name, description, rate, active, COALESCE(bedrooms, 1), COALESCE(bathrooms, 1), COALESCE(living_rooms, 1), COALESCE(sqm, 45), COALESCE(rooms, '3 cômodos'), COALESCE(image, ''), COALESCE(est_time, '2.5h') FROM service_options ORDER BY id ASC")
 	if err != nil {
 		return nil, err
 	}

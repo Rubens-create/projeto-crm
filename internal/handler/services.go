@@ -74,7 +74,7 @@ func (h *Handler) AdminServices(w http.ResponseWriter, r *http.Request) {
 			}
 			newID := "OPT-" + time.Now().Format("150405")
 			if payload.Image == "" {
-				payload.Image = "/assets/loft.jpg"
+				payload.Image = ""
 			}
 			if payload.EstTime == "" {
 				payload.EstTime = "2.5h"
