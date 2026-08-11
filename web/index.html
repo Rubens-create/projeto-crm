@@ -3,112 +3,70 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Zygg | Gestão de Serviços de Limpeza Airbnb</title>
+  <meta name="description" content="Zygg centraliza serviços, prestadores, clientes, tempo e repasses para operações de limpeza.">
+  <title>Zygg | Gestão inteligente para operações de limpeza</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static.css">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="landing-page-body">
-  <div class="landing-background-glow"></div>
-
-  <header class="landing-header">
-    <div class="landing-brand">
-      <span class="landing-mark">Z</span>
-      <div>
-        <strong>zygg</strong>
-        <small>gestão de serviços airbnb</small>
-      </div>
-    </div>
-    <div class="landing-top-nav">
-      <a href="/prestador" class="landing-nav-link"><i data-lucide="smartphone"></i> App Prestador</a>
-      <a href="/admin/servicos" class="landing-btn-header"><i data-lucide="shield-check"></i> Painel Admin</a>
-    </div>
+<body class="landing-page-body zygg-landing">
+  <header class="zygg-nav" id="topo">
+    <a class="zygg-brand" href="#topo" aria-label="Zygg, início"><span class="zygg-brand-mark">Z</span><span>zygg</span></a>
+    <button class="zygg-menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false"><i data-lucide="menu"></i></button>
+    <nav class="zygg-nav-links" aria-label="Navegação principal">
+      <a href="#produto">Produto</a><a href="#recursos">Recursos</a><a href="#como-funciona">Como funciona</a><a href="#beneficios">Benefícios</a>
+    </nav>
+    <div class="zygg-nav-actions"><a class="zygg-login-link" href="/login">Entrar</a><a class="zygg-button zygg-button-small" href="/login">Começar <i data-lucide="arrow-up-right"></i></a></div>
   </header>
 
-  <main class="landing-main">
-    <!-- HERO SECTION -->
-    <section class="landing-hero">
-      <span class="landing-hero-badge">
-        <i data-lucide="sparkles"></i> Plataforma Inteligente para Limpeza Airbnb
-      </span>
-
-      <h1>
-        Gestão de Limpezas para <span class="gradient-text">Airbnb & Curto Prazo</span>
-      </h1>
-
-      <p class="landing-subtitle">
-        Controle tempo, equipes e tarifas por hora em tempo real. A solução definitiva para manter suas propriedades impecáveis entre check-outs.
-      </p>
-
-      <!-- PORTAIS DE ACESSO -->
-      <div class="landing-portals-grid">
-        <a href="/prestador" class="portal-card mobile-portal">
-          <div class="portal-icon">
-            <i data-lucide="smartphone"></i>
+  <main>
+    <section class="zygg-hero zygg-section" id="produto">
+      <div class="zygg-hero-copy zygg-reveal">
+        <p class="zygg-kicker"><span></span> Plataforma para operações de serviços</p>
+        <h1>Gestão inteligente<br>para operações<br><em>de limpeza.</em></h1>
+        <p class="zygg-lead">Controle serviços, prestadores, clientes, tempo e repasses em um único lugar — com visão clara da sua operação todos os dias.</p>
+        <div class="zygg-hero-actions"><a class="zygg-button" href="#recursos">Conhecer o Zygg <i data-lucide="arrow-down-right"></i></a><a class="zygg-text-link" href="/login">Acessar sistema <i data-lucide="arrow-up-right"></i></a></div>
+      </div>
+      <div class="zygg-dashboard-stage zygg-reveal" aria-label="Prévia do dashboard Zygg">
+        <div class="zygg-window-bar"><span></span><span></span><span></span><b>zygg / visão geral</b><i data-lucide="bell"></i></div>
+        <div class="zygg-dashboard-shell">
+          <aside><div class="zygg-mini-logo">Z</div><i data-lucide="layout-dashboard"></i><i data-lucide="briefcase-business"></i><i data-lucide="users"></i><i data-lucide="chart-no-axes-combined"></i></aside>
+          <div class="zygg-dashboard-content"><div class="zygg-dashboard-title"><div><small>OPERAÇÃO · AGOSTO</small><strong>Bom dia, Marina</strong></div><span>Atualizado agora</span></div>
+            <div class="zygg-stat-row"><div><small>Serviços hoje</small><b>24</b><em>+12%</em></div><div><small>Em andamento</small><b>06</b><em>ao vivo</em></div><div><small>Repasses pendentes</small><b>R$ 1.640</b><em>este mês</em></div></div>
+            <div class="zygg-dashboard-grid"><div class="zygg-graph-card"><div><strong>Visão financeira</strong><span>Últimos 7 dias</span></div><svg viewBox="0 0 420 150" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="heroGraph" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e86694" stop-opacity=".3"/><stop offset="1" stop-color="#e86694" stop-opacity="0"/></linearGradient></defs><path d="M0,125 L55,105 L110,112 L165,77 L220,90 L275,47 L330,58 L420,20 L420,150 L0,150Z" fill="url(#heroGraph)"/><path d="M0,125 L55,105 L110,112 L165,77 L220,90 L275,47 L330,58 L420,20" fill="none" stroke="#e86694" stroke-width="4"/><circle cx="420" cy="20" r="6" fill="#e86694"/></svg></div><div class="zygg-live-mini"><span>● AO VIVO</span><b>02:34:18</b><small>Apartamento Centro</small><div><i data-lucide="timer"></i> João Silva</div></div></div>
           </div>
-          <div class="portal-content">
-            <span class="portal-tag">Mobile First</span>
-            <h3>Área do Prestador</h3>
-            <p>Cronômetro ao vivo em milissegundos, seleção de imóveis e checklist de higienização.</p>
-            <span class="portal-link">Acessar no Celular <i data-lucide="arrow-right"></i></span>
-          </div>
-        </a>
-
-        <a href="/admin/servicos" class="portal-card admin-portal">
-          <div class="portal-icon">
-            <i data-lucide="layout-dashboard"></i>
-          </div>
-          <div class="portal-content">
-            <span class="portal-tag admin">PostgreSQL 18</span>
-            <h3>Painel Administrativo</h3>
-            <p>Gerencie o catálogo de imóveis, tarifas por hora e controle a visibilidade dos serviços.</p>
-            <span class="portal-link">Gerenciar Serviços <i data-lucide="arrow-right"></i></span>
-          </div>
-        </a>
+        </div>
       </div>
     </section>
 
-    <!-- RECURSOS DA PLATAFORMA -->
-    <section class="landing-features">
-      <div class="features-header">
-        <h2>Por que escolher a Zygg?</h2>
-        <p>Tecnologia desenvolvida sob medida para empresas de limpeza terceirizada e anfitriões Airbnb.</p>
-      </div>
+    <section class="zygg-proof zygg-section"><p>Uma operação organizada não depende de planilhas soltas.</p><div><span>Serviços</span><span>Prestadores</span><span>Clientes</span><span>Repasses</span><span>Relatórios</span></div></section>
 
-      <div class="features-grid">
-        <article class="feature-card">
-          <div class="feature-icon pink"><i data-lucide="timer"></i></div>
-          <h3>Cronômetro ao Vivo por Milissegundos</h3>
-          <p>Acompanhamento dinâmico do tempo e valor acumulado do atendimento vinculado à tarifa da propriedade.</p>
-        </article>
+    <section class="zygg-section zygg-product-intro zygg-reveal"><p class="zygg-kicker"><span></span> Uma operação, uma visão</p><div><h2>O que acontece no campo<br>chega ao seu <em>controle.</em></h2><p>O Zygg reúne as partes críticas da sua operação em uma visão simples de entender e fácil de agir.</p></div></section>
 
-        <article class="feature-card">
-          <div class="feature-icon lilac"><i data-lucide="home"></i></div>
-          <h3>Estrutura Detalhada de Imóveis</h3>
-          <p>Cadastro completo com quantidade de quartos, banheiros, salas e metragem em m² para precificação justa.</p>
-        </article>
-
-        <article class="feature-card">
-          <div class="feature-icon peach"><i data-lucide="eye-off"></i></div>
-          <h3>Controle de Visibilidade Instantânea</h3>
-          <p>Ative ou desative serviços no catálogo Admin com sincronização em tempo real no aplicativo do prestador.</p>
-        </article>
-
-        <article class="feature-card">
-          <div class="feature-icon green"><i data-lucide="database"></i></div>
-          <h3>Persistência em PostgreSQL 18</h3>
-          <p>Banco de dados relacional robusto com histórico operacional completo e segurança para sua empresa.</p>
-        </article>
-      </div>
+    <section class="zygg-feature-grid zygg-section" id="recursos">
+      <article class="zygg-tile zygg-tile-services zygg-reveal"><div class="zygg-tile-heading"><span>01 / Serviços</span><h3>Gestão centralizada de cada imóvel.</h3><p>Cadastre serviços, tarifas e informações operacionais sem perder contexto.</p></div><div class="zygg-service-list"><div><i data-lucide="building-2"></i><span>Apartamento Centro</span><b>Ativo</b></div><div><i data-lucide="house"></i><span>Loft Jardins</span><b>Ativo</b></div><div><img src="/assets/assets/studio.jpg" alt="Interior do Studio Pinheiros"><span>Studio Pinheiros</span><b>Ativo</b></div></div></article>
+      <article class="zygg-tile zygg-tile-timer zygg-reveal"><div class="zygg-tile-heading"><span>02 / Timer</span><h3>O tempo trabalhado, sem adivinhação.</h3></div><div class="zygg-orbit"><span>02:34:18</span><small>EM ANDAMENTO</small></div><p>O prestador inicia, pausa e finaliza pelo celular. O registro vira histórico.</p></article>
+      <article class="zygg-tile zygg-tile-provider zygg-reveal"><div class="zygg-tile-heading"><span>03 / Prestadores</span><h3>Equipe informada. Gestão mais leve.</h3><p>Disponibilidade, histórico e ganhos visíveis no momento certo.</p></div><div class="zygg-provider-stack"><div><span>JS</span><b>João Silva<small>Em serviço agora</small></b><i data-lucide="more-horizontal"></i></div><div><span>MC</span><b>Marina Costa<small>Disponível</small></b><i data-lucide="more-horizontal"></i></div></div></article>
+      <article class="zygg-tile zygg-tile-reports zygg-reveal"><div class="zygg-tile-heading"><span>04 / Relatórios</span><h3>Dados operacionais que viram decisão.</h3><p>Horas, serviços, faturamento e repasses em uma só leitura.</p></div><div class="zygg-bar-chart"><i style="height:36%"></i><i style="height:58%"></i><i style="height:43%"></i><i style="height:79%"></i><i style="height:66%"></i><i style="height:94%"></i><span>semana operacional</span></div></article>
+      <article class="zygg-tile zygg-tile-payout zygg-reveal"><div class="zygg-payout-copy"><span>05 / Repasses</span><h3>R$ 8.420<small>este mês</small></h3><p><b>✓ R$ 6.780</b> pagos</p><p><b class="pending">○ R$ 1.640</b> pendentes</p></div><div class="zygg-payout-ring"><span>81<small>%</small></span></div></article>
+      <article class="zygg-tile zygg-tile-client zygg-reveal"><span>06 / Clientes</span><i data-lucide="contact-round"></i><h3>Todos os clientes e imóveis, no mesmo lugar.</h3><p>Menos busca. Mais contexto para atender melhor.</p></article>
     </section>
+
+    <section class="zygg-operation-section zygg-section zygg-reveal"><div class="zygg-operation-copy"><p class="zygg-kicker"><span></span> Operação em tempo real</p><h2>Você sabe exatamente<br>o que está <em>acontecendo.</em></h2><p>Do início de uma limpeza ao valor do repasse, o Zygg acompanha a operação sem transformar sua rotina em mais trabalho.</p><a class="zygg-text-link" href="/login">Ver o sistema <i data-lucide="arrow-up-right"></i></a></div><article class="zygg-operation-card"><header><span>● EM ANDAMENTO</span><i data-lucide="more-horizontal"></i></header><div class="zygg-operation-place"><i data-lucide="building-2"></i><div><strong>Apartamento Centro</strong><small>Limpeza de troca</small></div></div><div class="zygg-operation-person"><span>JS</span><div><strong>João Silva</strong><small>Prestador responsável</small></div></div><div class="zygg-operation-metrics"><div><small>TEMPO</small><b>02:34:18</b></div><div><small>VALOR</small><b>R$ 77,50</b></div></div><footer><span></span> Atualizado em tempo real</footer></article></section>
+
+    <section class="zygg-how-section zygg-section" id="como-funciona"><div class="zygg-section-center zygg-reveal"><p class="zygg-kicker"><span></span> Processo claro</p><h2>Organize. Execute. <em>Controle.</em></h2><p>Uma sequência simples para uma operação que funciona todos os dias.</p></div><div class="zygg-steps"><article class="zygg-reveal"><b>01</b><i data-lucide="plus-circle"></i><h3>Cadastre</h3><p>Imóveis, clientes e tarifas.</p></article><article class="zygg-reveal"><b>02</b><i data-lucide="folders"></i><h3>Organize</h3><p>Os serviços da sua operação.</p></article><article class="zygg-reveal"><b>03</b><i data-lucide="play-circle"></i><h3>Execute</h3><p>O prestador inicia no celular.</p></article><article class="zygg-reveal"><b>04</b><i data-lucide="shield-check"></i><h3>Controle</h3><p>Tempo, valores e repasses.</p></article><article class="zygg-reveal"><b>05</b><i data-lucide="line-chart"></i><h3>Analise</h3><p>Decisões baseadas na operação.</p></article></div></section>
+
+    <section class="zygg-provider-section zygg-section"><div class="zygg-phone-stage zygg-reveal"><div class="zygg-phone"><div class="zygg-phone-top"></div><small>ÁREA DO PRESTADOR</small><h3>Olá, João</h3><div class="zygg-phone-timer"><span>EM ANDAMENTO</span><b>02:34:18</b><small>Loft Jardins · R$ 120/h</small><i data-lucide="pause"></i></div><div class="zygg-phone-earn"><small>GANHOS NESTA SESSÃO</small><b>R$ 77,50</b><svg viewBox="0 0 160 45" aria-hidden="true"><path d="M0,42 L25,34 L50,36 L75,17 L100,24 L125,6 L160,2" fill="none" stroke="#e86694" stroke-width="3"/></svg></div><div class="zygg-phone-nav"><i data-lucide="timer"></i><i data-lucide="wallet-cards"></i><i data-lucide="briefcase-business"></i></div></div></div><div class="zygg-provider-copy zygg-reveal"><p class="zygg-kicker"><span></span> Feito também para quem executa</p><h2>O prestador tem<br>seu próprio <em>espaço.</em></h2><p>Uma experiência mobile simples para selecionar o serviço, registrar tempo, concluir o trabalho e acompanhar seus ganhos.</p><ol><li><b>01</b> Escolha o serviço</li><li><b>02</b> Inicie o timer</li><li><b>03</b> Realize o trabalho</li><li><b>04</b> Finalize e veja seus ganhos</li></ol><a class="zygg-button" href="/prestador">Conhecer área do prestador <i data-lucide="arrow-up-right"></i></a></div></section>
+
+    <section class="zygg-admin-section zygg-section"><div class="zygg-section-center zygg-reveal"><p class="zygg-kicker"><span></span> Centro de comando</p><h2>É aqui que você controla<br>a operação <em>inteira.</em></h2></div><div class="zygg-admin-visual zygg-reveal"><div class="zygg-admin-tabs"><span class="active">Visão geral</span><span>Serviços</span><span>Prestadores</span><span>Relatórios</span></div><div class="zygg-admin-board"><div class="zygg-admin-side"><b>Z</b><i data-lucide="layout-dashboard"></i><i data-lucide="briefcase-business"></i><i data-lucide="users"></i><i data-lucide="chart-no-axes-combined"></i></div><div class="zygg-admin-body"><header><div><small>OPERAÇÃO</small><h3>Visão geral</h3></div><span>08 de agosto, 2026</span></header><div class="zygg-admin-kpis"><div><small>Serviços concluídos</small><b>126</b><em>+18,4%</em></div><div><small>Horas registradas</small><b>342h</b><em>+9,2%</em></div><div><small>Faturamento</small><b>R$ 18.920</b><em>+11,8%</em></div></div><div class="zygg-admin-chart"><div><strong>Volume de serviços</strong><span>Este mês</span></div><svg viewBox="0 0 620 150" preserveAspectRatio="none" aria-hidden="true"><path d="M0,132 L72,119 L144,87 L216,108 L288,64 L360,78 L432,39 L504,61 L620,15" fill="none" stroke="#222128" stroke-width="4"/><path d="M0,132 L72,119 L144,87 L216,108 L288,64 L360,78 L432,39 L504,61 L620,15 L620,150 L0,150Z" fill="#f6eaee"/></svg></div></div></div><div class="zygg-callout zygg-callout-one"><i data-lucide="briefcase-business"></i> Serviços organizados</div><div class="zygg-callout zygg-callout-two"><i data-lucide="wallet-cards"></i> Repasses claros</div><div class="zygg-callout zygg-callout-three"><i data-lucide="users"></i> Equipe conectada</div></div></section>
+
+    <section class="zygg-benefits zygg-section" id="beneficios"><div class="zygg-benefit-heading zygg-reveal"><p class="zygg-kicker"><span></span> Ganhos para a operação</p><h2>Menos ruído.<br>Mais <em>clareza.</em></h2></div><div class="zygg-benefit-grid"><article class="zygg-reveal"><i data-lucide="scan-eye"></i><h3>Mais controle</h3><p>Todas as operações centralizadas.</p></article><article class="zygg-reveal"><i data-lucide="file-down"></i><h3>Menos trabalho manual</h3><p>Reduza planilhas e controles dispersos.</p></article><article class="zygg-reveal"><i data-lucide="badge-check"></i><h3>Mais transparência</h3><p>Saiba o que foi feito e o que deve ser pago.</p></article><article class="zygg-reveal"><i data-lucide="zap"></i><h3>Mais produtividade</h3><p>Equipe trabalhando com processos claros.</p></article><article class="zygg-reveal"><i data-lucide="database-zap"></i><h3>Dados reais</h3><p>Decisões baseadas na operação.</p></article><article class="zygg-reveal"><i data-lucide="move-up-right"></i><h3>Escalabilidade</h3><p>Estrutura preparada para crescer.</p></article></div></section>
+
+    <section class="zygg-cta zygg-section zygg-reveal"><div><p class="zygg-kicker"><span></span> Pronto para organizar</p><h2>Sua operação merece<br>mais <em>controle.</em></h2><p>Centralize serviços, prestadores e resultados em um só lugar.</p></div><a class="zygg-button zygg-button-light" href="/login">Começar agora <i data-lucide="arrow-up-right"></i></a></section>
   </main>
-
-  <footer class="landing-footer">
-    <p>© 2026 Zygg | Gestão de Serviços Terceirizados Airbnb. Todos os direitos reservados.</p>
-  </footer>
-
-  <script>window.addEventListener('load',()=>lucide.createIcons());</script>
+  <footer class="zygg-footer"><a class="zygg-brand" href="#topo"><span class="zygg-brand-mark">Z</span><span>zygg</span></a><p>Gestão inteligente para operações de limpeza.</p><span>© 2026 Zygg</span></footer>
+  <script src="/landing.js"></script><script>window.addEventListener('load', () => lucide.createIcons());</script>
 </body>
 </html>
