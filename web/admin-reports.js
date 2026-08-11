@@ -1,35 +1,5 @@
 const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 }).format(value);
 
-const reportData = {
-  geral: [
-    { name: 'Limpeza Pós Check-out', desc: 'Atendimentos de padrão Airbnb', hours: '82.5h (22 serv.)', rev: 12400, pay: 8250, margin: 4150 },
-    { name: 'Turno Rápido & Troca de Enxoval', desc: 'Preparo urgente para hóspedes', hours: '44.0h (14 serv.)', rev: 7200, pay: 4800, margin: 2400 },
-    { name: 'Higienização Profunda', desc: 'Manutenção mensal e detalhada', hours: '60.0h (12 serv.)', rev: 12661.10, pay: 9330, margin: 3331.10 }
-  ],
-  prestador: [
-    { name: 'Marina Costa', desc: 'Especialista Pós Check-out & Enxoval', hours: '68.5h (18 serv.)', rev: 11800, pay: 8220, margin: 3580 },
-    { name: 'Beatriz Lima', desc: 'Limpeza Geral Pós Hospedagem', hours: '62.0h (16 serv.)', rev: 10400, pay: 7440, margin: 2960 },
-    { name: 'Rafael Mendes', desc: 'Turno Rápido Roupas & Banheiros', hours: '56.0h (14 serv.)', rev: 10061.10, pay: 6720, margin: 3341.10 }
-  ],
-  cliente: [
-    { name: 'Dra. Camila Rocha', desc: 'Loft Jardins & Apt Paulista', hours: '72.0h (18 serv.)', rev: 13400, pay: 8640, margin: 4760 },
-    { name: 'Grupo Hoteleiro Orla', desc: 'Penthouse Orla & Studio Pinheiros', hours: '64.5h (16 serv.)', rev: 11200, pay: 7740, margin: 3460 },
-    { name: 'Carlos Eduardo', desc: 'Apt Copacabana', hours: '50.0h (14 serv.)', rev: 7661.10, pay: 6000, margin: 1661.10 }
-  ],
-  financeiro: [
-    { name: 'Semana 1 - Agosto', desc: 'Consolidado de 01 a 07 de Agosto', hours: '45.0h (12 serv.)', rev: 7800, pay: 5400, margin: 2400 },
-    { name: 'Semana 2 - Agosto', desc: 'Consolidado de 08 a 14 de Agosto', hours: '48.5h (13 serv.)', rev: 8400, pay: 5820, margin: 2580 },
-    { name: 'Semana 3 - Agosto', desc: 'Consolidado de 15 a 21 de Agosto', hours: '46.0h (11 serv.)', rev: 7900, pay: 5520, margin: 2380 },
-    { name: 'Semana 4 - Agosto (Parcial)', desc: 'Consolidado de 22 a 28 de Agosto', hours: '47.0h (12 serv.)', rev: 8161.10, pay: 5640, margin: 2521.10 }
-  ],
-  servico: [
-    { name: 'Loft Moderno Jardins', desc: 'Tarifa R$ 120,00/h', hours: '58.0h (15 serv.)', rev: 10200, pay: 6960, margin: 3240 },
-    { name: 'Penthouse Cobertura', desc: 'Tarifa R$ 180,00/h', hours: '42.5h (10 serv.)', rev: 9500, pay: 6375, margin: 3125 },
-    { name: 'Apt Copacabana Beach', desc: 'Tarifa R$ 85,00/h', hours: '46.0h (12 serv.)', rev: 6861.10, pay: 4900, margin: 1961.10 },
-    { name: 'Studio Integrado Pinheiros', desc: 'Tarifa R$ 110,00/h', hours: '40.0h (11 serv.)', rev: 5700, pay: 4145, margin: 1555 }
-  ]
-};
-
 const toast = document.querySelector('#toast');
 const reportsBody = document.querySelector('#reportsBody');
 
@@ -40,7 +10,7 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
-function updateReportView(type) {
+async function updateReportView(type) {
   const titles = {
     geral: { main: 'Relatório Geral Consolidado', sub: 'Visão completa da operação, atendimentos e repasses.', section: 'Atendimentos por Categoria' },
     prestador: { main: 'Relatório por Prestador', sub: 'Desempenho e produtividade individual de cada prestador.', section: 'Produção da Equipe de Limpeza' },
@@ -70,29 +40,50 @@ function updateReportView(type) {
     link.classList.toggle('active', link.dataset.type === type);
   });
 
-  // Renderizar linhas da tabela
-  const rows = reportData[type] || reportData.geral;
   if (reportsBody) {
-    reportsBody.innerHTML = rows.map(r => `
-      <tr>
-        <td>
-          <div class="professional-cell">
-            <div class="client-card-icon"><i data-lucide="bar-chart-3"></i></div>
-            <div>
-              <strong>${r.name}</strong>
-            </div>
-          </div>
-        </td>
-        <td><small>${r.desc}</small></td>
-        <td><strong>${r.hours}</strong></td>
-        <td><strong style="color:#3b8761;">${money(r.rev)}</strong></td>
-        <td><strong>${money(r.pay)}</strong></td>
-        <td><strong style="color:var(--pink-strong);">${money(r.margin)}</strong></td>
-      </tr>
-    `).join('');
+    reportsBody.innerHTML = '<tr><td colspan="100%" style="text-align: center; padding: 20px;">Carregando...</td></tr>';
   }
 
-  if (window.lucide) lucide.createIcons();
+  try {
+    const res = await fetch(`/api/admin/reports?tipo=${type}`);
+    if (!res.ok) throw new Error('Erro na resposta');
+    const data = await res.json();
+
+    if (data.stats) {
+      const s1 = document.querySelector('#totalServices');
+      if (s1) s1.textContent = data.stats.totalServices;
+      
+      const s2 = document.querySelector('#totalHours');
+      if (s2) s2.textContent = (data.stats.totalHours || 0).toFixed(1).replace('.', ',') + 'h';
+      
+      const s3 = document.querySelector('#totalRevenue');
+      if (s3) s3.textContent = money(data.stats.totalRevenue || 0);
+      
+      const s4 = document.querySelector('#totalPayouts');
+      if (s4) s4.textContent = money(data.stats.totalPayouts || 0);
+    }
+
+    const theadTr = document.querySelector('thead tr');
+    if (theadTr && data.headers) {
+      theadTr.innerHTML = data.headers.map(h => `<th>${h}</th>`).join('');
+    }
+
+    if (reportsBody) {
+      reportsBody.innerHTML = (data.rows || []).map(row => `
+        <tr>
+          ${row.map(cell => `<td>${cell}</td>`).join('')}
+        </tr>
+      `).join('') || '<tr><td colspan="100%" class="empty-row" style="text-align:center;">Nenhum dado encontrado.</td></tr>';
+    }
+
+    if (window.lucide) lucide.createIcons();
+
+    window.currentReportData = data;
+  } catch (err) {
+    if (reportsBody) reportsBody.innerHTML = '<tr><td colspan="100%" style="text-align: center; color: red;">Erro ao carregar dados.</td></tr>';
+    showToast('Erro ao carregar relatório');
+    console.error(err);
+  }
 }
 
 // Toggle do Menu Colapsável de Relatórios
@@ -124,6 +115,19 @@ updateReportView(initialType);
 const csvBtn = document.querySelector('#btnExportCSVPage');
 if (csvBtn) {
   csvBtn.onclick = () => {
+    if (!window.currentReportData) return showToast('Sem dados para exportar');
+    const { headers, rows } = window.currentReportData;
+    const csvContent = [
+      (headers || []).join(','),
+      ...(rows || []).map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'relatorio.csv';
+    a.click();
+    URL.revokeObjectURL(url);
     showToast('Download do Relatório CSV iniciado com sucesso!');
   };
 }
@@ -134,3 +138,4 @@ if (pdfBtn) {
     showToast('Gerando arquivo PDF do Demonstrativo Financeiro...');
   };
 }
+

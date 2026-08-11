@@ -1,12 +1,6 @@
 const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 }).format(value);
 
-let payments = [
-  { id: 'PAY-01', proName: 'Marina Costa', serviceName: 'Loft Jardins (Pós Check-out)', hours: 6.5, rate: 120.00, amount: 780.00, done: true },
-  { id: 'PAY-02', proName: 'Rafael Mendes', serviceName: 'Apt Copacabana (Turno Rápido)', hours: 4.0, rate: 85.00, amount: 340.00, done: false },
-  { id: 'PAY-03', proName: 'Beatriz Lima', serviceName: 'Studio Pinheiros (Geral)', hours: 8.0, rate: 110.00, amount: 880.00, done: true },
-  { id: 'PAY-04', proName: 'Lucas Rocha', serviceName: 'Penthouse Orla (Profunda)', hours: 5.5, rate: 180.00, amount: 990.00, done: false }
-];
-
+let payments = [];
 let currentFilter = 'all';
 
 const body = document.querySelector('#paymentsBody');
@@ -20,12 +14,24 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
-function render() {
-  const filtered = payments.filter(p => currentFilter === 'all' || (currentFilter === 'done' ? p.done : !p.done));
+async function fetchPayments() {
+  try {
+    const res = await fetch('/api/admin/payments');
+    if (res.ok) {
+      payments = await res.json();
+      render();
+    }
+  } catch (err) {
+    console.error('Erro ao buscar pagamentos:', err);
+  }
+}
 
-  const pendingTotal = payments.filter(p => !p.done).reduce((a, p) => a + p.amount, 0);
-  const doneTotal = payments.filter(p => p.done).reduce((a, p) => a + p.amount, 0);
-  const billedHours = payments.reduce((a, p) => a + p.hours, 0);
+function render() {
+  const filtered = payments.filter(p => currentFilter === 'all' || (currentFilter === 'done' ? p.status === 'Pago' : p.status !== 'Pago'));
+
+  const pendingTotal = payments.filter(p => p.status !== 'Pago').reduce((a, p) => a + (p.amount || 0), 0);
+  const doneTotal = payments.filter(p => p.status === 'Pago').reduce((a, p) => a + (p.amount || 0), 0);
+  const billedHours = payments.reduce((a, p) => a + (p.hours || 0), 0);
 
   const pendingEl = document.querySelector('#totalPayoutPending');
   if (pendingEl) pendingEl.textContent = money(pendingTotal);
@@ -42,22 +48,22 @@ function render() {
     <tr>
       <td>
         <div class="professional-cell">
-          <span class="professional-avatar">${p.proName.split(' ').map(x => x[0]).slice(0, 2).join('')}</span>
+          <span class="professional-avatar">${(p.professional || 'P').split(' ').map(x => x[0]).slice(0, 2).join('')}</span>
           <div>
-            <strong>${p.proName}</strong>
+            <strong>${p.professional}</strong>
             <small>ID: ${p.id}</small>
           </div>
         </div>
       </td>
       <td>
-        <span class="specialty"><i data-lucide="briefcase-business"></i>${p.serviceName}</span>
+        <span class="specialty"><i data-lucide="calendar"></i>${p.period || 'Período Atual'}</span>
       </td>
-      <td><strong>${p.hours.toFixed(1).replace('.', ',')}h</strong></td>
-      <td>${money(p.rate)}/h</td>
-      <td><strong>${money(p.amount)}</strong></td>
+      <td><strong>${(p.hours || 0).toFixed(1).replace('.', ',')}h</strong></td>
+      <td>${p.date || 'Hoje'}</td>
+      <td><strong>${money(p.amount || 0)}</strong></td>
       <td>
-        <span class="professional-status ${p.done ? 'active' : 'inactive'}">
-          <i data-lucide="${p.done ? 'check-circle-2' : 'clock'}"></i>${p.done ? 'Pago' : 'Pendente'}
+        <span class="professional-status ${p.status === 'Pago' ? 'active' : 'inactive'}">
+          <i data-lucide="${p.status === 'Pago' ? 'check-circle-2' : 'clock'}"></i>${p.status || 'Pago'}
         </span>
       </td>
       <td>
@@ -66,9 +72,9 @@ function render() {
             <i data-lucide="more-horizontal"></i>
           </button>
           <div class="action-dropdown" id="menu-${p.id}">
-            <button data-action="pay" data-id="${p.id}" ${p.done ? 'disabled style="opacity:0.5;cursor:default;"' : ''}>
-              <i data-lucide="${p.done ? 'check' : 'badge-dollar-sign'}"></i>
-              ${p.done ? 'Repasse Concluído' : 'Liberar Repasse'}
+            <button data-action="pay" data-id="${p.id}">
+              <i data-lucide="check"></i>
+              Repasse Concluído
             </button>
           </div>
         </div>
@@ -84,18 +90,6 @@ function render() {
       document.querySelectorAll('.action-dropdown.open').forEach(x => x.classList.remove('open'));
       const targetMenu = document.querySelector('#menu-' + btn.dataset.menu);
       if (targetMenu) targetMenu.classList.toggle('open');
-    };
-  });
-
-  document.querySelectorAll('[data-action="pay"]').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      const p = payments.find(x => x.id === btn.dataset.id);
-      if (p && !p.done) {
-        p.done = true;
-        render();
-        showToast(`Repasse de ${money(p.amount)} liberado para ${p.proName}!`);
-      }
     };
   });
 }
@@ -124,25 +118,26 @@ if (modal) {
 
 const form = document.querySelector('#paymentForm');
 if (form) {
-  form.onsubmit = e => {
+  form.onsubmit = async e => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.target));
     const hours = Number(data.hours) || 4;
-    const rate = Number(data.rate) || 100;
+    const amount = Number(data.amount) || (hours * 120);
     const newPay = {
-      id: 'PAY-0' + (payments.length + 1),
-      proName: data.proName,
-      serviceName: data.serviceName,
+      professional: data.proName || data.professional,
+      amount: amount,
       hours: hours,
-      rate: rate,
-      amount: hours * rate,
-      done: false
+      period: data.period || 'Semana Atual'
     };
-    payments.unshift(newPay);
+    await fetch('/api/admin/payments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newPay)
+    });
     form.reset();
     modal.classList.remove('open');
-    render();
-    showToast(`Repasse registrado para ${newPay.proName}!`);
+    fetchPayments();
+    showToast(`Repasse de ${money(amount)} para ${newPay.professional} salvo no banco!`);
   };
 }
 
@@ -159,4 +154,29 @@ if (reportsMenuBtn && reportsNavGroup) {
   };
 }
 
-render();
+if (body) {
+  body.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-action="pay"]');
+    if (btn) {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      try {
+        const res = await fetch('/api/admin/payments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'mark_paid', id: id })
+        });
+        if (res.ok) {
+          fetchPayments();
+          showToast('Repasse marcado como concluído com sucesso!');
+        } else {
+          showToast('Erro ao marcar repasse como concluído.');
+        }
+      } catch (err) {
+        showToast('Erro ao comunicar com o servidor.');
+      }
+    }
+  });
+}
+
+fetchPayments();

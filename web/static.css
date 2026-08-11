@@ -2295,7 +2295,7 @@ input:checked + .slider:before {
   font-family: inherit !important;
   font-size: 14px !important;
   font-weight: 600 !important;
-  color: inherit;
+  color: #89838d;
 }
 
 .nav-collapsible-btn .chevron {

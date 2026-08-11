@@ -2,3 +2,9 @@
 *.exe*
 *.test
 .env
+
+*.db
+*.db-shm
+*.db-wal
+web/uploads/
+node_modules/

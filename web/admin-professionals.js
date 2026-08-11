@@ -1,11 +1,6 @@
 const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 }).format(value);
 
-let professionals = [
-  { id: 'PRO-01', name: 'Marina Costa', email: 'marina@zygg.com', phone: '(11) 98765-4321', specialty: 'Especialista Pós Check-out & Enxoval', rate: 120.00, hours: 6.5, earned: 780.00, active: true },
-  { id: 'PRO-02', name: 'Rafael Mendes', email: 'rafael@zygg.com', phone: '(11) 97654-3210', specialty: 'Turno Rápido Roupas & Banheiros', rate: 85.00, hours: 4.0, earned: 340.00, active: true },
-  { id: 'PRO-03', name: 'Beatriz Lima', email: 'beatriz@zygg.com', phone: '(11) 96543-2109', specialty: 'Limpeza Geral Pós Hospedagem', rate: 110.00, hours: 8.0, earned: 880.00, active: true }
-];
-
+let professionals = [];
 let currentFilter = 'all';
 
 const body = document.querySelector('#professionalsBody');
@@ -19,6 +14,18 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
+async function fetchProfessionals() {
+  try {
+    const res = await fetch('/api/admin/professionals');
+    if (res.ok) {
+      professionals = await res.json();
+      render();
+    }
+  } catch (err) {
+    console.error('Erro ao buscar profissionais:', err);
+  }
+}
+
 function render() {
   const filtered = professionals.filter(p => currentFilter === 'all' || (currentFilter === 'active' ? p.active : !p.active));
 
@@ -29,10 +36,10 @@ function render() {
   if (activeProEl) activeProEl.textContent = professionals.filter(p => p.active).length;
 
   const totalHoursEl = document.querySelector('#totalProfessionalHours');
-  if (totalHoursEl) totalHoursEl.textContent = professionals.reduce((a, p) => a + p.hours, 0).toFixed(1).replace('.', ',') + 'h';
+  if (totalHoursEl) totalHoursEl.textContent = professionals.reduce((a, p) => a + (p.hours || 0), 0).toFixed(1).replace('.', ',') + 'h';
 
   const totalEarnedEl = document.querySelector('#totalProfessionalEarned');
-  if (totalEarnedEl) totalEarnedEl.textContent = money(professionals.reduce((a, p) => a + p.earned, 0));
+  if (totalEarnedEl) totalEarnedEl.textContent = money(professionals.reduce((a, p) => a + (p.earned || 0), 0));
 
   if (!body) return;
 
@@ -40,7 +47,7 @@ function render() {
     <tr>
       <td>
         <div class="professional-cell">
-          <span class="professional-avatar">${p.name.split(' ').map(x => x[0]).slice(0, 2).join('')}</span>
+          <span class="professional-avatar">${(p.name || 'P').split(' ').map(x => x[0]).slice(0, 2).join('')}</span>
           <div>
             <strong>${p.name}</strong>
             <small>${p.email}<br>${p.phone || 'Telefone não informado'}</small>
@@ -48,11 +55,11 @@ function render() {
         </div>
       </td>
       <td>
-        <span class="specialty"><i data-lucide="briefcase-business"></i>${p.specialty}</span>
+        <span class="specialty"><i data-lucide="briefcase-business"></i>${p.specialty || 'Limpeza'}</span>
       </td>
       <td><strong>${money(p.rate)}</strong></td>
-      <td><strong>${p.hours.toFixed(1).replace('.', ',')}h</strong></td>
-      <td><strong>${money(p.earned)}</strong></td>
+      <td><strong>${(p.hours || 0).toFixed(1).replace('.', ',')}h</strong></td>
+      <td><strong>${money(p.earned || 0)}</strong></td>
       <td>
         <span class="professional-status ${p.active ? 'active' : 'inactive'}">
           <i data-lucide="${p.active ? 'check' : 'pause'}"></i>${p.active ? 'Ativo' : 'Desativado'}
@@ -104,12 +111,16 @@ function render() {
   });
 }
 
-function toggleStatus(id) {
+async function toggleStatus(id) {
   const p = professionals.find(x => x.id === id);
   if (p) {
-    p.active = !p.active;
-    render();
-    showToast(`Status de ${p.name} alterado para ${p.active ? 'Ativo' : 'Desativado'}!`);
+    await fetch('/api/admin/professionals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'toggle', id })
+    });
+    fetchProfessionals();
+    showToast(`Status de ${p.name} alterado no banco de dados!`);
   }
 }
 
@@ -137,25 +148,25 @@ if (modal) {
 
 const form = document.querySelector('#professionalForm');
 if (form) {
-  form.onsubmit = e => {
+  form.onsubmit = async e => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.target));
     const newPro = {
-      id: 'PRO-0' + (professionals.length + 1),
       name: data.name,
       email: data.email,
       phone: data.phone,
       specialty: data.specialty,
-      rate: Number(data.rate) || 100,
-      hours: 0,
-      earned: 0,
-      active: true
+      rate: Number(data.rate) || 100
     };
-    professionals.unshift(newPro);
+    await fetch('/api/admin/professionals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newPro)
+    });
     form.reset();
     modal.classList.remove('open');
-    render();
-    showToast(`Profissional ${newPro.name} cadastrado(a) com sucesso!`);
+    fetchProfessionals();
+    showToast(`Profissional ${newPro.name} salvo no banco com sucesso!`);
   };
 }
 
@@ -172,4 +183,4 @@ if (reportsMenuBtn && reportsNavGroup) {
   };
 }
 
-render();
+fetchProfessionals();

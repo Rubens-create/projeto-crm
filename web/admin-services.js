@@ -5,6 +5,7 @@ let currentFilter = 'all';
 
 const body = document.querySelector('#servicesBody');
 const modal = document.querySelector('#serviceModal');
+const editModal = document.querySelector('#editServiceModal');
 const badgeCounter = document.querySelector('#totalServicesBadge');
 const toast = document.querySelector('#toast');
 
@@ -13,6 +14,75 @@ function showToast(msg) {
   toast.textContent = msg;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+async function handleFileUpload(fileInput, hiddenInput, previewImg, previewUrlEl, previewNameEl) {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    if (previewImg) previewImg.src = dataUrl;
+    if (previewNameEl) previewNameEl.textContent = file.name;
+    if (previewUrlEl) previewUrlEl.textContent = 'Enviando...';
+  };
+  reader.readAsDataURL(file);
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.url) {
+        if (hiddenInput) hiddenInput.value = data.url;
+        if (previewImg) previewImg.src = data.url;
+        if (previewUrlEl) previewUrlEl.textContent = data.url;
+        showToast('Foto enviada com sucesso!');
+        return;
+      }
+    }
+  } catch (err) {
+    console.error('Upload via servidor falhou, fallback ativado:', err);
+  }
+
+  reader.onloadend = () => {
+    const dataUrl = reader.result;
+    if (hiddenInput) hiddenInput.value = dataUrl;
+    if (previewImg) previewImg.src = dataUrl;
+    if (previewUrlEl) previewUrlEl.textContent = 'Carregada localmente';
+    showToast('Foto carregada com sucesso!');
+  };
+}
+
+function openEditModal(id) {
+  const service = services.find(s => s.id === id);
+  if (!service) return;
+
+  document.querySelector('#editServiceId').value = service.id;
+  document.querySelector('#editServiceName').value = service.name || '';
+  document.querySelector('#editServiceDescription').value = service.description || '';
+  document.querySelector('#editServiceRate').value = service.rate || 120;
+  document.querySelector('#editServiceEstTime').value = service.estTime || '2.5h';
+  document.querySelector('#editServiceBedrooms').value = service.bedrooms || 1;
+  document.querySelector('#editServiceBathrooms').value = service.bathrooms || 1;
+  document.querySelector('#editServiceLivingRooms').value = service.livingRooms || 1;
+  document.querySelector('#editServiceSqm').value = service.sqm || 45;
+
+  const imgSrc = service.image || '/assets/loft.jpg';
+  const imgInput = document.querySelector('#editServiceImage');
+  if (imgInput) imgInput.value = imgSrc;
+
+  const editPreviewImg = document.querySelector('#editServiceImgPreview');
+  if (editPreviewImg) editPreviewImg.src = imgSrc;
+  const editPreviewUrl = document.querySelector('#editServiceImgPreviewUrl');
+  if (editPreviewUrl) editPreviewUrl.textContent = imgSrc;
+
+  if (editModal) editModal.classList.add('open');
 }
 
 function render() {
@@ -59,12 +129,12 @@ function render() {
       <td>
         <div style="display:flex;align-items:center;gap:6px;">
           <input type="number" step="0.50" min="1" id="rateInput_${s.id}" value="${s.rate.toFixed(2)}" style="width:80px;padding:6px;border:1px solid var(--line);border-radius:6px;font-size:11px;font-weight:700;">
-          <button class="save-rate-btn" data-id="${s.id}" style="border:1px solid var(--pink-strong);background:var(--pink-strong);color:#fff;padding:6px 10px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;">Salvar</button>
+          <button class="save-rate-btn" data-id="${s.id}" style="border:1px solid var(--pink-strong);background:var(--pink-strong);color:#fff;padding:6px 10px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;">${window.i18n ? window.i18n.t('services.save') : 'Salvar'}</button>
         </div>
       </td>
       <td>
         <span class="professional-status ${s.active ? 'active' : 'inactive'}">
-          <i data-lucide="${s.active ? 'check' : 'eye-off'}"></i>${s.active ? 'Ativo (No App)' : 'Desativado'}
+          <i data-lucide="${s.active ? 'check' : 'eye-off'}"></i>${s.active ? (window.i18n ? window.i18n.t('services.active') : 'Ativo') : (window.i18n ? window.i18n.t('services.disabled') : 'Desativado')}
         </span>
       </td>
       <td>
@@ -73,15 +143,19 @@ function render() {
             <i data-lucide="more-horizontal"></i>
           </button>
           <div class="action-dropdown" id="menu-${s.id}">
+            <button data-action="edit" data-id="${s.id}">
+              <i data-lucide="pencil"></i>
+              ${window.i18n ? window.i18n.t('services.editInfo') : 'Editar informações'}
+            </button>
             <button data-action="toggle" data-id="${s.id}">
               <i data-lucide="${s.active ? 'eye-off' : 'eye'}"></i>
-              ${s.active ? 'Desativar (Ocultar)' : 'Ativar (Exibir)'}
+              ${s.active ? (window.i18n ? window.i18n.t('services.toggleOff') : 'Desativar (Ocultar)') : (window.i18n ? window.i18n.t('services.toggleOn') : 'Ativar (Exibir)')}
             </button>
           </div>
         </div>
       </td>
     </tr>
-  `).join('') || '<tr><td colspan="7" class="empty-row">Nenhum serviço encontrado.</td></tr>';
+  `).join('') || `<tr><td colspan="7" class="empty-row">${window.i18n ? window.i18n.t('services.empty') : 'Nenhum serviço encontrado.'}</td></tr>`;
 
   if (window.lucide) lucide.createIcons();
 
@@ -91,6 +165,14 @@ function render() {
       document.querySelectorAll('.action-dropdown.open').forEach(x => x.classList.remove('open'));
       const targetMenu = document.querySelector('#menu-' + btn.dataset.menu);
       if (targetMenu) targetMenu.classList.toggle('open');
+    };
+  });
+
+  document.querySelectorAll('[data-action="edit"]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.action-dropdown.open').forEach(x => x.classList.remove('open'));
+      openEditModal(btn.dataset.id);
     };
   });
 
@@ -176,6 +258,15 @@ if (modal) {
   };
 }
 
+const closeEditModalBtn = document.querySelector('#closeEditModal');
+if (closeEditModalBtn) closeEditModalBtn.onclick = () => editModal.classList.remove('open');
+
+if (editModal) {
+  editModal.onclick = e => {
+    if (e.target === editModal) editModal.classList.remove('open');
+  };
+}
+
 const form = document.querySelector('#serviceForm');
 if (form) {
   form.onsubmit = async e => {
@@ -210,9 +301,64 @@ if (form) {
   };
 }
 
+const editForm = document.querySelector('#editServiceForm');
+if (editForm) {
+  editForm.onsubmit = async e => {
+    e.preventDefault();
+    const formData = new FormData(editForm);
+    const payload = {
+      action: 'update',
+      id: formData.get('id'),
+      name: formData.get('name'),
+      description: formData.get('description'),
+      rate: parseFloat(formData.get('rate')),
+      bedrooms: parseInt(formData.get('bedrooms')) || 1,
+      bathrooms: parseInt(formData.get('bathrooms')) || 1,
+      livingRooms: parseInt(formData.get('livingRooms')) || 1,
+      sqm: parseInt(formData.get('sqm')) || 45,
+      estTime: formData.get('estTime'),
+      image: formData.get('image')
+    };
+
+    const res = await fetch('/api/admin/services', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      editForm.reset();
+      if (editModal) editModal.classList.remove('open');
+      services = await res.json();
+      render();
+      showToast('Informações do serviço atualizadas com sucesso!');
+    }
+  };
+}
+
 document.addEventListener('click', () => {
   document.querySelectorAll('.action-dropdown.open').forEach(x => x.classList.remove('open'));
 });
+
+const newFileInput = document.querySelector('#newServiceFileInput');
+const newHiddenInput = document.querySelector('#newServiceImage');
+const newPreview = document.querySelector('#newServiceImgPreview');
+const newPreviewUrl = document.querySelector('#newServiceImgPreviewUrl');
+const newPreviewName = document.querySelector('#newServiceImgPreviewName');
+
+if (newFileInput) {
+  newFileInput.onchange = () => handleFileUpload(newFileInput, newHiddenInput, newPreview, newPreviewUrl, newPreviewName);
+}
+
+const editFileInput = document.querySelector('#editServiceFileInput');
+const editHiddenInput = document.querySelector('#editServiceImage');
+const editPreview = document.querySelector('#editServiceImgPreview');
+const editPreviewUrl = document.querySelector('#editServiceImgPreviewUrl');
+const editPreviewName = document.querySelector('#editServiceImgPreviewName');
+
+if (editFileInput) {
+  editFileInput.onchange = () => handleFileUpload(editFileInput, editHiddenInput, editPreview, editPreviewUrl, editPreviewName);
+}
 
 const reportsMenuBtn = document.querySelector('#reportsMenuBtn');
 const reportsNavGroup = document.querySelector('#reportsNavGroup');

@@ -1,5 +1,5 @@
 # Multi-stage build para aplicação Go
-FROM golang:1.23-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
@@ -9,6 +9,7 @@ RUN go mod download
 
 # Copia código fonte
 COPY *.go ./
+COPY internal/ ./internal/
 
 # Compila o binário estático
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o crm-server .

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Zygg | Gestão de Serviços (Admin)</title>
   <link rel="stylesheet" href="/static.css">
+  <script src="/i18n.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="admin-catalog-page">
@@ -18,103 +19,64 @@
         </div>
       </div>
       <nav class="nav">
-        <a class="nav-item" href="/"><i class="icon" data-lucide="home"></i> Início (Landing)</a>
-        <a class="nav-item active" href="/admin/servicos"><i class="icon" data-lucide="clipboard-list"></i> Serviços <b id="totalServicesBadge">0</b></a>
-        <a class="nav-item" href="/admin/profissionais"><i class="icon" data-lucide="users-round"></i> Profissionais</a>
-        <a class="nav-item" href="/admin/clientes"><i class="icon" data-lucide="building-2"></i> Clientes</a>
-        <a class="nav-item" href="/admin/pagamentos"><i class="icon" data-lucide="wallet-cards"></i> Pagamentos</a>
+        <a class="nav-item" href="/" data-i18n="nav.home"><i class="icon" data-lucide="home"></i> Início (Landing)</a>
+        <a class="nav-item active" href="/admin/servicos" data-i18n="nav.services"><i class="icon" data-lucide="clipboard-list"></i> Serviços <b id="totalServicesBadge">0</b></a>
+        <a class="nav-item" href="/admin/profissionais" data-i18n="nav.professionals"><i class="icon" data-lucide="users-round"></i> Profissionais</a>
+        <a class="nav-item" href="/admin/clientes" data-i18n="nav.clients"><i class="icon" data-lucide="building-2"></i> Clientes</a>
+        <a class="nav-item" href="/admin/pagamentos" data-i18n="nav.payments"><i class="icon" data-lucide="wallet-cards"></i> Pagamentos</a>
         
         <!-- MENU COLAPSÁVEL DE RELATÓRIOS -->
         <div class="nav-group" id="reportsNavGroup">
-          <button class="nav-item nav-collapsible-btn" id="reportsMenuBtn">
+          <button class="nav-item nav-collapsible-btn" id="reportsMenuBtn" data-i18n="nav.reports">
             <i class="icon" data-lucide="chart-no-axes-combined"></i> Relatórios
             <i class="chevron icon" data-lucide="chevron-down"></i>
           </button>
           <div class="nav-sub-menu" id="reportsSubMenu">
-            <a class="nav-sub-item" href="/admin/relatorios?tipo=geral"><i data-lucide="pie-chart"></i> Visão Geral</a>
-            <a class="nav-sub-item" href="/admin/relatorios?tipo=prestador"><i data-lucide="users"></i> Por Prestador</a>
-            <a class="nav-sub-item" href="/admin/relatorios?tipo=cliente"><i data-lucide="building-2"></i> Por Cliente</a>
-            <a class="nav-sub-item" href="/admin/relatorios?tipo=financeiro"><i data-lucide="wallet"></i> Financeiro</a>
-            <a class="nav-sub-item" href="/admin/relatorios?tipo=servico"><i data-lucide="sparkles"></i> Por Serviço</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=geral" data-i18n="reports.overview"><i data-lucide="pie-chart"></i> Visão Geral</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=prestador" data-i18n="reports.byProvider"><i data-lucide="users"></i> Por Prestador</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=cliente" data-i18n="reports.byClient"><i data-lucide="building-2"></i> Por Cliente</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=financeiro" data-i18n="reports.financial"><i data-lucide="wallet"></i> Financeiro</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=servico" data-i18n="reports.byService"><i data-lucide="sparkles"></i> Por Serviço</a>
           </div>
         </div>
 
-        <a class="nav-item" href="/prestador"><i class="icon" data-lucide="smartphone"></i> App Prestador</a>
+        <a class="nav-item" href="/prestador" data-i18n="nav.providerApp"><i class="icon" data-lucide="smartphone"></i> App Prestador</a>
       </nav>
       <div class="sidebar-bottom">
-        <a class="nav-item" href="/admin/configuracoes"><i class="icon" data-lucide="settings-2"></i> Configurações</a>
+        <a class="nav-item" href="/admin/configuracoes" data-i18n="nav.settings"><i class="icon" data-lucide="settings-2"></i> Configurações</a>
       </div>
     </aside>
 
     <main class="main">
       <header class="topbar">
-        <div class="breadcrumb"><span>Início</span><i>/</i><strong>Catálogo de Serviços</strong></div>
+        <div class="breadcrumb"><span data-i18n="topbar.home">Início</span><i>/</i><strong data-i18n="topbar.catalog">Catálogo de Serviços</strong></div>
         <div class="profile">
           <span class="avatar">RC</span>
-          <span class="profile-copy"><strong>Ruben Costa</strong><small>Administrador</small></span>
+          <span class="profile-copy"><strong>Ruben Costa</strong><small data-i18n="topbar.adminRole">Administrador</small></span>
         </div>
       </header>
 
       <section class="content">
         <div class="heading">
           <div>
-            <p class="eyebrow">CATÁLOGO & PRECIFICAÇÃO</p>
-            <h1>Tabela de Serviços & Imóveis</h1>
-            <p class="subtitle">Gerencie propriedades, altere tarifas/hora e controle a exibição no app do prestador.</p>
+            <p class="eyebrow" data-i18n="services.eyebrow">CATÁLOGO & PRECIFICAÇÃO</p>
+            <h1 data-i18n="services.title">Tabela de Serviços & Imóveis</h1>
+            <p class="subtitle" data-i18n="services.subtitle">Gerencie propriedades, altere tarifas/hora e controle a exibição no app do prestador.</p>
           </div>
-          <button class="primary" id="newServiceBtn"><i data-lucide="plus"></i> Novo serviço</button>
-        </div>
-
-        <!-- 4 STAT CARDS -->
-        <div class="professional-stats">
-          <article class="stat-card">
-            <div class="stat-top">
-              <span>Total de serviços</span>
-              <span class="stat-icon pink"><i data-lucide="clipboard-list"></i></span>
-            </div>
-            <strong id="totalServicesCount">4</strong>
-            <p class="trend neutral">Cadastrados no sistema</p>
-          </article>
-
-          <article class="stat-card">
-            <div class="stat-top">
-              <span>Ativos no aplicativo</span>
-              <span class="stat-icon green"><i data-lucide="eye"></i></span>
-            </div>
-            <strong id="activeServicesCount">4</strong>
-            <p class="trend up">Exibidos aos prestadores</p>
-          </article>
-
-          <article class="stat-card">
-            <div class="stat-top">
-              <span>Tarifa média/hora</span>
-              <span class="stat-icon lilac"><i data-lucide="timer"></i></span>
-            </div>
-            <strong id="avgServiceRate">R$ 123,75</strong>
-            <p class="trend up">Por hora trabalhada</p>
-          </article>
-
-          <article class="stat-card">
-            <div class="stat-top">
-              <span>Banco de Dados</span>
-              <span class="stat-icon peach"><i data-lucide="database"></i></span>
-            </div>
-            <strong>PostgreSQL 18</strong>
-            <p class="trend neutral">Persistência ativa</p>
-          </article>
+          <button class="primary" id="newServiceBtn" data-i18n="services.newBtn"><i data-lucide="plus"></i> Novo serviço</button>
         </div>
 
         <!-- PAINEL E TABELA DE SERVIÇOS -->
         <section class="panel professionals-panel">
           <div class="panel-head">
             <div>
-              <h2>Catálogo de Imóveis & Tarifas</h2>
-              <p>Altere os valores por hora e ative ou desative a exibição no aplicativo móvel.</p>
+              <h2 data-i18n="services.panelTitle">Catálogo de Imóveis & Tarifas</h2>
+              <p data-i18n="services.panelSub">Altere os valores por hora e ative ou desative a exibição no aplicativo móvel.</p>
             </div>
             <div class="list-filter">
-              <button class="filter active" data-filter="all">Todos</button>
-              <button class="filter" data-filter="active">Ativos</button>
-              <button class="filter" data-filter="inactive">Desativados</button>
+              <button class="filter active" data-filter="all" data-i18n="services.filterAll">Todos</button>
+              <button class="filter" data-filter="active" data-i18n="services.filterActive">Ativos</button>
+              <button class="filter" data-filter="inactive" data-i18n="services.filterInactive">Desativados</button>
             </div>
           </div>
 
@@ -122,13 +84,13 @@
             <table class="professional-table">
               <thead>
                 <tr>
-                  <th>Imóvel / Serviço</th>
-                  <th>Tipo de Higienização</th>
-                  <th>Cômodos / m²</th>
-                  <th>Tempo Estimado</th>
-                  <th>Tarifa Horária</th>
-                  <th>Visibilidade no App</th>
-                  <th>Ações</th>
+                  <th data-i18n="services.thProperty">Imóvel / Serviço</th>
+                  <th data-i18n="services.thType">Tipo de Higienização</th>
+                  <th data-i18n="services.thRooms">Cômodos / m²</th>
+                  <th data-i18n="services.thTime">Tempo Estimado</th>
+                  <th data-i18n="services.thRate">Tarifa Horária</th>
+                  <th data-i18n="services.thVisibility">Visibilidade no App</th>
+                  <th data-i18n="services.thActions">Ações</th>
                 </tr>
               </thead>
               <tbody id="servicesBody"></tbody>
@@ -144,51 +106,122 @@
     <section class="modal">
       <div class="modal-head">
         <div>
-          <h2>Cadastrar novo imóvel / serviço</h2>
-          <p>Os serviços ativos serão disponibilizados imediatamente no app do prestador.</p>
+          <h2 data-i18n="services.modalNewTitle">Cadastrar novo imóvel / serviço</h2>
+          <p data-i18n="services.modalNewSub">Os serviços ativos serão disponibilizados imediatamente no app do prestador.</p>
         </div>
         <button class="modal-close" id="closeModal" aria-label="Fechar"><i data-lucide="x"></i></button>
       </div>
       <form id="serviceForm">
-        <label>Nome do Imóvel / Serviço
+        <label><span data-i18n="services.fieldName">Nome do Imóvel / Serviço</span>
           <input name="name" required placeholder="Ex.: Loft Vila Madalena">
         </label>
-        <label>Tipo / Descrição da Limpeza
+        <label><span data-i18n="services.fieldDesc">Tipo / Descrição da Limpeza</span>
           <input name="description" required placeholder="Ex.: Limpeza Pós Check-out + Enxoval">
         </label>
         <div class="form-row">
-          <label>Valor por hora (R$)
+          <label><span data-i18n="services.fieldRate">Valor por hora (R$)</span>
             <input name="rate" type="number" min="1" step="0.50" value="120.00" required>
           </label>
-          <label>Tempo Estimado
+          <label><span data-i18n="services.fieldEstTime">Tempo Estimado</span>
             <input name="estTime" value="2.5h" required>
           </label>
         </div>
         <div class="form-row">
-          <label>Qtd. Quartos
+          <label><span data-i18n="services.fieldBedrooms">Qtd. Quartos</span>
             <input name="bedrooms" type="number" min="0" value="1" required>
           </label>
-          <label>Qtd. Banheiros
+          <label><span data-i18n="services.fieldBathrooms">Qtd. Banheiros</span>
             <input name="bathrooms" type="number" min="1" value="1" required>
           </label>
         </div>
         <div class="form-row">
-          <label>Qtd. Salas
+          <label><span data-i18n="services.fieldLivingRooms">Qtd. Salas</span>
             <input name="livingRooms" type="number" min="0" value="1" required>
           </label>
-          <label>Metragem (m²)
+          <label><span data-i18n="services.fieldSqm">Metragem (m²)</span>
             <input name="sqm" type="number" min="10" value="55" required>
           </label>
         </div>
         <label>Foto do Imóvel
-          <select name="image" required style="width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;font:inherit;font-size:12px;">
-            <option value="/assets/loft.jpg">Loft Moderno (/assets/loft.jpg)</option>
-            <option value="/assets/bedroom.jpg">Apartamento / Quarto (/assets/bedroom.jpg)</option>
-            <option value="/assets/studio.jpg">Studio Integrado (/assets/studio.jpg)</option>
-            <option value="/assets/penthouse.jpg">Penthouse / Cobertura (/assets/penthouse.jpg)</option>
-          </select>
+          <input type="hidden" name="image" id="newServiceImage" value="/assets/loft.jpg">
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+            <label for="newServiceFileInput" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:#f8f6f9;border:1px dashed #d5ced9;border-radius:9px;font-size:12px;font-weight:600;color:#655d68;cursor:pointer;transition:all 0.2s ease;">
+              <i data-lucide="upload"></i> Escolher e Enviar Foto do Imóvel...
+              <input type="file" id="newServiceFileInput" accept="image/*" style="display:none;">
+            </label>
+            <div id="newServiceImgPreviewWrap" style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#faf8fa;border:1px solid var(--line);border-radius:9px;">
+              <img id="newServiceImgPreview" src="/assets/loft.jpg" style="width:40px;height:40px;border-radius:8px;object-fit:cover;flex:none;">
+              <div style="font-size:11px;color:#89838d;overflow:hidden;">
+                <strong style="display:block;color:#332e36;font-size:11px;" id="newServiceImgPreviewName">Pré-visualização</strong>
+                <span id="newServiceImgPreviewUrl" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;">/assets/loft.jpg</span>
+              </div>
+            </div>
+          </div>
         </label>
         <button class="primary" type="submit"><i data-lucide="plus"></i> Cadastrar e Publicar Serviço</button>
+      </form>
+    </section>
+  </div>
+
+  <!-- MODAL EDIÇÃO DE SERVIÇO -->
+  <div class="modal-backdrop" id="editServiceModal">
+    <section class="modal">
+      <div class="modal-head">
+        <div>
+          <h2 data-i18n="services.modalEditTitle">Editar imóvel / serviço</h2>
+          <p data-i18n="services.modalEditSub">Altere os dados do imóvel, tipo de limpeza, cômodos e precificação.</p>
+        </div>
+        <button class="modal-close" id="closeEditModal" aria-label="Fechar"><i data-lucide="x"></i></button>
+      </div>
+      <form id="editServiceForm">
+        <input type="hidden" name="id" id="editServiceId">
+        <label><span data-i18n="services.fieldName">Nome do Imóvel / Serviço</span>
+          <input name="name" id="editServiceName" required placeholder="Ex.: Loft Vila Madalena">
+        </label>
+        <label><span data-i18n="services.fieldDesc">Tipo / Descrição da Limpeza</span>
+          <input name="description" id="editServiceDescription" required placeholder="Ex.: Limpeza Pós Check-out + Enxoval">
+        </label>
+        <div class="form-row">
+          <label><span data-i18n="services.fieldRate">Valor por hora (R$)</span>
+            <input name="rate" id="editServiceRate" type="number" min="1" step="0.50" required>
+          </label>
+          <label><span data-i18n="services.fieldEstTime">Tempo Estimado</span>
+            <input name="estTime" id="editServiceEstTime" required>
+          </label>
+        </div>
+        <div class="form-row">
+          <label><span data-i18n="services.fieldBedrooms">Qtd. Quartos</span>
+            <input name="bedrooms" id="editServiceBedrooms" type="number" min="0" required>
+          </label>
+          <label><span data-i18n="services.fieldBathrooms">Qtd. Banheiros</span>
+            <input name="bathrooms" id="editServiceBathrooms" type="number" min="1" required>
+          </label>
+        </div>
+        <div class="form-row">
+          <label><span data-i18n="services.fieldLivingRooms">Qtd. Salas</span>
+            <input name="livingRooms" id="editServiceLivingRooms" type="number" min="0" required>
+          </label>
+          <label><span data-i18n="services.fieldSqm">Metragem (m²)</span>
+            <input name="sqm" id="editServiceSqm" type="number" min="10" required>
+          </label>
+        </div>
+        <label><span data-i18n="services.fieldPhoto">Foto do Imóvel</span>
+          <input type="hidden" name="image" id="editServiceImage" value="/assets/loft.jpg">
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+            <label for="editServiceFileInput" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:#f8f6f9;border:1px dashed #d5ced9;border-radius:9px;font-size:12px;font-weight:600;color:#655d68;cursor:pointer;transition:all 0.2s ease;" data-i18n="services.editUploadBtn">
+              <i data-lucide="upload"></i> Escolher e Alterar Foto...
+              <input type="file" id="editServiceFileInput" accept="image/*" style="display:none;">
+            </label>
+            <div id="editServiceImgPreviewWrap" style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:#faf8fa;border:1px solid var(--line);border-radius:9px;">
+              <img id="editServiceImgPreview" src="/assets/loft.jpg" style="width:40px;height:40px;border-radius:8px;object-fit:cover;flex:none;">
+              <div style="font-size:11px;color:#89838d;overflow:hidden;">
+                <strong style="display:block;color:#332e36;font-size:11px;" id="editServiceImgPreviewName">Foto atual do imóvel</strong>
+                <span id="editServiceImgPreviewUrl" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;">/assets/loft.jpg</span>
+              </div>
+            </div>
+          </div>
+        </label>
+        <button class="primary" type="submit" data-i18n="services.submitSave"><i data-lucide="save"></i> Salvar Alterações</button>
       </form>
     </section>
   </div>
