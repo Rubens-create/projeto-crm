@@ -22,6 +22,7 @@
       <nav class="nav">
         <a class="nav-item" href="/" data-i18n="nav.home"><i class="icon" data-lucide="home"></i> Início (Landing)</a>
         <a class="nav-item" href="/admin/servicos" data-i18n="nav.services"><i class="icon" data-lucide="clipboard-list"></i> Serviços</a>
+        <a class="nav-item" href="/admin/imoveis" data-i18n="nav.properties"><i class="icon" data-lucide="house"></i> Imóveis</a>
         <a class="nav-item" href="/admin/profissionais" data-i18n="nav.professionals"><i class="icon" data-lucide="users-round"></i> Profissionais</a>
         <a class="nav-item active" href="/admin/clientes" data-i18n="nav.clients"><i class="icon" data-lucide="building-2"></i> Clientes</a>
         <a class="nav-item" href="/admin/pagamentos" data-i18n="nav.payments"><i class="icon" data-lucide="wallet-cards"></i> Pagamentos</a>
@@ -60,8 +61,8 @@
       <section class="content">
         <div class="heading">
           <div>
-            <p class="eyebrow" data-i18n="clients.eyebrow">CARTEIRA & IMÓVEIS</p>
-            <h1 data-i18n="clients.title">Clientes & Propriedades</h1>
+            <p class="eyebrow" data-i18n="clients.eyebrow">CARTEIRA DE CLIENTES</p>
+            <h1 data-i18n="clients.title">Clientes</h1>
             <p class="subtitle" data-i18n="clients.subtitle">Gestão de proprietários Airbnb e empresas parceiras contratantes.</p>
           </div>
           <button class="primary" id="newClient"><i data-lucide="plus"></i> Novo cliente</button>
@@ -110,8 +111,8 @@
         <section class="panel professionals-panel">
           <div class="panel-head">
             <div>
-              <h2>Clientes & Propriedades</h2>
-              <p>Acompanhe os contratos de higienização de cada propriedade.</p>
+              <h2>Clientes cadastrados</h2>
+              <p>Consulte os imóveis vinculados sem duplicar o cadastro imobiliário.</p>
             </div>
             <div class="list-filter">
               <button class="filter active" data-filter="all">Todos</button>
@@ -124,11 +125,10 @@
             <table class="professional-table">
               <thead>
                 <tr>
-                  <th>Proprietário / Empresa</th>
-                  <th>Imóvel Vinculado</th>
-                  <th>Endereço</th>
-                  <th>Metragem</th>
-                  <th>Tarifa Horária</th>
+                  <th>Cliente / Empresa</th>
+                  <th>Contato</th>
+                  <th>Imóveis vinculados</th>
+                  <th>Gasto mensal</th>
                   <th>Status</th>
                   <th>Ações</th>
                 </tr>
@@ -146,8 +146,8 @@
     <section class="modal">
       <div class="modal-head">
         <div>
-          <h2>Novo cliente / proprietário</h2>
-          <p>Cadastre um novo contrato e imóvel Airbnb.</p>
+          <h2>Novo cliente</h2>
+          <p>Cadastre o cliente. Os imóveis são gerenciados na seção Imóveis.</p>
         </div>
         <button class="modal-close" id="closeModal" aria-label="Fechar"><i data-lucide="x"></i></button>
       </div>
@@ -156,22 +156,11 @@
           <input name="name" required placeholder="Ex.: Dra. Camila Rocha">
         </label>
         <div class="form-row">
-          <label>Nome do Imóvel
-            <input name="propertyName" required placeholder="Ex.: Loft Jardins">
+          <label>E-mail
+            <input name="email" type="email" required placeholder="cliente@email.com">
           </label>
           <label>Telefone / WhatsApp
             <input name="phone" placeholder="(11) 91122-3344">
-          </label>
-        </div>
-        <label>Endereço Completo
-          <input name="address" required placeholder="Alameda Santos, 1400 - Jardins, SP">
-        </label>
-        <div class="form-row">
-          <label>Metragem (m²)
-            <input name="sqm" type="number" min="10" value="55" required>
-          </label>
-          <label>Tarifa Horária (R$)
-            <input name="rate" type="number" min="1" step="0.50" value="120.00" required>
           </label>
         </div>
         <button class="primary" type="submit"><i data-lucide="building-2"></i> Cadastrar Proprietário</button>

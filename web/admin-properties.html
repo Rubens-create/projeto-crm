@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zygg | Gestão de Imóveis</title>
+  <link rel="stylesheet" href="/static.css">
+  <script src="/i18n.js"></script>
+  <script src="/auth.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="admin-catalog-page">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">Z</span><div><strong>zygg</strong><small>gestão de serviços</small></div></div>
+      <nav class="nav">
+        <a class="nav-item" href="/" data-i18n="nav.home"><i class="icon" data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a class="nav-item" href="/admin/servicos" data-i18n="nav.services"><i class="icon" data-lucide="clipboard-list"></i> Serviços</a>
+        <a class="nav-item active" href="/admin/imoveis" data-i18n="nav.properties"><i class="icon" data-lucide="house"></i> Imóveis</a>
+        <a class="nav-item" href="/admin/profissionais" data-i18n="nav.professionals"><i class="icon" data-lucide="users-round"></i> Prestadores</a>
+        <a class="nav-item" href="/admin/clientes" data-i18n="nav.clients"><i class="icon" data-lucide="building-2"></i> Clientes</a>
+        <a class="nav-item" href="/admin/pagamentos" data-i18n="nav.payments"><i class="icon" data-lucide="wallet-cards"></i> Pagamentos</a>
+        <div class="nav-group" id="reportsNavGroup">
+          <button class="nav-item nav-collapsible-btn" id="reportsMenuBtn" data-i18n="nav.reports"><i class="icon" data-lucide="chart-no-axes-combined"></i> Relatórios<i class="chevron icon" data-lucide="chevron-down"></i></button>
+          <div class="nav-sub-menu" id="reportsSubMenu">
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=geral"><i data-lucide="pie-chart"></i> Visão Geral</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=prestador"><i data-lucide="users"></i> Por Prestador</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=cliente"><i data-lucide="building-2"></i> Por Cliente</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=financeiro"><i data-lucide="wallet"></i> Financeiro</a>
+            <a class="nav-sub-item" href="/admin/relatorios?tipo=servico"><i data-lucide="sparkles"></i> Por Serviço</a>
+          </div>
+        </div>
+        <a class="nav-item" href="/prestador" data-i18n="nav.providerApp"><i class="icon" data-lucide="smartphone"></i> App Prestador</a>
+      </nav>
+      <div class="sidebar-bottom"><a class="nav-item" href="/admin/configuracoes" data-i18n="nav.settings"><i class="icon" data-lucide="settings-2"></i> Configurações</a></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Dashboard</span><i>/</i><strong>Imóveis</strong></div>
+        <div class="profile"><span class="avatar">RC</span><span class="profile-copy"><strong>Ruben Costa</strong><small>Administrador</small></span></div>
+      </header>
+      <section class="content">
+        <div class="heading">
+          <div><p class="eyebrow">PATRIMÔNIO & OPERAÇÃO</p><h1>Imóveis</h1><p class="subtitle">Cadastre propriedades e acompanhe clientes e serviços relacionados.</p></div>
+          <button class="primary" id="newPropertyBtn"><i data-lucide="plus"></i> Novo imóvel</button>
+        </div>
+
+        <div class="professional-stats">
+          <article class="stat-card"><div class="stat-top"><span>Total de imóveis</span><span class="stat-icon pink"><i data-lucide="house"></i></span></div><strong id="totalProperties">0</strong><p class="trend neutral">Unidades cadastradas</p></article>
+          <article class="stat-card"><div class="stat-top"><span>Imóveis ativos</span><span class="stat-icon green"><i data-lucide="circle-check"></i></span></div><strong id="activeProperties">0</strong><p class="trend up">Disponíveis para operação</p></article>
+          <article class="stat-card"><div class="stat-top"><span>Com cliente</span><span class="stat-icon lilac"><i data-lucide="link"></i></span></div><strong id="linkedProperties">0</strong><p class="trend neutral">Vínculos confirmados</p></article>
+          <article class="stat-card"><div class="stat-top"><span>Sem cliente</span><span class="stat-icon peach"><i data-lucide="unlink"></i></span></div><strong id="unlinkedProperties">0</strong><p class="trend neutral">Aguardando vínculo</p></article>
+        </div>
+
+        <section class="panel professionals-panel">
+          <div class="panel-head property-panel-head">
+            <div><h2>Imóveis cadastrados</h2><p>O cadastro físico do imóvel é gerenciado exclusivamente nesta seção.</p></div>
+            <label class="property-search"><i data-lucide="search"></i><input id="propertySearch" type="search" placeholder="Pesquisar nome, endereço ou cliente"></label>
+          </div>
+          <div class="list-filter property-filters">
+            <button class="filter active" data-filter="all">Todos</button>
+            <button class="filter" data-filter="active">Ativos</button>
+            <button class="filter" data-filter="archived">Arquivados</button>
+          </div>
+          <div class="professional-table-wrap">
+            <table class="professional-table">
+              <thead><tr><th>Imóvel</th><th>Cliente</th><th>Endereço</th><th>Estrutura</th><th>Serviços</th><th>Status</th><th>Ações</th></tr></thead>
+              <tbody id="propertiesBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="propertyModal">
+    <section class="modal property-modal">
+      <div class="modal-head"><div><h2 id="propertyModalTitle">Novo imóvel</h2><p>Dados físicos e vínculo com o cliente proprietário.</p></div><button class="modal-close" id="closePropertyModal" aria-label="Fechar"><i data-lucide="x"></i></button></div>
+      <form id="propertyForm">
+        <input type="hidden" name="id" id="propertyId">
+        <label>Nome do imóvel<input name="name" id="propertyName" required placeholder="Ex.: Loft Jardins"></label>
+        <div class="form-row">
+          <label>Cliente vinculado<select name="clientId" id="propertyClient" class="setting-select"><option value="">Não vinculado</option></select></label>
+          <label>Status<select name="status" id="propertyStatus" class="setting-select"><option value="ATIVO">Ativo</option><option value="ARQUIVADO">Arquivado</option></select></label>
+        </div>
+        <label>Endereço completo<input name="address" id="propertyAddress" placeholder="Rua, número, bairro e cidade"></label>
+        <label>Descrição<textarea name="description" id="propertyDescription" rows="3" placeholder="Observações, acesso e informações do imóvel"></textarea></label>
+        <div class="form-row"><label>Quartos<input name="bedrooms" id="propertyBedrooms" type="number" min="0" value="1"></label><label>Banheiros<input name="bathrooms" id="propertyBathrooms" type="number" min="0" value="1"></label></div>
+        <div class="form-row"><label>Salas<input name="livingRooms" id="propertyLivingRooms" type="number" min="0" value="0"></label><label>Metragem (m²)<input name="sqm" id="propertySqm" type="number" min="0" value="0"></label></div>
+        <label>Tempo estimado padrão<input name="estimatedTime" id="propertyEstimatedTime" placeholder="Ex.: 2.5h"></label>
+        <label>Foto do imóvel
+          <input type="hidden" name="image" id="propertyImage">
+          <label for="propertyFileInput" class="property-upload"><i data-lucide="upload"></i> Escolher e enviar foto<input type="file" id="propertyFileInput" accept="image/*" hidden></label>
+          <div class="property-image-preview"><img id="propertyImagePreview" src="" alt="Pré-visualização"><span id="propertyImageName">Nenhuma imagem selecionada</span></div>
+        </label>
+        <button class="primary" type="submit"><i data-lucide="save"></i> Salvar imóvel</button>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="propertyDetailsModal">
+    <section class="modal property-details-modal">
+      <button class="modal-close" id="closePropertyDetails" aria-label="Fechar"><i data-lucide="x"></i></button>
+      <div id="propertyDetailsContent"></div>
+    </section>
+  </div>
+  <div class="toast" id="toast">Operação realizada com sucesso</div>
+  <script src="/admin-properties.js"></script>
+  <script>window.addEventListener('load',()=>lucide.createIcons());</script>
+</body>
+</html>

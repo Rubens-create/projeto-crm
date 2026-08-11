@@ -2,9 +2,10 @@
   const translations = {
     pt: {
       // Sidebar Navigation
-      'nav.home': 'Início (Landing)',
+      'nav.home': 'Dashboard',
       'nav.services': 'Serviços',
-      'nav.professionals': 'Profissionais',
+      'nav.properties': 'Imóveis',
+      'nav.professionals': 'Prestadores',
       'nav.clients': 'Clientes',
       'nav.payments': 'Pagamentos',
       'nav.reports': 'Relatórios',
@@ -30,11 +31,11 @@
 
       // Services Page
       'services.eyebrow': 'CATÁLOGO & PRECIFICAÇÃO',
-      'services.title': 'Tabela de Serviços & Imóveis',
-      'services.subtitle': 'Gerencie propriedades, altere tarifas/hora e controle a exibição no app do prestador.',
+      'services.title': 'Configuração de Serviços',
+      'services.subtitle': 'Configure tarifas, tempo estimado e disponibilidade para imóveis já cadastrados.',
       'services.newBtn': 'Novo serviço',
-      'services.panelTitle': 'Catálogo de Imóveis & Tarifas',
-      'services.panelSub': 'Altere os valores por hora e ative ou desative a exibição no aplicativo móvel.',
+      'services.panelTitle': 'Serviços por imóvel',
+      'services.panelSub': 'Cada configuração operacional deve estar vinculada a um imóvel existente.',
       'services.filterAll': 'Todos',
       'services.filterActive': 'Ativos',
       'services.filterInactive': 'Desativados',
@@ -52,10 +53,10 @@
       'services.toggleOff': 'Desativar (Ocultar)',
       'services.toggleOn': 'Ativar (Exibir)',
       'services.empty': 'Nenhum serviço encontrado.',
-      'services.modalNewTitle': 'Cadastrar novo imóvel / serviço',
-      'services.modalNewSub': 'Os serviços ativos serão disponibilizados imediatamente no app do prestador.',
-      'services.modalEditTitle': 'Editar imóvel / serviço',
-      'services.modalEditSub': 'Altere os dados do imóvel, tipo de limpeza, cômodos e precificação.',
+      'services.modalNewTitle': 'Cadastrar serviço',
+      'services.modalNewSub': 'Selecione um imóvel existente e defina sua configuração operacional.',
+      'services.modalEditTitle': 'Editar serviço',
+      'services.modalEditSub': 'Altere apenas o vínculo e as configurações operacionais do serviço.',
       'services.fieldName': 'Nome do Imóvel / Serviço',
       'services.fieldDesc': 'Tipo / Descrição da Limpeza',
       'services.fieldRate': 'Valor por hora (R$)',
@@ -112,16 +113,17 @@
       'config.financeSub': 'Definições de cobrança e moeda padrão para cálculo de repasses.',
       'config.currency': 'Moeda Padrão',
       'config.defaultRate': 'Tarifa Padrão Sugerida (R$/hora)',
-      'config.langTitle': 'Idioma & Região',
+      'config.langTitle': 'Idioma',
       'config.langSubtitle': 'Alterne o idioma de exibição em todo o sistema (CRM & App).',
       'config.systemLanguage': 'Idioma do Sistema (Language)',
       'config.toastSave': 'Configurações e idioma salvos com sucesso!'
     },
     en: {
       // Sidebar Navigation
-      'nav.home': 'Home (Landing)',
+      'nav.home': 'Dashboard',
       'nav.services': 'Services',
-      'nav.professionals': 'Professionals',
+      'nav.properties': 'Properties',
+      'nav.professionals': 'Providers',
       'nav.clients': 'Clients',
       'nav.payments': 'Payments',
       'nav.reports': 'Reports',
@@ -147,11 +149,11 @@
 
       // Services Page
       'services.eyebrow': 'CATALOG & PRICING',
-      'services.title': 'Services & Properties Table',
-      'services.subtitle': 'Manage properties, update hourly rates and control visibility on provider app.',
+      'services.title': 'Service Configuration',
+      'services.subtitle': 'Configure rates, estimated time, and availability for registered properties.',
       'services.newBtn': 'New service',
-      'services.panelTitle': 'Properties Catalog & Rates',
-      'services.panelSub': 'Change hourly rates and toggle visibility in mobile app.',
+      'services.panelTitle': 'Services by Property',
+      'services.panelSub': 'Each operational configuration must be linked to an existing property.',
       'services.filterAll': 'All',
       'services.filterActive': 'Active',
       'services.filterInactive': 'Disabled',
@@ -229,12 +231,115 @@
       'config.financeSub': 'Billing definitions and default currency for payouts.',
       'config.currency': 'Default Currency',
       'config.defaultRate': 'Suggested Default Rate ($/hour)',
-      'config.langTitle': 'Language & Region',
+      'config.langTitle': 'Language',
       'config.langSubtitle': 'Switch system-wide display language (CRM & App).',
       'config.systemLanguage': 'System Language',
       'config.toastSave': 'Settings and language saved successfully!'
     }
   };
+
+  // Translate legacy plain-text labels that have not been migrated to data-i18n yet.
+  // This also covers labels injected later by page JavaScript.
+  const legacyEnglish = {
+    'Início (Landing)': 'Home (Landing)', 'Serviços': 'Services', 'Profissionais': 'Professionals',
+    'Clientes': 'Clients', 'Pagamentos': 'Payments', 'Relatórios': 'Reports', 'Configurações': 'Settings',
+    'App Prestador': 'Provider App', 'Visão Geral': 'Overview', 'Por Prestador': 'By Provider',
+    'Por Cliente': 'By Client', 'Financeiro': 'Financial', 'Por Serviço': 'By Service', 'Início': 'Home',
+    'Administrador': 'Administrator', 'Sair': 'Log out', 'Entrar': 'Sign in', 'gestão de serviços': 'service management', 'Todos': 'All',
+    'Zygg | Entrar': 'Zygg | Sign in', 'Voltar para a Zygg': 'Back to Zygg',
+    'Zygg | Gestão de Serviços (Admin)': 'Zygg | Service Management (Admin)',
+    'Zygg | Gestão de Profissionais': 'Zygg | Professional Management',
+    'Zygg | Gestão de Clientes & Proprietários': 'Zygg | Client & Owner Management',
+    'Zygg | Relatórios Gerenciais': 'Zygg | Management Reports', 'Zygg | Configurações do Sistema': 'Zygg | System Settings',
+    'Ativos': 'Active', 'Desativados': 'Disabled', 'Ativo': 'Active', 'Desativado': 'Disabled',
+    'Ações': 'Actions', 'Salvar': 'Save', 'Salvar alterações': 'Save changes', 'Salvar Alterações': 'Save Changes',
+    'Cancelar': 'Cancel', 'Editar': 'Edit', 'Excluir': 'Delete', 'Ver detalhes': 'View details',
+    'Mais opções': 'More options', 'Nenhum profissional encontrado.': 'No professionals found.',
+    'Nenhum serviço encontrado.': 'No services found.', 'Nenhum dado encontrado.': 'No data found.',
+    'Operação realizada com sucesso': 'Operation completed successfully', 'Carregando...': 'Loading...',
+    'Erro ao carregar dados.': 'Error loading data.', 'Erro ao carregar relatório': 'Error loading report',
+    'Preferências do Sistema': 'System Preferences',
+    'Configure os parâmetros operacionais da sua empresa de limpeza.': 'Configure your cleaning company operational settings.',
+    'Opções do Aplicativo Móvel': 'Mobile App Options',
+    'Controle recursos e notificações enviadas ao prestador de serviço.': 'Control features and notifications sent to providers.',
+    'Cronômetro em Tempo Real (30ms)': 'Real-Time Timer (30ms)', 'Gráfico SVG Dinâmico de Ganhos': 'Dynamic SVG Earnings Chart',
+    'Suporte a Instalação PWA (Android / iPhone)': 'PWA Installation Support (Android / iPhone)',
+    'Salvar preferências': 'Save preferences', 'Telefone não informado': 'Phone not provided',
+    'Entrar na Zygg': 'Sign in to Zygg', 'E-mail': 'Email', 'Senha': 'Password',
+    'Entre com sua conta administrativa.': 'Sign in with your administrator account.',
+    'Entre com sua conta de prestador.': 'Sign in with your provider account.', 'Sua senha': 'Your password',
+    'Não foi possível entrar. Tente novamente.': 'Unable to sign in. Try again.',
+    'E-mail ou senha inválidos.': 'Invalid email or password.',
+    'Português (Brasil) 🇧🇷': 'Portuguese (Brazil) 🇧🇷', 'Dólar Americano ($)': 'US Dollar ($)',
+    'Ex.: Loft Vila Madalena': 'e.g. Vila Madalena Loft', 'Ex.: Limpeza Pós Check-out + Enxoval': 'e.g. Post-checkout cleaning + linens',
+    'Ex.: Limpeza Pós Check-out & Enxoval': 'e.g. Post-checkout cleaning & linens', '(11) 99999-9999': '(11) 99999-9999',
+    'Período Atual': 'Current Period', 'Repasse Concluído': 'Payout Completed', 'Incluído em repasse': 'Included in payout',
+    'Pendentes de liberação': 'Pending release', 'Repasses concluídos': 'Completed payouts', 'Próximo fechamento': 'Next closing',
+    'Serviço / Imóvel': 'Service / Property', 'Tarifa Horária': 'Hourly Rate', 'Imóvel / Atendimento': 'Property / Service',
+    'Foto do Imóvel': 'Property Photo', 'Pré-visualização': 'Preview', 'Foto atual do imóvel': 'Current property photo',
+    'Escolher e Enviar Foto do Imóvel...': 'Choose & Upload Property Photo...', 'Escolher e Alterar Foto...': 'Choose & Change Photo...',
+    'Cadastrar e Publicar Serviço': 'Register & Publish Service', 'Cadastrar profissional': 'Add professional',
+    'Cadastrar Proprietário': 'Add owner', 'Novo cliente / proprietário': 'New client / owner',
+    'Cadastre um novo contrato e imóvel Airbnb.': 'Register a new contract and Airbnb property.',
+    'Nome do Proprietário / Empresa': 'Owner / Company Name', 'Nome do Imóvel': 'Property Name', 'Endereço Completo': 'Full Address',
+    'O tempo e os ganhos são registrados em tempo real.': 'Time and earnings are recorded in real time.',
+    'Finalizar serviço': 'Finish service', 'Serviços disponíveis': 'Available services', 'Escolha uma atividade para começar.': 'Choose an activity to get started.',
+    'Cronômetro': 'Timer', 'Ganhos': 'Earnings', 'Serviço concluído': 'Service completed', 'Duração': 'Duration', 'Tarifa': 'Rate',
+    'Selecione um serviço': 'Select a service', 'Selecione um serviço na aba Serviços': 'Select a service in the Services tab',
+    'Nenhum serviço executado ainda.': 'No service executions yet.', 'Parar cronômetro': 'Stop timer', 'Iniciar cronômetro': 'Start timer',
+    'Em andamento': 'In progress', 'Parado': 'Stopped', 'hora': 'hour', 'Horas neste período': 'Hours this period',
+    'Total ganho': 'Total earned', 'Disponíveis no aplicativo': 'Available in the app', 'Proprietários parceiros': 'Partner owners',
+    'Imóveis vinculados': 'Linked properties', 'Receita este mês': 'Revenue this month',
+    'Acompanhe os contratos de higienização de cada propriedade.': 'Track cleaning contracts for each property.',
+    'Prestadores cadastrados': 'Registered professionals', 'Horas trabalhadas': 'Hours worked',
+    'Total de prestadores': 'Total professionals', 'Prestadores ativos': 'Active professionals',
+    'Cadastros encontrados': 'Records found', 'Horas registradas': 'Recorded hours', 'Ganhos acumulados': 'Accumulated earnings',
+    'Total de clientes': 'Total clients', 'Imóveis cadastrados': 'Registered properties', 'Imóveis sob gestão': 'Properties under management',
+    'Gasto mensal': 'Monthly spending', 'Soma dos clientes': 'Sum of client spending', 'Clientes ativos': 'Active clients',
+    'Cadastros em operação': 'Active records', 'Total de pagamentos': 'Total payments', 'Lançamentos financeiros': 'Financial entries',
+    'Horas pagas': 'Paid hours', 'Horas incluídas nos pagamentos': 'Hours included in payments', 'Total pago': 'Total paid',
+    'Repasses registrados': 'Recorded payouts', 'Pendências': 'Pending amounts', 'Valores ainda não pagos': 'Unpaid amounts',
+    'Total de serviços': 'Total services', 'Imóveis e serviços cadastrados': 'Registered properties and services',
+    'Serviços ativos': 'Active services', 'Tarifa média': 'Average rate', 'Média dos valores por hora': 'Average hourly value',
+    'Tempo médio': 'Average time', 'Estimativa dos serviços': 'Service estimate', 'Total de limpezas': 'Total cleanings',
+    'Concluídos no período': 'Completed in period', 'Horas gravadas': 'Recorded hours', 'Tempo em operação': 'Time in operation',
+    'Faturamento bruto': 'Gross revenue', 'Receita de proprietários': 'Owner revenue', 'Repasses liquidados': 'Settled payouts',
+    'Pago à equipe': 'Paid to team', 'Relatório Geral Consolidado': 'Consolidated General Report',
+    'Visão completa da operação, atendimentos e repasses.': 'Complete view of operations, jobs, and payouts.',
+    'Atendimentos por Categoria': 'Jobs by Category', 'Relatório por Prestador': 'Report by Provider',
+    'Desempenho e produtividade individual de cada prestador.': 'Individual provider performance and productivity.',
+    'Produção da Equipe de Limpeza': 'Cleaning Team Output', 'Relatório por Cliente & Imóvel': 'Report by Client & Property',
+    'Faturamento acumulado por proprietário e imóveis parceiros.': 'Accumulated revenue by owner and partner property.',
+    'Faturamento por Cliente': 'Revenue by Client', 'Relatório Financeiro & Margens': 'Financial & Margin Report',
+    'Demonstrativo semanal de receita, repasses e margem líquida.': 'Weekly statement of revenue, payouts, and net margin.',
+    'Extrato Financeiro Semanal': 'Weekly Financial Statement', 'Relatório por Tipo de Serviço': 'Report by Service Type',
+    'Análise por imóvel cadastrado e tipo de higienização.': 'Analysis by registered property and cleaning type.',
+    'Rentabilidade por Imóvel': 'Profitability by Property',
+    'Relatório baixado com sucesso': 'Report downloaded successfully', 'Sem dados para exportar': 'No data to export',
+    'Download do Relatório CSV iniciado com sucesso!': 'CSV report download started successfully!',
+    'Gerando arquivo PDF do Demonstrativo Financeiro...': 'Generating the financial statement PDF...'
+  };
+  const legacyPortuguese = Object.fromEntries(Object.entries(legacyEnglish).map(([pt, en]) => [en, pt]));
+
+  function translateLegacyContent() {
+    const dictionary = getCurrentLanguage() === 'en' ? legacyEnglish : legacyPortuguese;
+    const translate = (value) => {
+      const trimmed = value.trim();
+      return dictionary[trimmed] ? value.replace(trimmed, dictionary[trimmed]) : value;
+    };
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (node.parentElement && !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(node.parentElement.tagName)) {
+        const translated = translate(node.nodeValue);
+        if (translated !== node.nodeValue) node.nodeValue = translated;
+      }
+    }
+    document.querySelectorAll('[placeholder], [aria-label], [title]').forEach((el) => {
+      ['placeholder', 'aria-label', 'title'].forEach((attr) => { if (el.hasAttribute(attr)) el.setAttribute(attr, translate(el.getAttribute(attr))); });
+    });
+    document.title = translate(document.title);
+  }
 
   function getCurrentLanguage() {
     return localStorage.getItem('app_language') || 'pt';
@@ -270,6 +375,7 @@
         }
       }
     });
+    translateLegacyContent();
   }
 
   window.i18n = {
@@ -281,5 +387,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     applyTranslations();
+    const observer = new MutationObserver(() => translateLegacyContent());
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
   });
 })();

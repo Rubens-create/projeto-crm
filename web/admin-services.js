@@ -1,341 +1,132 @@
-const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 }).format(value);
+const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value) || 0);
+const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
 
 let services = [];
+let properties = [];
 let currentFilter = 'all';
 
 const body = document.querySelector('#servicesBody');
 const modal = document.querySelector('#serviceModal');
 const editModal = document.querySelector('#editServiceModal');
-const badgeCounter = document.querySelector('#totalServicesBadge');
 const toast = document.querySelector('#toast');
 
-function showToast(msg) {
-  if (!toast) return;
-  toast.textContent = msg;
+function showToast(message) {
+  toast.textContent = message;
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2500);
+  setTimeout(() => toast.classList.remove('show'), 2800);
 }
 
-async function handleFileUpload(fileInput, hiddenInput, previewImg, previewUrlEl, previewNameEl) {
-  const file = fileInput.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const dataUrl = e.target.result;
-    if (previewImg) previewImg.src = dataUrl;
-    if (previewNameEl) previewNameEl.textContent = file.name;
-    if (previewUrlEl) previewUrlEl.textContent = 'Enviando...';
-  };
-  reader.readAsDataURL(file);
-
-  try {
-    const formData = new FormData();
-    formData.append('file', file);
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.url) {
-        if (hiddenInput) hiddenInput.value = data.url;
-        if (previewImg) previewImg.src = data.url;
-        if (previewUrlEl) previewUrlEl.textContent = data.url;
-        showToast('Foto enviada com sucesso!');
-        return;
-      }
-    }
-  } catch (err) {
-    console.error('Upload via servidor falhou, fallback ativado:', err);
-  }
-
-  reader.onloadend = () => {
-    const dataUrl = reader.result;
-    if (hiddenInput) hiddenInput.value = dataUrl;
-    if (previewImg) previewImg.src = dataUrl;
-    if (previewUrlEl) previewUrlEl.textContent = 'Carregada localmente';
-    showToast('Foto carregada com sucesso!');
-  };
-}
-
-function openEditModal(id) {
-  const service = services.find(s => s.id === id);
-  if (!service) return;
-
-  document.querySelector('#editServiceId').value = service.id;
-  document.querySelector('#editServiceName').value = service.name || '';
-  document.querySelector('#editServiceDescription').value = service.description || '';
-  document.querySelector('#editServiceRate').value = service.rate || 120;
-  document.querySelector('#editServiceEstTime').value = service.estTime || '2.5h';
-  document.querySelector('#editServiceBedrooms').value = service.bedrooms || 1;
-  document.querySelector('#editServiceBathrooms').value = service.bathrooms || 1;
-  document.querySelector('#editServiceLivingRooms').value = service.livingRooms || 1;
-  document.querySelector('#editServiceSqm').value = service.sqm || 45;
-
-  const imgSrc = service.image || '';
-  const imgInput = document.querySelector('#editServiceImage');
-  if (imgInput) imgInput.value = imgSrc;
-
-  const editPreviewImg = document.querySelector('#editServiceImgPreview');
-  if (editPreviewImg) editPreviewImg.src = imgSrc;
-  const editPreviewUrl = document.querySelector('#editServiceImgPreviewUrl');
-  if (editPreviewUrl) editPreviewUrl.textContent = imgSrc;
-
-  if (editModal) editModal.classList.add('open');
+function populatePropertySelects() {
+  const options = properties.filter(property => property.status === 'ATIVO').map(property =>
+    `<option value="${escapeHtml(property.id)}">${escapeHtml(property.name)}${property.clientName ? ` · ${escapeHtml(property.clientName)}` : ''}</option>`
+  ).join('');
+  ['newServiceProperty', 'editServiceProperty'].forEach(id => {
+    const select = document.querySelector(`#${id}`);
+    const current = select.value;
+    select.innerHTML = '<option value="">Selecione um imóvel</option>' + options;
+    select.value = current;
+  });
 }
 
 function render() {
-  if (badgeCounter) badgeCounter.textContent = services.length;
-
-  const totalCountEl = document.querySelector('#totalServicesCount');
-  if (totalCountEl) totalCountEl.textContent = services.length;
-
-  const activeCountEl = document.querySelector('#activeServicesCount');
-  if (activeCountEl) activeCountEl.textContent = services.filter(s => s.active).length;
-
-  const avgRateEl = document.querySelector('#avgServiceRate');
-  if (avgRateEl && services.length > 0) {
-    const avg = services.reduce((a, s) => a + s.rate, 0) / services.length;
-    avgRateEl.textContent = money(avg);
-  }
-
-  const filtered = services.filter(s => currentFilter === 'all' || (currentFilter === 'active' ? s.active : !s.active));
-
-  if (!body) return;
-
-  body.innerHTML = filtered.map(s => `
-    <tr>
-      <td>
-        <div class="professional-cell">
-          <img src="${s.image || ''}" alt="${s.name}" style="width:36px;height:36px;border-radius:10px;object-fit:cover;flex:none;">
-          <div>
-            <strong>${s.name}</strong>
-            <small>ID: ${s.id}</small>
-          </div>
-        </div>
-      </td>
-      <td>
-        <span class="specialty"><i data-lucide="clipboard-check"></i>${s.description || 'Limpeza Pós Check-out'}</span>
-      </td>
-      <td>
-        <span style="font-size:11px;color:#6e6772;">
-          <i data-lucide="bed" style="width:12px;vertical-align:-2px;"></i> ${s.bedrooms || 1}Q · 
-          <i data-lucide="bath" style="width:12px;vertical-align:-2px;"></i> ${s.bathrooms || 1}B · 
-          <i data-lucide="maximize-2" style="width:12px;vertical-align:-2px;"></i> ${s.sqm || 45}m²
-        </span>
-      </td>
-      <td><strong>${s.estTime || '2.5h'}</strong></td>
-      <td>
-        <span class="professional-status ${s.active ? 'active' : 'inactive'}">
-          <i data-lucide="${s.active ? 'check' : 'eye-off'}"></i>${s.active ? (window.i18n ? window.i18n.t('services.active') : 'Ativo') : (window.i18n ? window.i18n.t('services.disabled') : 'Desativado')}
-        </span>
-      </td>
-      <td>
-        <div class="action-menu">
-          <button class="more professional-more" data-menu="${s.id}" aria-label="Mais opções">
-            <i data-lucide="more-horizontal"></i>
-          </button>
-          <div class="action-dropdown" id="menu-${s.id}">
-            <button data-action="edit" data-id="${s.id}">
-              <i data-lucide="pencil"></i>
-              ${window.i18n ? window.i18n.t('services.editInfo') : 'Editar informações'}
-            </button>
-            <button data-action="toggle" data-id="${s.id}">
-              <i data-lucide="${s.active ? 'eye-off' : 'eye'}"></i>
-              ${s.active ? (window.i18n ? window.i18n.t('services.toggleOff') : 'Desativar (Ocultar)') : (window.i18n ? window.i18n.t('services.toggleOn') : 'Ativar (Exibir)')}
-            </button>
-          </div>
-        </div>
-      </td>
-    </tr>
-  `).join('') || `<tr><td colspan="7" class="empty-row">${window.i18n ? window.i18n.t('services.empty') : 'Nenhum serviço encontrado.'}</td></tr>`;
+  document.querySelector('#totalServicesBadge').textContent = services.length;
+  const filtered = services.filter(service => currentFilter === 'all' || (currentFilter === 'active' ? service.active : !service.active));
+  body.innerHTML = filtered.map(service => `<tr>
+    <td><div class="professional-cell"><img src="${escapeHtml(service.image || '')}" alt="${escapeHtml(service.name)}" style="width:38px;height:38px;border-radius:10px;object-fit:cover;flex:none" onerror="this.style.display='none'"><div><strong>${escapeHtml(service.name)}</strong><small>${escapeHtml(service.propertyId || 'Sem imóvel')}</small></div></div></td>
+    <td><span class="specialty"><i data-lucide="clipboard-check"></i>${escapeHtml(service.description || 'Serviço de limpeza')}</span></td>
+    <td><strong>${money(service.rate)}/h</strong></td>
+    <td><strong>${escapeHtml(service.estTime || 'Não informado')}</strong></td>
+    <td><span class="professional-status ${service.active ? 'active' : 'inactive'}"><i data-lucide="${service.active ? 'check' : 'eye-off'}"></i>${service.active ? 'Ativo' : 'Desativado'}</span></td>
+    <td><div class="action-menu"><button class="more service-more" data-menu="${escapeHtml(service.id)}" aria-label="Mais opções"><i data-lucide="more-horizontal"></i></button><div class="action-dropdown" id="service-menu-${escapeHtml(service.id)}"><button data-action="edit" data-id="${escapeHtml(service.id)}"><i data-lucide="pencil"></i>Editar informações</button><button data-action="toggle" data-id="${escapeHtml(service.id)}"><i data-lucide="${service.active ? 'eye-off' : 'eye'}"></i>${service.active ? 'Desativar' : 'Ativar'}</button></div></div></td>
+  </tr>`).join('') || '<tr><td colspan="6" class="empty-row">Nenhum serviço encontrado.</td></tr>';
 
   if (window.lucide) lucide.createIcons();
-
-  document.querySelectorAll('.professional-more').forEach(btn => {
-    btn.onclick = e => {
-      e.stopPropagation();
-      document.querySelectorAll('.action-dropdown.open').forEach(x => x.classList.remove('open'));
-      const targetMenu = document.querySelector('#menu-' + btn.dataset.menu);
-      if (targetMenu) targetMenu.classList.toggle('open');
+  document.querySelectorAll('.service-more').forEach(button => {
+    button.onclick = event => {
+      event.stopPropagation();
+      document.querySelectorAll('.action-dropdown.open').forEach(menu => menu.classList.remove('open'));
+      document.querySelector(`#service-menu-${CSS.escape(button.dataset.menu)}`)?.classList.toggle('open');
     };
   });
-
-  document.querySelectorAll('[data-action="edit"]').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      document.querySelectorAll('.action-dropdown.open').forEach(x => x.classList.remove('open'));
-      openEditModal(btn.dataset.id);
-    };
+  document.querySelectorAll('[data-action="edit"]').forEach(button => button.onclick = event => {
+    event.stopPropagation();
+    openEdit(button.dataset.id);
   });
-
-  document.querySelectorAll('[data-action="toggle"]').forEach(btn => {
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      toggleStatus(btn.dataset.id);
-    };
+  document.querySelectorAll('[data-action="toggle"]').forEach(button => button.onclick = async event => {
+    event.stopPropagation();
+    await saveService({ action: 'toggle', id: button.dataset.id }, 'Visibilidade do serviço atualizada.');
   });
-
 }
 
-async function toggleStatus(id) {
-  const res = await fetch('/api/admin/services', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'toggle', id })
-  });
-  if (res.ok) {
-    services = await res.json();
+function openEdit(id) {
+  const service = services.find(item => item.id === id);
+  if (!service) return;
+  document.querySelector('#editServiceId').value = service.id;
+  document.querySelector('#editServiceProperty').value = service.propertyId || '';
+  document.querySelector('#editServiceDescription').value = service.description || '';
+  document.querySelector('#editServiceRate').value = service.rate || '';
+  document.querySelector('#editServiceEstTime').value = service.estTime || '';
+  editModal.classList.add('open');
+}
+
+async function saveService(payload, successMessage) {
+  try {
+    const response = await fetch('/api/admin/services', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || 'Não foi possível salvar o serviço.');
+    services = result;
     render();
-    showToast('Visibilidade do imóvel alterada no PostgreSQL!');
+    showToast(successMessage);
+    return true;
+  } catch (error) {
+    showToast(error.message);
+    return false;
   }
 }
-
 
 async function load() {
   try {
-    const res = await fetch('/api/admin/services');
-    if (res.ok) {
-      services = await res.json();
-      render();
-    }
-  } catch (err) {
-    console.error('Erro ao carregar serviços:', err);
+    const [serviceResponse, propertyResponse] = await Promise.all([fetch('/api/admin/services'), fetch('/api/admin/properties')]);
+    if (!serviceResponse.ok || !propertyResponse.ok) throw new Error('Falha ao carregar serviços e imóveis.');
+    [services, properties] = await Promise.all([serviceResponse.json(), propertyResponse.json()]);
+    populatePropertySelects();
+    render();
+  } catch (error) {
+    body.innerHTML = '<tr><td colspan="6" class="empty-row">Não foi possível carregar os serviços.</td></tr>';
+    showToast(error.message);
   }
 }
 
-document.querySelectorAll('.filter').forEach(btn => {
-  btn.onclick = () => {
-    const activeFilter = document.querySelector('.filter.active');
-    if (activeFilter) activeFilter.classList.remove('active');
-    btn.classList.add('active');
-    currentFilter = btn.dataset.filter;
-    render();
-  };
+document.querySelectorAll('.filter').forEach(button => button.onclick = () => {
+  document.querySelectorAll('.filter').forEach(item => item.classList.remove('active'));
+  button.classList.add('active');
+  currentFilter = button.dataset.filter;
+  render();
 });
 
-const newServiceBtn = document.querySelector('#newServiceBtn');
-if (newServiceBtn) newServiceBtn.onclick = () => modal.classList.add('open');
+document.querySelector('#newServiceBtn').onclick = () => {
+  if (!properties.some(property => property.status === 'ATIVO')) return showToast('Cadastre um imóvel ativo antes de criar um serviço.');
+  document.querySelector('#serviceForm').reset();
+  modal.classList.add('open');
+};
+document.querySelector('#closeModal').onclick = () => modal.classList.remove('open');
+document.querySelector('#closeEditModal').onclick = () => editModal.classList.remove('open');
+modal.onclick = event => { if (event.target === modal) modal.classList.remove('open'); };
+editModal.onclick = event => { if (event.target === editModal) editModal.classList.remove('open'); };
 
-const closeModalBtn = document.querySelector('#closeModal');
-if (closeModalBtn) closeModalBtn.onclick = () => modal.classList.remove('open');
+document.querySelector('#serviceForm').onsubmit = async event => {
+  event.preventDefault();
+  const data = Object.fromEntries(new FormData(event.target));
+  const saved = await saveService({ action: 'create', propertyId: data.propertyId, description: data.description, rate: Number(data.rate), estTime: data.estTime }, 'Serviço criado para o imóvel selecionado.');
+  if (saved) modal.classList.remove('open');
+};
+document.querySelector('#editServiceForm').onsubmit = async event => {
+  event.preventDefault();
+  const data = Object.fromEntries(new FormData(event.target));
+  const saved = await saveService({ action: 'update', id: data.id, propertyId: data.propertyId, description: data.description, rate: Number(data.rate), estTime: data.estTime }, 'Serviço atualizado com sucesso.');
+  if (saved) editModal.classList.remove('open');
+};
 
-if (modal) {
-  modal.onclick = e => {
-    if (e.target === modal) modal.classList.remove('open');
-  };
-}
-
-const closeEditModalBtn = document.querySelector('#closeEditModal');
-if (closeEditModalBtn) closeEditModalBtn.onclick = () => editModal.classList.remove('open');
-
-if (editModal) {
-  editModal.onclick = e => {
-    if (e.target === editModal) editModal.classList.remove('open');
-  };
-}
-
-const form = document.querySelector('#serviceForm');
-if (form) {
-  form.onsubmit = async e => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const payload = {
-      action: 'create',
-      name: formData.get('name'),
-      description: formData.get('description'),
-      rate: parseFloat(formData.get('rate')),
-      bedrooms: parseInt(formData.get('bedrooms')) || 1,
-      bathrooms: parseInt(formData.get('bathrooms')) || 1,
-      livingRooms: parseInt(formData.get('livingRooms')) || 1,
-      sqm: parseInt(formData.get('sqm')) || 45,
-      estTime: formData.get('estTime'),
-      image: formData.get('image')
-    };
-
-    const res = await fetch('/api/admin/services', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-      form.reset();
-      modal.classList.remove('open');
-      services = await res.json();
-      render();
-      showToast('Novo imóvel cadastrado e publicado no PostgreSQL!');
-    }
-  };
-}
-
-const editForm = document.querySelector('#editServiceForm');
-if (editForm) {
-  editForm.onsubmit = async e => {
-    e.preventDefault();
-    const formData = new FormData(editForm);
-    const payload = {
-      action: 'update',
-      id: formData.get('id'),
-      name: formData.get('name'),
-      description: formData.get('description'),
-      rate: parseFloat(formData.get('rate')),
-      bedrooms: parseInt(formData.get('bedrooms')) || 1,
-      bathrooms: parseInt(formData.get('bathrooms')) || 1,
-      livingRooms: parseInt(formData.get('livingRooms')) || 1,
-      sqm: parseInt(formData.get('sqm')) || 45,
-      estTime: formData.get('estTime'),
-      image: formData.get('image')
-    };
-
-    const res = await fetch('/api/admin/services', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-      editForm.reset();
-      if (editModal) editModal.classList.remove('open');
-      services = await res.json();
-      render();
-      showToast('Informações do serviço atualizadas com sucesso!');
-    }
-  };
-}
-
-document.addEventListener('click', () => {
-  document.querySelectorAll('.action-dropdown.open').forEach(x => x.classList.remove('open'));
-});
-
-const newFileInput = document.querySelector('#newServiceFileInput');
-const newHiddenInput = document.querySelector('#newServiceImage');
-const newPreview = document.querySelector('#newServiceImgPreview');
-const newPreviewUrl = document.querySelector('#newServiceImgPreviewUrl');
-const newPreviewName = document.querySelector('#newServiceImgPreviewName');
-
-if (newFileInput) {
-  newFileInput.onchange = () => handleFileUpload(newFileInput, newHiddenInput, newPreview, newPreviewUrl, newPreviewName);
-}
-
-const editFileInput = document.querySelector('#editServiceFileInput');
-const editHiddenInput = document.querySelector('#editServiceImage');
-const editPreview = document.querySelector('#editServiceImgPreview');
-const editPreviewUrl = document.querySelector('#editServiceImgPreviewUrl');
-const editPreviewName = document.querySelector('#editServiceImgPreviewName');
-
-if (editFileInput) {
-  editFileInput.onchange = () => handleFileUpload(editFileInput, editHiddenInput, editPreview, editPreviewUrl, editPreviewName);
-}
-
-const reportsMenuBtn = document.querySelector('#reportsMenuBtn');
-const reportsNavGroup = document.querySelector('#reportsNavGroup');
-if (reportsMenuBtn && reportsNavGroup) {
-  reportsMenuBtn.onclick = (e) => {
-    e.preventDefault();
-    reportsNavGroup.classList.toggle('open');
-  };
-}
-
+document.addEventListener('click', () => document.querySelectorAll('.action-dropdown.open').forEach(menu => menu.classList.remove('open')));
+document.querySelector('#reportsMenuBtn').onclick = event => { event.preventDefault(); document.querySelector('#reportsNavGroup').classList.toggle('open'); };
 load();

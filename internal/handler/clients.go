@@ -15,7 +15,7 @@ func (h *Handler) AdminClients(w http.ResponseWriter, r *http.Request) {
 			Name       string `json:"name"`
 			Email      string `json:"email"`
 			Phone      string `json:"phone"`
-			Properties int    `json:"properties"`
+
 		}
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 			h.jsonError(w, "invalid json", 400)
@@ -23,15 +23,11 @@ func (h *Handler) AdminClients(w http.ResponseWriter, r *http.Request) {
 		}
 		if payload.Name != "" {
 			newID := "CLI-" + time.Now().Format("150405")
-			if payload.Properties <= 0 {
-				payload.Properties = 1
-			}
 			c := model.Client{
-				ID:         newID,
-				Name:       payload.Name,
-				Email:      payload.Email,
-				Phone:      payload.Phone,
-				Properties: payload.Properties,
+				ID:    newID,
+				Name:  payload.Name,
+				Email: payload.Email,
+				Phone: payload.Phone,
 			}
 			if err := h.db.CreateClient(c); err != nil {
 				h.jsonError(w, "database error", 500)

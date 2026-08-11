@@ -21,7 +21,14 @@ func (h *Handler) AdminReports(w http.ResponseWriter, r *http.Request) {
 	switch tipo {
 	case "geral":
 		headers = []string{"ID", "Cliente", "Profissional", "Serviço", "Duração", "Valor", "Status", "Data"}
-		dbRows, err := h.db.Query("SELECT e.id, COALESCE(c.name, ''), p.name, s.name, e.duration_seconds, e.total_value_cents, e.status, e.started_at FROM service_executions e JOIN professionals p ON p.id=e.professional_id JOIN service_options s ON s.id=e.service_id LEFT JOIN clients c ON c.id=e.client_id ORDER BY e.started_at DESC")
+		dbRows, err := h.db.Query(`SELECT e.id, COALESCE(c.name, ''), pro.name, pr.name,
+			e.duration_seconds, e.total_value_cents, e.status, e.started_at
+			FROM service_executions e
+			JOIN professionals pro ON pro.id = e.professional_id
+			JOIN service_options s ON s.id = e.service_id
+			JOIN properties pr ON pr.id = s.property_id
+			LEFT JOIN clients c ON c.id = pr.client_id
+			ORDER BY e.started_at DESC`)
 		if err == nil {
 			defer dbRows.Close()
 			for dbRows.Next() {
@@ -53,7 +60,9 @@ func (h *Handler) AdminReports(w http.ResponseWriter, r *http.Request) {
 		}
 	case "cliente":
 		headers = []string{"ID", "Nome", "Email", "Telefone", "Propriedades", "Gasto Mensal", "Status"}
-		dbRows, err := h.db.Query("SELECT id, name, email, phone, properties, monthly_spend, status FROM clients ORDER BY name ASC")
+		dbRows, err := h.db.Query(`SELECT c.id, c.name, c.email, c.phone,
+			(SELECT COUNT(*) FROM properties p WHERE p.client_id = c.id),
+			c.monthly_spend, c.status FROM clients c ORDER BY c.name ASC`)
 		if err == nil {
 			defer dbRows.Close()
 			for dbRows.Next() {
@@ -79,8 +88,9 @@ func (h *Handler) AdminReports(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	case "servico":
-		headers = []string{"ID", "Nome do Serviço", "Valor Base", "Cômodos", "Tempo Est.", "Status"}
-		dbRows, err := h.db.Query("SELECT id, name, rate, rooms, est_time, active FROM service_options ORDER BY id ASC")
+		headers = []string{"ID", "Imóvel", "Valor Base", "Cômodos", "Tempo Est.", "Status"}
+		dbRows, err := h.db.Query(`SELECT s.id, p.name, s.rate, p.rooms, s.est_time, s.active
+			FROM service_options s JOIN properties p ON p.id = s.property_id ORDER BY s.id ASC`)
 		if err == nil {
 			defer dbRows.Close()
 			for dbRows.Next() {

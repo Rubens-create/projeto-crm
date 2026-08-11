@@ -1,22 +1,54 @@
 package database
 
-import "log"
+import "fmt"
 
 func (d *DB) Migrate() error {
-	createQueries := []string{
-		`CREATE TABLE IF NOT EXISTS service_options (
+	queries := []string{
+		`CREATE TABLE IF NOT EXISTS professionals (
 			id VARCHAR(50) PRIMARY KEY,
 			name VARCHAR(255) NOT NULL,
+			email VARCHAR(255) NOT NULL,
+			phone VARCHAR(100) NOT NULL,
+			specialty VARCHAR(255) NOT NULL,
+			rate NUMERIC(10, 2) NOT NULL DEFAULT 100.00,
+			hours NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+			earned NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+			active BOOLEAN NOT NULL DEFAULT TRUE
+		);`,
+		`CREATE TABLE IF NOT EXISTS clients (
+			id VARCHAR(50) PRIMARY KEY,
+			name VARCHAR(255) NOT NULL,
+			email VARCHAR(255) NOT NULL,
+			phone VARCHAR(100) NOT NULL,
+			monthly_spend NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+			status VARCHAR(50) NOT NULL DEFAULT 'Ativo'
+		);`,
+		`CREATE TABLE IF NOT EXISTS properties (
+			id VARCHAR(50) PRIMARY KEY,
+			client_id VARCHAR(50) NULL,
+			name VARCHAR(255) NOT NULL,
+			address TEXT NOT NULL DEFAULT '',
+			description TEXT NOT NULL DEFAULT '',
+			bedrooms INT NOT NULL DEFAULT 1,
+			bathrooms INT NOT NULL DEFAULT 1,
+			living_rooms INT NOT NULL DEFAULT 0,
+			sqm INT NOT NULL DEFAULT 0,
+			rooms TEXT NOT NULL DEFAULT '',
+			image TEXT NOT NULL DEFAULT '',
+			estimated_time VARCHAR(50) NOT NULL DEFAULT '',
+			status VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
+		);`,
+		`CREATE TABLE IF NOT EXISTS service_options (
+			id VARCHAR(50) PRIMARY KEY,
+			property_id VARCHAR(50) NOT NULL,
 			description TEXT NOT NULL DEFAULT '',
 			rate NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
 			active BOOLEAN NOT NULL DEFAULT TRUE,
-			bedrooms INT NOT NULL DEFAULT 1,
-			bathrooms INT NOT NULL DEFAULT 1,
-			living_rooms INT NOT NULL DEFAULT 1,
-			sqm INT NOT NULL DEFAULT 45,
-			rooms VARCHAR(100) DEFAULT '3 cômodos',
-			image VARCHAR(255) DEFAULT '/assets/loft.jpg',
-			est_time VARCHAR(50) DEFAULT '2.5h'
+			est_time VARCHAR(50) NOT NULL DEFAULT '2.5h',
+			FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE RESTRICT
 		);`,
 		`CREATE TABLE IF NOT EXISTS services (
 			id VARCHAR(50) PRIMARY KEY,
@@ -35,27 +67,6 @@ func (d *DB) Migrate() error {
 			service_id VARCHAR(50) NOT NULL DEFAULT '',
 			started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			elapsed_seconds BIGINT NOT NULL DEFAULT 0
-		);`,
-
-		`CREATE TABLE IF NOT EXISTS professionals (
-			id VARCHAR(50) PRIMARY KEY,
-			name VARCHAR(255) NOT NULL,
-			email VARCHAR(255) NOT NULL,
-			phone VARCHAR(100) NOT NULL,
-			specialty VARCHAR(255) NOT NULL,
-			rate NUMERIC(10, 2) NOT NULL DEFAULT 100.00,
-			hours NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
-			earned NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
-			active BOOLEAN NOT NULL DEFAULT TRUE
-		);`,
-		`CREATE TABLE IF NOT EXISTS clients (
-			id VARCHAR(50) PRIMARY KEY,
-			name VARCHAR(255) NOT NULL,
-			email VARCHAR(255) NOT NULL,
-			phone VARCHAR(100) NOT NULL,
-			properties INT NOT NULL DEFAULT 1,
-			monthly_spend NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
-			status VARCHAR(50) NOT NULL DEFAULT 'Ativo'
 		);`,
 		`CREATE TABLE IF NOT EXISTS payments (
 			id VARCHAR(50) PRIMARY KEY,
@@ -76,15 +87,6 @@ func (d *DB) Migrate() error {
 			default_rate NUMERIC(10, 2) NOT NULL DEFAULT 120.00,
 			language VARCHAR(10) NOT NULL DEFAULT 'pt'
 		);`,
-	}
-
-	for _, q := range createQueries {
-		if _, err := d.conn.Exec(q); err != nil {
-			log.Printf("Aviso migração: %v", err)
-		}
-	}
-
-	authQueries := []string{
 		`CREATE TABLE IF NOT EXISTS users (
 			id VARCHAR(64) PRIMARY KEY,
 			email VARCHAR(255) NOT NULL UNIQUE,
@@ -115,7 +117,6 @@ func (d *DB) Migrate() error {
 			id VARCHAR(64) PRIMARY KEY,
 			service_id VARCHAR(50) NOT NULL,
 			professional_id VARCHAR(50) NOT NULL,
-			client_id VARCHAR(50) NULL,
 			started_at TIMESTAMP NOT NULL,
 			finished_at TIMESTAMP NULL,
 			duration_seconds BIGINT NOT NULL DEFAULT 0,
@@ -126,17 +127,18 @@ func (d *DB) Migrate() error {
 			payment_id VARCHAR(50) NULL,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (service_id) REFERENCES service_options(id),
-			FOREIGN KEY (professional_id) REFERENCES professionals(id),
-			FOREIGN KEY (client_id) REFERENCES clients(id)
+			FOREIGN KEY (professional_id) REFERENCES professionals(id)
 		);`,
+		`CREATE INDEX IF NOT EXISTS idx_properties_client_id ON properties(client_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_service_options_property_id ON service_options(property_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_service_executions_service_id ON service_executions(service_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_service_executions_professional_id ON service_executions(professional_id);`,
 	}
-	for _, q := range authQueries {
-		if _, err := d.conn.Exec(q); err != nil {
-			return err
+
+	for _, query := range queries {
+		if _, err := d.conn.Exec(query); err != nil {
+			return fmt.Errorf("create schema: %w", err)
 		}
 	}
-	// Existing installations already have provider_timer_state without execution_id.
-	_, _ = d.conn.Exec("ALTER TABLE provider_timer_state ADD COLUMN execution_id VARCHAR(64) NOT NULL DEFAULT ''")
-
 	return nil
 }

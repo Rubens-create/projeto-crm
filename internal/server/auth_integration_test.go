@@ -10,6 +10,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -396,5 +398,144 @@ func TestProviderExecutionLifecycleAndIsolation(t *testing.T) {
 	res.Body.Close()
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("admin executions status = %d", res.StatusCode)
+	}
+}
+
+func TestAdminPropertyLifecycleAndDeleteConflict(t *testing.T) {
+	app := setupTestApp(t)
+	cookie := login(t, app, "admin@example.com", "admin-secret")
+
+	post := func(payload map[string]any) *http.Response {
+		body, _ := json.Marshal(payload)
+		req, err := http.NewRequest(http.MethodPost, app.server.URL+"/api/admin/properties", bytes.NewReader(body))
+		if err != nil {
+			t.Fatalf("NewRequest() error = %v", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.AddCookie(cookie)
+		res, err := app.server.Client().Do(req)
+		if err != nil {
+			t.Fatalf("property request error = %v", err)
+		}
+		return res
+	}
+
+	res := post(map[string]any{
+		"action": "create", "name": "Casa API", "clientId": "CLI-01", "address": "Rua API, 10",
+		"bedrooms": 2, "bathrooms": 1, "livingRooms": 1, "sqm": 80, "estimatedTime": "3h",
+	})
+	if res.StatusCode != http.StatusOK {
+		res.Body.Close()
+		t.Fatalf("create property status = %d", res.StatusCode)
+	}
+	var properties []model.Property
+	if err := json.NewDecoder(res.Body).Decode(&properties); err != nil {
+		res.Body.Close()
+		t.Fatalf("decode properties = %v", err)
+	}
+	res.Body.Close()
+	var created model.Property
+	for _, property := range properties {
+		if property.Name == "Casa API" {
+			created = property
+			break
+		}
+	}
+	if created.ID == "" || created.ClientID != "CLI-01" {
+		t.Fatalf("created property not returned: %#v", created)
+	}
+
+	res = post(map[string]any{
+		"action": "update", "id": created.ID, "name": "Casa API Editada", "clientId": "CLI-02",
+		"address": "Rua Editada, 20", "bedrooms": 3, "bathrooms": 2, "sqm": 95,
+		"estimatedTime": "4h", "status": model.PropertyActive,
+	})
+	if res.StatusCode != http.StatusOK {
+		res.Body.Close()
+		t.Fatalf("update property status = %d", res.StatusCode)
+	}
+	properties = nil
+	if err := json.NewDecoder(res.Body).Decode(&properties); err != nil {
+		res.Body.Close()
+		t.Fatalf("decode updated properties = %v", err)
+	}
+	res.Body.Close()
+	for _, property := range properties {
+		if property.ID == created.ID {
+			created = property
+			break
+		}
+	}
+	if created.Name != "Casa API Editada" || created.ClientID != "CLI-02" || created.Sqm != 95 {
+		t.Fatalf("updated property not returned: %#v", created)
+	}
+
+	res = post(map[string]any{"action": "archive", "id": created.ID})
+	if res.StatusCode != http.StatusOK {
+		res.Body.Close()
+		t.Fatalf("archive property status = %d", res.StatusCode)
+	}
+	res.Body.Close()
+
+	res = post(map[string]any{"action": "delete", "id": "IMO-01"})
+	res.Body.Close()
+	if res.StatusCode != http.StatusConflict {
+		t.Fatalf("delete linked property status = %d, want %d", res.StatusCode, http.StatusConflict)
+	}
+
+	res = post(map[string]any{"action": "delete", "id": created.ID})
+	res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("delete unlinked property status = %d", res.StatusCode)
+	}
+}
+
+func TestAdminCanAssociateServiceToProperty(t *testing.T) {
+	app := setupTestApp(t)
+	property := model.Property{ID: "IMO-SERVICE-API", Name: "Imóvel da API", Status: model.PropertyActive}
+	if err := app.db.CreateProperty(property); err != nil {
+		t.Fatalf("CreateProperty() error = %v", err)
+	}
+	payload, _ := json.Marshal(map[string]any{
+		"action": "create", "propertyId": property.ID, "description": "Limpeza pela API",
+		"rate": 145, "estTime": "2h",
+	})
+	req, err := http.NewRequest(http.MethodPost, app.server.URL+"/api/admin/services", bytes.NewReader(payload))
+	if err != nil {
+		t.Fatalf("NewRequest() error = %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(login(t, app, "admin@example.com", "admin-secret"))
+	res, err := app.server.Client().Do(req)
+	if err != nil {
+		t.Fatalf("service request error = %v", err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("create service status = %d", res.StatusCode)
+	}
+	var options []model.ServiceOption
+	if err := json.NewDecoder(res.Body).Decode(&options); err != nil {
+		t.Fatalf("decode services = %v", err)
+	}
+	for _, option := range options {
+		if option.PropertyID == property.ID && option.Description == "Limpeza pela API" {
+			return
+		}
+	}
+	t.Fatal("created service/property relationship not returned")
+}
+
+func TestAdminPropertiesPageIsRegistered(t *testing.T) {
+	app := setupTestApp(t)
+	_, currentFile, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("runtime.Caller failed")
+	}
+	t.Chdir(filepath.Join(filepath.Dir(currentFile), "..", ".."))
+	res := request(t, app, http.MethodGet, "/admin/imoveis", login(t, app, "admin@example.com", "admin-secret"))
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("properties page status = %d, want %d", res.StatusCode, http.StatusOK)
 	}
 }

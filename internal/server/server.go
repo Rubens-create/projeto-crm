@@ -29,6 +29,7 @@ func New(cfg config.Config, h *handler.Handler) *http.Server {
 	mux.HandleFunc("/api/admin/executions/", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.AdminExecutions))
 	mux.HandleFunc("/api/provider/timer", middleware.RequireRole(h.Database(), model.RoleProvider)(h.Timer))
 	mux.HandleFunc("/api/admin/services", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.AdminServices))
+	mux.HandleFunc("/api/admin/properties", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.AdminProperties))
 	mux.HandleFunc("/api/admin/professionals", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.AdminProfessionals))
 	mux.HandleFunc("/api/admin/clients", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.AdminClients))
 	mux.HandleFunc("/api/admin/payments", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.AdminPayments))

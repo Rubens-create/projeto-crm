@@ -15,6 +15,8 @@ func (h *Handler) Pages(w http.ResponseWriter, r *http.Request) {
 		file = "provider.html"
 	case "/admin/servicos":
 		file = "admin-services.html"
+	case "/admin/imoveis":
+		file = "admin-properties.html"
 	case "/admin/profissionais", "/profissionais":
 		file = "admin-professionals.html"
 	case "/admin/clientes":

@@ -2,40 +2,46 @@ package database
 
 import "crm-terceirizados/internal/model"
 
+const optionSelect = `SELECT s.id, s.property_id, p.name, s.description,
+	s.rate, s.active, p.bedrooms, p.bathrooms, p.living_rooms, p.sqm,
+	p.rooms, p.image, s.est_time
+	FROM service_options s
+	JOIN properties p ON p.id = s.property_id`
+
+func scanOptions(rows interface {
+	Next() bool
+	Scan(...any) error
+	Err() error
+	Close() error
+}) ([]model.ServiceOption, error) {
+	defer rows.Close()
+	options := make([]model.ServiceOption, 0)
+	for rows.Next() {
+		var option model.ServiceOption
+		if err := rows.Scan(&option.ID, &option.PropertyID, &option.Name, &option.Description,
+			&option.Rate, &option.Active, &option.Bedrooms, &option.Bathrooms,
+			&option.LivingRooms, &option.Sqm, &option.Rooms, &option.Image, &option.EstTime); err != nil {
+			return nil, err
+		}
+		options = append(options, option)
+	}
+	return options, rows.Err()
+}
+
 func (d *DB) GetActiveOptions() ([]model.ServiceOption, error) {
-	rows, err := d.conn.Query("SELECT id, name, description, rate, active, COALESCE(bedrooms, 1), COALESCE(bathrooms, 1), COALESCE(living_rooms, 1), COALESCE(sqm, 45), COALESCE(rooms, '3 cômodos'), COALESCE(image, ''), COALESCE(est_time, '2.5h') FROM service_options WHERE active = true ORDER BY id ASC")
+	rows, err := d.conn.Query(optionSelect+" WHERE s.active = true AND p.status = $1 ORDER BY s.id", model.PropertyActive)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	options := make([]model.ServiceOption, 0)
-	for rows.Next() {
-		var opt model.ServiceOption
-		if err := rows.Scan(&opt.ID, &opt.Name, &opt.Description, &opt.Rate, &opt.Active, &opt.Bedrooms, &opt.Bathrooms, &opt.LivingRooms, &opt.Sqm, &opt.Rooms, &opt.Image, &opt.EstTime); err != nil {
-			continue
-		}
-		options = append(options, opt)
-	}
-	return options, nil
+	return scanOptions(rows)
 }
 
 func (d *DB) GetAllOptions() ([]model.ServiceOption, error) {
-	rows, err := d.conn.Query("SELECT id, name, description, rate, active, COALESCE(bedrooms, 1), COALESCE(bathrooms, 1), COALESCE(living_rooms, 1), COALESCE(sqm, 45), COALESCE(rooms, '3 cômodos'), COALESCE(image, ''), COALESCE(est_time, '2.5h') FROM service_options ORDER BY id ASC")
+	rows, err := d.conn.Query(optionSelect + " ORDER BY s.id")
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	options := make([]model.ServiceOption, 0)
-	for rows.Next() {
-		var opt model.ServiceOption
-		if err := rows.Scan(&opt.ID, &opt.Name, &opt.Description, &opt.Rate, &opt.Active, &opt.Bedrooms, &opt.Bathrooms, &opt.LivingRooms, &opt.Sqm, &opt.Rooms, &opt.Image, &opt.EstTime); err != nil {
-			continue
-		}
-		options = append(options, opt)
-	}
-	return options, nil
+	return scanOptions(rows)
 }
 
 func (d *DB) GetAllServices() ([]model.Service, error) {
@@ -47,24 +53,41 @@ func (d *DB) GetAllServices() ([]model.Service, error) {
 
 	services := make([]model.Service, 0)
 	for rows.Next() {
-		var s model.Service
-		if err := rows.Scan(&s.ID, &s.Client, &s.Professional, &s.Service, &s.Hours, &s.Rate, &s.Status, &s.Date); err != nil {
-			continue
+		var service model.Service
+		if err := rows.Scan(&service.ID, &service.Client, &service.Professional, &service.Service, &service.Hours, &service.Rate, &service.Status, &service.Date); err != nil {
+			return nil, err
 		}
-		services = append(services, s)
+		services = append(services, service)
 	}
-	return services, nil
+	return services, rows.Err()
 }
 
-func (d *DB) CreateOption(id, name, description string, rate float64, bedrooms, bathrooms, livingRooms, sqm int, rooms, image, estTime string) error {
-	_, err := d.conn.Exec("INSERT INTO service_options (id, name, description, rate, active, bedrooms, bathrooms, living_rooms, sqm, rooms, image, est_time) VALUES ($1, $2, $3, $4, true, $5, $6, $7, $8, $9, $10, $11)",
-		id, name, description, rate, bedrooms, bathrooms, livingRooms, sqm, rooms, image, estTime)
+func (d *DB) CreateOption(id, propertyID, description string, rate float64, estTime string) error {
+	result, err := d.conn.Exec(`INSERT INTO service_options (id, property_id, description, rate, active, est_time)
+		SELECT $1, id, $3, $4, true, $5 FROM properties WHERE id = $2 AND status = $6`,
+		id, propertyID, description, rate, estTime, model.PropertyActive)
+	if err != nil {
+		return err
+	}
+	count, err := result.RowsAffected()
+	if err == nil && count == 0 {
+		return ErrPropertyNotFound
+	}
 	return err
 }
 
-func (d *DB) UpdateOption(id, name, description string, rate float64, bedrooms, bathrooms, livingRooms, sqm int, rooms, image, estTime string) error {
-	_, err := d.conn.Exec("UPDATE service_options SET name = $1, description = $2, rate = $3, bedrooms = $4, bathrooms = $5, living_rooms = $6, sqm = $7, rooms = $8, image = $9, est_time = $10 WHERE id = $11",
-		name, description, rate, bedrooms, bathrooms, livingRooms, sqm, rooms, image, estTime, id)
+func (d *DB) UpdateOption(id, propertyID, description string, rate float64, estTime string) error {
+	result, err := d.conn.Exec(`UPDATE service_options SET property_id = $1,
+		description = $2, rate = $3, est_time = $4
+		WHERE id = $5 AND EXISTS(SELECT 1 FROM properties WHERE id = $1 AND status = $6)`,
+		propertyID, description, rate, estTime, id, model.PropertyActive)
+	if err != nil {
+		return err
+	}
+	count, err := result.RowsAffected()
+	if err == nil && count == 0 {
+		return ErrPropertyNotFound
+	}
 	return err
 }
 

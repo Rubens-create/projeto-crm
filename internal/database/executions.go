@@ -36,7 +36,11 @@ func (d *DB) StartExecution(professionalID, serviceID string, now time.Time) (mo
 
 	var serviceName string
 	var rate float64
-	if err := tx.QueryRow("SELECT name, rate FROM service_options WHERE id = $1 AND active = true", serviceID).Scan(&serviceName, &rate); err != nil {
+	var clientID sql.NullString
+	if err := tx.QueryRow(`SELECT p.name, s.rate, p.client_id
+		FROM service_options s
+		LEFT JOIN properties p ON p.id = s.property_id
+		WHERE s.id = $1 AND s.active = true AND p.status = $2`, serviceID, model.PropertyActive).Scan(&serviceName, &rate, &clientID); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return model.TimerState{}, model.ServiceExecution{}, ErrExecutionNotFound
 		}
@@ -52,6 +56,7 @@ func (d *DB) StartExecution(professionalID, serviceID string, now time.Time) (mo
 		ServiceID:       serviceID,
 		ServiceName:     serviceName,
 		ProfessionalID:  professionalID,
+		ClientID:        clientID.String,
 		StartedAt:       now,
 		HourlyRateCents: rateCents,
 		Status:          model.ExecutionInProgress,
@@ -212,11 +217,12 @@ func (d *DB) GetExecution(id string) (model.ServiceExecution, error) {
 
 func (d *DB) getExecution(where string, args ...any) (model.ServiceExecution, error) {
 	var execution model.ServiceExecution
-	query := `SELECT e.id, e.service_id, s.name, e.professional_id, p.name, COALESCE(e.client_id, ''), COALESCE(c.name, ''), e.started_at, e.finished_at, e.duration_seconds, e.hourly_rate_cents, e.total_value_cents, e.status, e.notes, COALESCE(e.payment_id, '')
+	query := `SELECT e.id, e.service_id, pr.name, e.professional_id, pro.name, COALESCE(pr.client_id, ''), COALESCE(c.name, ''), e.started_at, e.finished_at, e.duration_seconds, e.hourly_rate_cents, e.total_value_cents, e.status, e.notes, COALESCE(e.payment_id, '')
 		FROM service_executions e
 		JOIN service_options s ON s.id = e.service_id
-		JOIN professionals p ON p.id = e.professional_id
-		LEFT JOIN clients c ON c.id = e.client_id ` + where
+		JOIN properties pr ON pr.id = s.property_id
+		JOIN professionals pro ON pro.id = e.professional_id
+		LEFT JOIN clients c ON c.id = pr.client_id ` + where
 	err := d.conn.QueryRow(query, args...).Scan(&execution.ID, &execution.ServiceID, &execution.ServiceName, &execution.ProfessionalID, &execution.ProfessionalName, &execution.ClientID, &execution.ClientName, &execution.StartedAt, &execution.FinishedAt, &execution.DurationSeconds, &execution.HourlyRateCents, &execution.TotalValueCents, &execution.Status, &execution.Notes, &execution.PaymentID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return model.ServiceExecution{}, ErrExecutionNotFound
@@ -225,11 +231,12 @@ func (d *DB) getExecution(where string, args ...any) (model.ServiceExecution, er
 }
 
 func (d *DB) ListExecutions(professionalID, status string) ([]model.ServiceExecution, error) {
-	query := `SELECT e.id, e.service_id, s.name, e.professional_id, p.name, COALESCE(e.client_id, ''), COALESCE(c.name, ''), e.started_at, e.finished_at, e.duration_seconds, e.hourly_rate_cents, e.total_value_cents, e.status, e.notes, COALESCE(e.payment_id, '')
+	query := `SELECT e.id, e.service_id, pr.name, e.professional_id, pro.name, COALESCE(pr.client_id, ''), COALESCE(c.name, ''), e.started_at, e.finished_at, e.duration_seconds, e.hourly_rate_cents, e.total_value_cents, e.status, e.notes, COALESCE(e.payment_id, '')
 		FROM service_executions e
 		JOIN service_options s ON s.id = e.service_id
-		JOIN professionals p ON p.id = e.professional_id
-		LEFT JOIN clients c ON c.id = e.client_id
+		JOIN properties pr ON pr.id = s.property_id
+		JOIN professionals pro ON pro.id = e.professional_id
+		LEFT JOIN clients c ON c.id = pr.client_id
 		WHERE ($1 = '' OR e.professional_id = $1) AND ($2 = '' OR e.status = $2)
 		ORDER BY e.started_at DESC`
 	rows, err := d.conn.Query(query, professionalID, status)

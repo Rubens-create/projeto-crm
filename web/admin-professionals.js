@@ -57,7 +57,6 @@ function render() {
       <td>
         <span class="specialty"><i data-lucide="briefcase-business"></i>${p.specialty || 'Limpeza'}</span>
       </td>
-      <td><strong>${money(p.rate)}</strong></td>
       <td><strong>${(p.hours || 0).toFixed(1).replace('.', ',')}h</strong></td>
       <td><strong>${money(p.earned || 0)}</strong></td>
       <td>
@@ -82,7 +81,7 @@ function render() {
         </div>
       </td>
     </tr>
-  `).join('') || '<tr><td colspan="7" class="empty-row">Nenhum profissional encontrado.</td></tr>';
+  `).join('') || '<tr><td colspan="6" class="empty-row">Nenhum profissional encontrado.</td></tr>';
 
   if (window.lucide) lucide.createIcons();
 
@@ -156,7 +155,6 @@ if (form) {
       email: data.email,
       phone: data.phone,
       specialty: data.specialty,
-      rate: Number(data.rate) || 100
     };
     await fetch('/api/admin/professionals', {
       method: 'POST',

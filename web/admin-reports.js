@@ -10,6 +10,79 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
+function setReportStat(index, label, value, trend) {
+  const valueIds = ['repTotalServices', 'repTotalHours', 'repTotalRevenue', 'repTotalPayouts'];
+  const labelEl = document.querySelector(`#repStatLabel${index}`);
+  const valueEl = document.querySelector(`#${valueIds[index - 1]}`);
+  const trendEl = document.querySelector(`#repStatTrend${index}`);
+  if (labelEl) labelEl.textContent = label;
+  if (valueEl) valueEl.textContent = value;
+  if (trendEl) trendEl.textContent = trend;
+}
+
+function resetReportStats() {
+  ['repTotalServices', 'repTotalHours', 'repTotalRevenue', 'repTotalPayouts'].forEach(id => {
+    const valueEl = document.querySelector(`#${id}`);
+    if (valueEl) valueEl.textContent = '-';
+  });
+}
+
+function updateReportStats(type, data) {
+  const rows = data.rows || [];
+  const stats = data.stats || {};
+
+  if (type === 'prestador') {
+    const active = rows.filter(row => row[5] === 'Ativo').length;
+    const hours = rows.reduce((total, row) => total + (Number(row[3]) || 0), 0);
+    const earned = rows.reduce((total, row) => total + (Number(row[4]) || 0), 0);
+    setReportStat(1, 'Total de prestadores', rows.length, 'Cadastros encontrados');
+    setReportStat(2, 'Prestadores ativos', active, 'Disponíveis no aplicativo');
+    setReportStat(3, 'Horas trabalhadas', `${hours.toFixed(1).replace('.', ',')}h`, 'Horas registradas');
+    setReportStat(4, 'Total ganho', money(earned), 'Ganhos acumulados');
+    return;
+  }
+
+  if (type === 'cliente') {
+    const active = rows.filter(row => row[6] === 'Ativo').length;
+    const properties = rows.reduce((total, row) => total + (Number(row[4]) || 0), 0);
+    const spending = rows.reduce((total, row) => total + (Number(row[5]) || 0), 0);
+    setReportStat(1, 'Total de clientes', rows.length, 'Proprietários cadastrados');
+    setReportStat(2, 'Imóveis cadastrados', properties, 'Imóveis sob gestão');
+    setReportStat(3, 'Gasto mensal', money(spending), 'Soma dos clientes');
+    setReportStat(4, 'Clientes ativos', active, 'Cadastros em operação');
+    return;
+  }
+
+  if (type === 'financeiro') {
+    const pending = rows.filter(row => row[5] !== 'Pago').reduce((total, row) => total + (Number(row[4]) || 0), 0);
+    const hours = rows.reduce((total, row) => total + (Number(row[3]) || 0), 0);
+    const paid = rows.reduce((total, row) => total + (Number(row[4]) || 0), 0);
+    setReportStat(1, 'Total de pagamentos', rows.length, 'Lançamentos financeiros');
+    setReportStat(2, 'Horas pagas', `${hours.toFixed(1).replace('.', ',')}h`, 'Horas incluídas nos pagamentos');
+    setReportStat(3, 'Total pago', money(paid), 'Repasses registrados');
+    setReportStat(4, 'Pendências', money(pending), 'Valores ainda não pagos');
+    return;
+  }
+
+  if (type === 'servico') {
+    const active = rows.filter(row => row[5] === 'Ativo').length;
+    const rates = rows.map(row => Number(row[2]) || 0).filter(rate => rate > 0);
+    const averageRate = rates.length ? rates.reduce((total, rate) => total + rate, 0) / rates.length : 0;
+    const times = rows.map(row => parseFloat(String(row[4]).replace(',', '.')) || 0).filter(time => time > 0);
+    const averageTime = times.length ? times.reduce((total, time) => total + time, 0) / times.length : 0;
+    setReportStat(1, 'Total de serviços', rows.length, 'Imóveis e serviços cadastrados');
+    setReportStat(2, 'Serviços ativos', active, 'Disponíveis no aplicativo');
+    setReportStat(3, 'Tarifa média', money(averageRate), 'Média dos valores por hora');
+    setReportStat(4, 'Tempo médio', `${averageTime.toFixed(1).replace('.', ',')}h`, 'Estimativa dos serviços');
+    return;
+  }
+
+  setReportStat(1, 'Total de limpezas', stats.totalServices || 0, 'Concluídos no período');
+  setReportStat(2, 'Horas gravadas', `${(stats.totalHours || 0).toFixed(1).replace('.', ',')}h`, 'Tempo em operação');
+  setReportStat(3, 'Faturamento bruto', money(stats.totalRevenue || 0), 'Receita de proprietários');
+  setReportStat(4, 'Repasses liquidados', money(stats.totalPayouts || 0), 'Pago à equipe');
+}
+
 async function updateReportView(type) {
   const titles = {
     geral: { main: 'Relatório Geral Consolidado', sub: 'Visão completa da operação, atendimentos e repasses.', section: 'Atendimentos por Categoria' },
@@ -43,25 +116,14 @@ async function updateReportView(type) {
   if (reportsBody) {
     reportsBody.innerHTML = '<tr><td colspan="100%" style="text-align: center; padding: 20px;">Carregando...</td></tr>';
   }
+  resetReportStats();
 
   try {
     const res = await fetch(`/api/admin/reports?tipo=${type}`);
     if (!res.ok) throw new Error('Erro na resposta');
     const data = await res.json();
 
-    if (data.stats) {
-      const s1 = document.querySelector('#repTotalServices');
-      if (s1) s1.textContent = data.stats.totalServices;
-      
-      const s2 = document.querySelector('#repTotalHours');
-      if (s2) s2.textContent = (data.stats.totalHours || 0).toFixed(1).replace('.', ',') + 'h';
-      
-      const s3 = document.querySelector('#repTotalRevenue');
-      if (s3) s3.textContent = money(data.stats.totalRevenue || 0);
-      
-      const s4 = document.querySelector('#repTotalPayouts');
-      if (s4) s4.textContent = money(data.stats.totalPayouts || 0);
-    }
+    updateReportStats(type, data);
 
     const theadTr = document.querySelector('thead tr');
     if (theadTr && data.headers) {

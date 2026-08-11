@@ -22,6 +22,7 @@
       <nav class="nav">
         <a class="nav-item" href="/" data-i18n="nav.home"><i class="icon" data-lucide="home"></i> Início (Landing)</a>
         <a class="nav-item" href="/admin/servicos" data-i18n="nav.services"><i class="icon" data-lucide="clipboard-list"></i> Serviços</a>
+        <a class="nav-item" href="/admin/imoveis" data-i18n="nav.properties"><i class="icon" data-lucide="house"></i> Imóveis</a>
         <a class="nav-item" href="/admin/profissionais" data-i18n="nav.professionals"><i class="icon" data-lucide="users-round"></i> Profissionais</a>
         <a class="nav-item" href="/admin/clientes" data-i18n="nav.clients"><i class="icon" data-lucide="building-2"></i> Clientes</a>
         <a class="nav-item" href="/admin/pagamentos" data-i18n="nav.payments"><i class="icon" data-lucide="wallet-cards"></i> Pagamentos</a>
@@ -72,40 +73,40 @@
 
         <!-- 4 STAT CARDS DE RELATÓRIO -->
         <div class="professional-stats">
-          <article class="stat-card">
+          <article class="stat-card report-stat-card">
             <div class="stat-top">
-              <span>Total de limpezas</span>
+              <span id="repStatLabel1">Total de limpezas</span>
               <span class="stat-icon pink"><i data-lucide="clipboard-check"></i></span>
             </div>
-            <strong id="repTotalServices">48</strong>
-            <p class="trend up">Concluídos no período</p>
+            <strong id="repTotalServices">-</strong>
+            <p class="trend up" id="repStatTrend1">Concluídos no período</p>
           </article>
 
-          <article class="stat-card">
+          <article class="stat-card report-stat-card">
             <div class="stat-top">
-              <span>Horas gravadas</span>
+              <span id="repStatLabel2">Horas gravadas</span>
               <span class="stat-icon green"><i data-lucide="clock-3"></i></span>
             </div>
-            <strong id="repTotalHours">186.5h</strong>
-            <p class="trend up">Tempo em operação</p>
+            <strong id="repTotalHours">-</strong>
+            <p class="trend up" id="repStatTrend2">Tempo em operação</p>
           </article>
 
-          <article class="stat-card">
+          <article class="stat-card report-stat-card">
             <div class="stat-top">
-              <span>Faturamento bruto</span>
+              <span id="repStatLabel3">Faturamento bruto</span>
               <span class="stat-icon lilac"><i data-lucide="badge-dollar-sign"></i></span>
             </div>
-            <strong id="repTotalRevenue">R$ 32.261,10</strong>
-            <p class="trend up">Receita de proprietários</p>
+            <strong id="repTotalRevenue">-</strong>
+            <p class="trend up" id="repStatTrend3">Receita de proprietários</p>
           </article>
 
-          <article class="stat-card">
+          <article class="stat-card report-stat-card">
             <div class="stat-top">
-              <span>Repasses liquidados</span>
+              <span id="repStatLabel4">Repasses liquidados</span>
               <span class="stat-icon peach"><i data-lucide="wallet"></i></span>
             </div>
-            <strong id="repTotalPayouts">R$ 22.380,00</strong>
-            <p class="trend neutral">Pago à equipe</p>
+            <strong id="repTotalPayouts">-</strong>
+            <p class="trend neutral" id="repStatTrend4">Pago à equipe</p>
           </article>
         </div>
 

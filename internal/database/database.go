@@ -55,9 +55,12 @@ func New(cfg config.Config) (*DB, error) {
 		log.Println("Conexão com PostgreSQL estabelecida com sucesso!")
 	} else {
 		log.Printf("Aviso: PostgreSQL não disponível (%v). Ativando banco de dados SQLite local (crm_db.db)...", err)
-		dbConn, err = sql.Open("sqlite", "file:crm_db.db?_pragma=busy_timeout=5000&_pragma=journal_mode=WAL")
+		dbConn, err = sql.Open("sqlite", "file:crm_db.db?_pragma=busy_timeout=5000&_pragma=journal_mode=WAL&_pragma=foreign_keys(1)")
 		if err != nil {
 			return nil, fmt.Errorf("falha crítica ao abrir banco SQLite: %w", err)
+		}
+		if _, err := dbConn.Exec("PRAGMA foreign_keys = ON"); err != nil {
+			return nil, fmt.Errorf("falha ao habilitar foreign keys no SQLite: %w", err)
 		}
 		if err := dbConn.Ping(); err != nil {
 			return nil, fmt.Errorf("falha crítica ao conectar no SQLite: %w", err)

@@ -49,6 +49,7 @@ type Dashboard struct {
 
 type ServiceOption struct {
 	ID          string  `json:"id"`
+	PropertyID  string  `json:"propertyId,omitempty"`
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
 	Rate        float64 `json:"rate"`
@@ -121,13 +122,52 @@ type Professional struct {
 }
 
 type Client struct {
-	ID           string  `json:"id"`
-	Name         string  `json:"name"`
-	Email        string  `json:"email"`
-	Phone        string  `json:"phone"`
-	Properties   int     `json:"properties"`
-	MonthlySpend float64 `json:"monthlySpend"`
-	Status       string  `json:"status"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Email         string            `json:"email"`
+	Phone         string            `json:"phone"`
+	Properties    int               `json:"properties"`
+	PropertyItems []PropertySummary `json:"propertyItems,omitempty"`
+	MonthlySpend  float64           `json:"monthlySpend"`
+	Status        string            `json:"status"`
+}
+
+const (
+	PropertyActive   = "ATIVO"
+	PropertyArchived = "ARQUIVADO"
+)
+
+type PropertySummary struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type PropertyService struct {
+	ID          string  `json:"id"`
+	Description string  `json:"description"`
+	Rate        float64 `json:"rate"`
+	EstTime     string  `json:"estTime"`
+	Active      bool    `json:"active"`
+}
+
+type Property struct {
+	ID            string            `json:"id"`
+	ClientID      string            `json:"clientId,omitempty"`
+	ClientName    string            `json:"clientName,omitempty"`
+	Name          string            `json:"name"`
+	Address       string            `json:"address"`
+	Description   string            `json:"description"`
+	Bedrooms      int               `json:"bedrooms"`
+	Bathrooms     int               `json:"bathrooms"`
+	LivingRooms   int               `json:"livingRooms"`
+	Sqm           int               `json:"sqm"`
+	Rooms         string            `json:"rooms"`
+	Image         string            `json:"image"`
+	EstimatedTime string            `json:"estimatedTime"`
+	Status        string            `json:"status"`
+	CreatedAt     time.Time         `json:"createdAt"`
+	UpdatedAt     time.Time         `json:"updatedAt"`
+	Services      []PropertyService `json:"services"`
 }
 
 type Payment struct {
