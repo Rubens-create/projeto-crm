@@ -140,4 +140,3 @@ func (d *DB) DeleteProperty(id string) error {
 	}
 	return err
 }
-

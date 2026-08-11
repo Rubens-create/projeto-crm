@@ -48,7 +48,7 @@ func (h *Handler) AdminProfessionals(w http.ResponseWriter, r *http.Request) {
 				h.jsonError(w, "database error", 500)
 				return
 			}
-			
+
 			// Auto-create login user with a default password
 			_ = h.db.CreateUser(p.Email, "zygg123", model.RoleProvider, p.ID)
 		}

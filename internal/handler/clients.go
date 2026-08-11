@@ -11,11 +11,10 @@ import (
 func (h *Handler) AdminClients(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		var payload struct {
-			ID         string `json:"id"`
-			Name       string `json:"name"`
-			Email      string `json:"email"`
-			Phone      string `json:"phone"`
-
+			ID    string `json:"id"`
+			Name  string `json:"name"`
+			Email string `json:"email"`
+			Phone string `json:"phone"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 			h.jsonError(w, "invalid json", 400)

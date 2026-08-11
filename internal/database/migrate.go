@@ -3,7 +3,7 @@ package database
 import "fmt"
 
 func (d *DB) Migrate() error {
-	queries := []string{
+	createTables := []string{
 		`CREATE TABLE IF NOT EXISTS professionals (
 			id VARCHAR(50) PRIMARY KEY,
 			name VARCHAR(255) NOT NULL,
@@ -43,7 +43,7 @@ func (d *DB) Migrate() error {
 		);`,
 		`CREATE TABLE IF NOT EXISTS service_options (
 			id VARCHAR(50) PRIMARY KEY,
-			property_id VARCHAR(50) NOT NULL,
+			property_id VARCHAR(50) NOT NULL DEFAULT '',
 			description TEXT NOT NULL DEFAULT '',
 			rate NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
 			active BOOLEAN NOT NULL DEFAULT TRUE,
@@ -129,16 +129,53 @@ func (d *DB) Migrate() error {
 			FOREIGN KEY (service_id) REFERENCES service_options(id),
 			FOREIGN KEY (professional_id) REFERENCES professionals(id)
 		);`,
+	}
+
+	for _, query := range createTables {
+		if _, err := d.conn.Exec(query); err != nil {
+			return fmt.Errorf("create schema: %w", err)
+		}
+	}
+
+	// Garante que colunas adicionadas em atualizações do sistema existam em bancos preexistentes
+	alterQueries := []string{
+		`ALTER TABLE service_options ADD COLUMN property_id VARCHAR(50) NOT NULL DEFAULT '';`,
+		`ALTER TABLE service_options ADD COLUMN est_time VARCHAR(50) NOT NULL DEFAULT '2.5h';`,
+		`ALTER TABLE service_options ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE;`,
+		`ALTER TABLE service_options ADD COLUMN rate NUMERIC(10, 2) NOT NULL DEFAULT 0.00;`,
+		`ALTER TABLE service_options ADD COLUMN description TEXT NOT NULL DEFAULT '';`,
+		`ALTER TABLE properties ADD COLUMN client_id VARCHAR(50) NULL;`,
+		`ALTER TABLE properties ADD COLUMN bedrooms INT NOT NULL DEFAULT 1;`,
+		`ALTER TABLE properties ADD COLUMN bathrooms INT NOT NULL DEFAULT 1;`,
+		`ALTER TABLE properties ADD COLUMN living_rooms INT NOT NULL DEFAULT 0;`,
+		`ALTER TABLE properties ADD COLUMN sqm INT NOT NULL DEFAULT 0;`,
+		`ALTER TABLE properties ADD COLUMN rooms TEXT NOT NULL DEFAULT '';`,
+		`ALTER TABLE properties ADD COLUMN image TEXT NOT NULL DEFAULT '';`,
+		`ALTER TABLE properties ADD COLUMN estimated_time VARCHAR(50) NOT NULL DEFAULT '';`,
+		`ALTER TABLE properties ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'ATIVO';`,
+		`ALTER TABLE professionals ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE;`,
+		`ALTER TABLE professionals ADD COLUMN hours NUMERIC(10, 2) NOT NULL DEFAULT 0.00;`,
+		`ALTER TABLE professionals ADD COLUMN earned NUMERIC(10, 2) NOT NULL DEFAULT 0.00;`,
+		`ALTER TABLE clients ADD COLUMN monthly_spend NUMERIC(10, 2) NOT NULL DEFAULT 0.00;`,
+		`ALTER TABLE clients ADD COLUMN status VARCHAR(50) NOT NULL DEFAULT 'Ativo';`,
+	}
+
+	for _, query := range alterQueries {
+		_, _ = d.conn.Exec(query)
+	}
+
+	indexQueries := []string{
 		`CREATE INDEX IF NOT EXISTS idx_properties_client_id ON properties(client_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_service_options_property_id ON service_options(property_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_service_executions_service_id ON service_executions(service_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_service_executions_professional_id ON service_executions(professional_id);`,
 	}
 
-	for _, query := range queries {
+	for _, query := range indexQueries {
 		if _, err := d.conn.Exec(query); err != nil {
-			return fmt.Errorf("create schema: %w", err)
+			return fmt.Errorf("create schema index: %w", err)
 		}
 	}
+
 	return nil
 }
