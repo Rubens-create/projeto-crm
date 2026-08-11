@@ -27,10 +27,10 @@ async function fetchClients() {
 
 function render() {
   const filtered = clients.filter(client => currentFilter === 'all' || (currentFilter === 'active' ? client.status === 'Ativo' : client.status !== 'Ativo'));
-  document.querySelector('#totalClients').textContent = clients.length;
-  document.querySelector('#activeClients').textContent = clients.filter(client => client.status === 'Ativo').length;
-  document.querySelector('#totalProperties').textContent = clients.reduce((total, client) => total + (client.properties || 0), 0);
-  document.querySelector('#totalClientRevenue').textContent = money(clients.reduce((total, client) => total + (client.monthlySpend || 0), 0));
+  const elTotal = document.querySelector('#totalClients'); if (elTotal) elTotal.textContent = clients.length;
+  const elActive = document.querySelector('#activeClients'); if (elActive) elActive.textContent = clients.filter(client => client.status === 'Ativo').length;
+  const elProps = document.querySelector('#totalProperties'); if (elProps) elProps.textContent = clients.reduce((total, client) => total + (client.properties || 0), 0);
+  const elRev = document.querySelector('#totalClientRevenue'); if (elRev) elRev.textContent = money(clients.reduce((total, client) => total + (client.monthlySpend || 0), 0));
 
   body.innerHTML = filtered.map(client => {
     const propertyItems = client.propertyItems || [];

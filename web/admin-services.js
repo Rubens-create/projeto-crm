@@ -11,9 +11,11 @@ const editModal = document.querySelector('#editServiceModal');
 const toast = document.querySelector('#toast');
 
 function showToast(message) {
-  toast.textContent = message;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2800);
+  if (toast) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2800);
+  }
 }
 
 function populatePropertySelects() {
@@ -22,6 +24,7 @@ function populatePropertySelects() {
   ).join('');
   ['newServiceProperty', 'editServiceProperty'].forEach(id => {
     const select = document.querySelector(`#${id}`);
+    if (!select) return;
     const current = select.value;
     select.innerHTML = '<option value="">Selecione um imóvel</option>' + options;
     select.value = current;
@@ -29,7 +32,8 @@ function populatePropertySelects() {
 }
 
 function render() {
-  document.querySelector('#totalServicesBadge').textContent = services.length;
+  const badge = document.querySelector('#totalServicesBadge');
+  if (badge) badge.textContent = services.length;
   const filtered = services.filter(service => currentFilter === 'all' || (currentFilter === 'active' ? service.active : !service.active));
   body.innerHTML = filtered.map(service => `<tr>
     <td><div class="professional-cell"><img src="${escapeHtml(service.image || '')}" alt="${escapeHtml(service.name)}" style="width:38px;height:38px;border-radius:10px;object-fit:cover;flex:none" onerror="this.style.display='none'"><div><strong>${escapeHtml(service.name)}</strong><small>${escapeHtml(service.propertyId || 'Sem imóvel')}</small></div></div></td>

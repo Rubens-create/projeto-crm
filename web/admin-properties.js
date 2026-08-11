@@ -40,10 +40,10 @@ function populateClients() {
 }
 
 function renderStats() {
-  document.querySelector('#totalProperties').textContent = properties.length;
-  document.querySelector('#activeProperties').textContent = properties.filter(property => property.status === 'ATIVO').length;
-  document.querySelector('#linkedProperties').textContent = properties.filter(property => property.clientId).length;
-  document.querySelector('#unlinkedProperties').textContent = properties.filter(property => !property.clientId).length;
+  const elTotal = document.querySelector('#totalProperties'); if (elTotal) elTotal.textContent = properties.length;
+  const elActive = document.querySelector('#activeProperties'); if (elActive) elActive.textContent = properties.filter(property => property.status === 'ATIVO').length;
+  const elLinked = document.querySelector('#linkedProperties'); if (elLinked) elLinked.textContent = properties.filter(property => property.clientId).length;
+  const elUnlinked = document.querySelector('#unlinkedProperties'); if (elUnlinked) elUnlinked.textContent = properties.filter(property => !property.clientId).length;
 }
 
 function render() {
