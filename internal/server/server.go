@@ -18,6 +18,12 @@ import (
 func New(cfg config.Config, h *handler.Handler) *http.Server {
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"status":"ok"}`))
+	})
+
 	mux.HandleFunc("/api/auth/login", h.Login)
 	mux.HandleFunc("/api/auth/logout", middleware.RequireRole(h.Database(), model.RoleAdmin, model.RoleProvider)(h.Logout))
 	mux.HandleFunc("/api/auth/session", middleware.RequireRole(h.Database(), model.RoleAdmin, model.RoleProvider)(h.Session))
