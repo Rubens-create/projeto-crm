@@ -2546,6 +2546,26 @@ button.nav-item,
 .login-form input:focus { border-color: #f282af; box-shadow: 0 0 0 3px rgba(242, 130, 175, 0.16); }
 .login-form #loginError { min-height: 18px; margin: 6px 0 0; color: #ff9dbc; font-size: 12px; }
 .login-form .primary { width: 100%; justify-content: center; min-height: 46px; margin-top: 8px; }
+.signup-footer { color: #746b78; font-size: 12px; margin: 22px 0 0; text-align: center; }
+.signup-footer a { color: #c24f7d; font-weight: 800; text-decoration: none; }
+.signup-footer a:hover { text-decoration: underline; }
+.login-signup-link { margin-bottom: 0; }
+.login-form #loginError.success-message { color: #4f9a7b !important; }
+.signup-main { width: min(100%, 560px); }
+.signup-card { padding: 30px 34px; }
+.signup-form { gap: 0; }
+.signup-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+.signup-field { display: grid; gap: 9px; }
+.signup-field-full { grid-column: 1 / -1; }
+.signup-security { display: flex; align-items: center; gap: 7px; color: #746b78; font-size: 11px; line-height: 1.4; margin: 18px 0 0; }
+.signup-security svg { color: #4f9a7b; height: 15px; width: 15px; flex: none; }
+.signup-form .primary.is-loading { opacity: .7; cursor: wait; }
+@media (max-width: 520px) {
+  .signup-card { padding: 26px 22px; }
+  .signup-grid { display: block; }
+  .signup-field { margin-top: 14px; }
+  .signup-field:first-child { margin-top: 0; }
+}
 
 @media (max-width: 480px) {
   .login-page-body { padding: 16px; }

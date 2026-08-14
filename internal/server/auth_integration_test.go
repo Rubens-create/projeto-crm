@@ -77,6 +77,33 @@ func login(t *testing.T, app *testApp, email, password string) *http.Cookie {
 	return cookies[0]
 }
 
+func TestProviderSignupCreatesAccountAndProfessional(t *testing.T) {
+	app := setupTestApp(t)
+	body := bytes.NewBufferString(`{"name":"Nova Prestadora","email":"nova@example.com","phone":"11999990000","specialty":"Limpeza residencial","password":"nova-secret","passwordConfirmation":"nova-secret"}`)
+	res, err := app.server.Client().Post(app.server.URL+"/api/auth/provider-signup", "application/json", body)
+	if err != nil {
+		t.Fatalf("provider signup request error = %v", err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusCreated {
+		t.Fatalf("provider signup status = %d, want %d", res.StatusCode, http.StatusCreated)
+	}
+
+	var user model.AuthUser
+	if err := json.NewDecoder(res.Body).Decode(&user); err != nil {
+		t.Fatalf("decode signup response = %v", err)
+	}
+	if user.Role != model.RoleProvider || user.Email != "nova@example.com" || user.ProfessionalID == "" {
+		t.Fatalf("signup user = %+v, want provider with professional id", user)
+	}
+	if _, err := app.db.AuthenticateUser("nova@example.com", "nova-secret"); err != nil {
+		t.Fatalf("created account cannot authenticate: %v", err)
+	}
+	if _, err := app.db.GetProfessionalByID(user.ProfessionalID); err != nil {
+		t.Fatalf("created professional not found: %v", err)
+	}
+}
+
 func request(t *testing.T, app *testApp, method, path string, cookie *http.Cookie) *http.Response {
 	t.Helper()
 	req, err := http.NewRequest(method, app.server.URL+path, nil)

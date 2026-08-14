@@ -11,6 +11,8 @@ func (h *Handler) Pages(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/login":
 		file = "login.html"
+	case "/cadastro-prestador":
+		file = "provider-signup.html"
 	case "/prestador":
 		file = "provider.html"
 	case "/admin/servicos":

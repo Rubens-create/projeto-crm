@@ -24,6 +24,12 @@ func (h *Handler) jsonResponse(w http.ResponseWriter, data any) {
 	_ = json.NewEncoder(w).Encode(data)
 }
 
+func (h *Handler) jsonResponseStatus(w http.ResponseWriter, data any, status int) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(data)
+}
+
 func (h *Handler) jsonError(w http.ResponseWriter, msg string, code int) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)

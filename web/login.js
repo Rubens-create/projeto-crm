@@ -3,10 +3,17 @@ const form = document.querySelector('#loginForm');
 const error = document.querySelector('#loginError');
 
 const loginHint = document.querySelector('#loginHint');
+const providerSignupLink = document.querySelector('#providerSignupLink');
 if (requestedRole === 'admin' && loginHint) {
   loginHint.textContent = 'Entre com sua conta administrativa.';
 } else if (requestedRole === 'provider' && loginHint) {
   loginHint.textContent = 'Entre com sua conta de prestador.';
+  if (providerSignupLink) providerSignupLink.hidden = false;
+}
+
+if (new URLSearchParams(window.location.search).get('created') === '1' && error) {
+  error.classList.add('success-message');
+  error.textContent = 'Conta criada com sucesso. Entre para continuar.';
 }
 
 form.addEventListener('submit', async (event) => {

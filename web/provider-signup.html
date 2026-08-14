@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zygg | Criar conta de prestador</title>
+  <link rel="stylesheet" href="/static.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="landing-page-body login-page-body signup-page-body">
+  <div class="landing-background-glow"></div>
+  <main class="login-main signup-main">
+    <section class="login-card signup-card" aria-labelledby="signupTitle">
+      <a class="login-brand" href="/login?role=provider" aria-label="Voltar para o login">
+        <span class="landing-mark">Z</span><span><strong>zygg</strong><small>gestão de serviços</small></span>
+      </a>
+      <div class="login-intro">
+        <p class="eyebrow">SEJA PARCEIRO ZYGG</p>
+        <h1 id="signupTitle">Crie sua conta</h1>
+        <p class="subtitle">Cadastre-se para receber serviços e acompanhar seus ganhos em um só lugar.</p>
+      </div>
+      <form id="providerSignupForm" class="login-form signup-form">
+        <div class="signup-grid">
+          <div class="signup-field signup-field-full"><label for="name">Nome completo</label><input id="name" name="name" autocomplete="name" placeholder="Como podemos chamar você?" required></div>
+          <div class="signup-field"><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="email" placeholder="voce@email.com" required></div>
+          <div class="signup-field"><label for="phone">WhatsApp</label><input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="(11) 99999-9999" required></div>
+          <div class="signup-field signup-field-full"><label for="specialty">Especialidade</label><input id="specialty" name="specialty" placeholder="Ex.: Limpeza residencial" required></div>
+          <div class="signup-field"><label for="password">Senha</label><input id="password" name="password" type="password" minlength="8" autocomplete="new-password" placeholder="Mínimo de 8 caracteres" required></div>
+          <div class="signup-field"><label for="passwordConfirmation">Confirmar senha</label><input id="passwordConfirmation" name="passwordConfirmation" type="password" minlength="8" autocomplete="new-password" placeholder="Repita sua senha" required></div>
+        </div>
+        <p class="signup-security"><i data-lucide="shield-check"></i> Seus dados ficam protegidos e são usados apenas para o seu cadastro.</p>
+        <p id="signupError" class="form-message" role="alert" aria-live="polite"></p>
+        <button class="primary" type="submit"><i data-lucide="user-plus"></i> Criar minha conta</button>
+      </form>
+      <p class="signup-footer">Já tem uma conta? <a href="/login?role=provider">Entrar como prestador</a></p>
+    </section>
+  </main>
+  <script src="/provider-signup.js"></script>
+  <script>window.addEventListener('load', () => lucide.createIcons());</script>
+</body>
+</html>

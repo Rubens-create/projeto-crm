@@ -52,6 +52,35 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, user)
 }
 
+func (h *Handler) ProviderSignup(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		h.jsonError(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var input struct {
+		Name                 string `json:"name"`
+		Email                string `json:"email"`
+		Phone                string `json:"phone"`
+		Specialty            string `json:"specialty"`
+		Password             string `json:"password"`
+		PasswordConfirmation string `json:"passwordConfirmation"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil || strings.TrimSpace(input.Name) == "" || strings.TrimSpace(input.Email) == "" || strings.TrimSpace(input.Phone) == "" || strings.TrimSpace(input.Specialty) == "" || len(input.Password) < 8 || input.Password != input.PasswordConfirmation {
+		h.jsonError(w, "invalid signup data", http.StatusBadRequest)
+		return
+	}
+	user, err := h.db.CreateProviderAccount(input.Name, input.Email, input.Phone, input.Specialty, input.Password)
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "unique") {
+			h.jsonError(w, "email already registered", http.StatusConflict)
+			return
+		}
+		h.jsonError(w, "could not create account", http.StatusInternalServerError)
+		return
+	}
+	h.jsonResponseStatus(w, user, http.StatusCreated)
+}
+
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		h.jsonError(w, "method not allowed", http.StatusMethodNotAllowed)

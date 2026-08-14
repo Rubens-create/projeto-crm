@@ -25,6 +25,7 @@ func New(cfg config.Config, h *handler.Handler) *http.Server {
 	})
 
 	mux.HandleFunc("/api/auth/login", h.Login)
+	mux.HandleFunc("/api/auth/provider-signup", h.ProviderSignup)
 	mux.HandleFunc("/api/auth/logout", middleware.RequireRole(h.Database(), model.RoleAdmin, model.RoleProvider)(h.Logout))
 	mux.HandleFunc("/api/auth/session", middleware.RequireRole(h.Database(), model.RoleAdmin, model.RoleProvider)(h.Session))
 	mux.HandleFunc("/api/dashboard", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.Dashboard))

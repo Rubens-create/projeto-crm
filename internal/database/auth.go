@@ -16,6 +16,34 @@ import (
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
 
+func (d *DB) CreateProviderAccount(name, email, phone, specialty, password string) (model.AuthUser, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return model.AuthUser{}, err
+	}
+	tx, err := d.conn.Begin()
+	if err != nil {
+		return model.AuthUser{}, err
+	}
+	defer tx.Rollback()
+
+	professionalID := "PRO-" + randomID()[:16]
+	if _, err := tx.Exec(`INSERT INTO professionals (id, name, email, phone, specialty, rate, hours, earned, active)
+		VALUES ($1, $2, $3, $4, $5, 100.00, 0, 0, true)`, professionalID, strings.TrimSpace(name), email, strings.TrimSpace(phone), strings.TrimSpace(specialty)); err != nil {
+		return model.AuthUser{}, err
+	}
+	userID := randomID()
+	if _, err := tx.Exec(`INSERT INTO users (id, email, password_hash, role, professional_id)
+		VALUES ($1, $2, $3, $4, $5)`, userID, email, string(hash), model.RoleProvider, professionalID); err != nil {
+		return model.AuthUser{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return model.AuthUser{}, err
+	}
+	return model.AuthUser{ID: userID, Email: email, Role: model.RoleProvider, ProfessionalID: professionalID}, nil
+}
+
 func (d *DB) EnsureBootstrapAdmin(email, password string) error {
 	var count int
 	if err := d.conn.QueryRow("SELECT COUNT(*) FROM users").Scan(&count); err != nil {
