@@ -218,6 +218,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  overflow: hidden;
 }
 
 .modal-backdrop.open {
@@ -236,6 +237,7 @@
   max-height: 90vh;
   display: flex;
   flex-direction: column;
+  min-height: 0;
   position: relative;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
 }
@@ -310,6 +312,9 @@
 .modal-body {
   padding: 20px;
   overflow-y: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -2431,6 +2436,12 @@ button.nav-item,
 }
 
 /* Provider service details: keep this modal a mobile bottom sheet, separate from admin forms. */
+html.modal-open,
+body.modal-open {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
 @media (max-width: 768px) {
   #serviceModal.modal-backdrop {
     display: flex;

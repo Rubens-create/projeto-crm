@@ -152,13 +152,18 @@ function openServiceModal(option) {
   document.querySelector('#modalEstTime').innerHTML = `<i data-lucide="clock"></i> ${option.estTime || '2.5h'}`;
 
   const modal = document.querySelector('#serviceModal');
+  if (!modal) return;
   modal.classList.add('open');
+  document.documentElement.classList.add('modal-open');
+  document.body.classList.add('modal-open');
   if (window.lucide) lucide.createIcons();
 }
 
 function closeServiceModal() {
   const modal = document.querySelector('#serviceModal');
   if (modal) modal.classList.remove('open');
+  document.documentElement.classList.remove('modal-open');
+  document.body.classList.remove('modal-open');
 }
 
 async function load() {
