@@ -1699,7 +1699,7 @@ body.modal-open {
 
 /* Modal de Conquistas */
 .achievements-modal-card {
-  max-width: 540px;
+  max-width: 520px;
   background: #ffffff;
 }
 
@@ -1749,9 +1749,10 @@ body.modal-open {
   max-height: 70vh;
 }
 
+/* Card de Conquista - Padrão Não Concluído (Cinza / Suave) */
 .achievement-card {
-  background: #fdfbfc;
-  border: 1px solid var(--line);
+  background: #f9f8fa;
+  border: 1px solid #e7e3e8;
   border-radius: 14px;
   padding: 16px;
   display: flex;
@@ -1760,18 +1761,16 @@ body.modal-open {
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+  filter: grayscale(1);
+  opacity: 0.75;
 }
 
 .achievement-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(45, 30, 50, 0.05);
-  border-color: #f2c7d7;
-}
-
-.achievement-card.unlocked {
-  background: #fff8fb;
-  border-color: #f6c0d5;
+  border-color: #d8d0db;
 }
 
 .achievement-icon {
@@ -1781,26 +1780,8 @@ body.modal-open {
   display: grid;
   place-items: center;
   flex: none;
-}
-
-.achievement-icon.pink {
-  background: #fbeaf0;
-  color: #ce819c;
-}
-
-.achievement-icon.peach {
-  background: #fff0e7;
-  color: #d59a73;
-}
-
-.achievement-icon.gold {
-  background: #fff4dc;
-  color: #c98e2c;
-}
-
-.achievement-icon.green {
-  background: #e8f5ef;
-  color: #55a27e;
+  background: #ebe6eb !important;
+  color: #8c828f !important;
 }
 
 .achievement-icon svg {
@@ -1823,7 +1804,7 @@ body.modal-open {
 
 .achievement-title-row strong {
   font-size: 13px;
-  color: #332e36;
+  color: #5c5460;
   font-weight: 700;
 }
 
@@ -1832,19 +1813,14 @@ body.modal-open {
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 20px;
-  background: #f2edf2;
-  color: #837a85;
+  background: #eae5eb;
+  color: #7d7380;
   white-space: nowrap;
-}
-
-.achievement-card.unlocked .achievement-status-badge {
-  background: #eaf7f0;
-  color: #44956e;
 }
 
 .achievement-content p {
   font-size: 11px;
-  color: #918994;
+  color: #938a96;
   margin: 0 0 10px;
   line-height: 1.35;
 }
@@ -1858,20 +1834,16 @@ body.modal-open {
 .achievement-progress-bar {
   width: 100%;
   height: 7px;
-  background: #eee8ed;
+  background: #e5dfe5;
   border-radius: 10px;
   overflow: hidden;
 }
 
 .achievement-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #f282af 0%, #d86295 100%);
+  background: #9d92a0;
   border-radius: 10px;
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.achievement-card.unlocked .achievement-progress-fill {
-  background: linear-gradient(90deg, #5ec395 0%, #3f9c73 100%);
 }
 
 .achievement-progress-labels {
@@ -1879,7 +1851,71 @@ body.modal-open {
   justify-content: space-between;
   font-size: 10px;
   font-weight: 600;
-  color: #9c949f;
+  color: #9d92a0;
+}
+
+/* Card de Conquista - Concluído (Colorido / Vibrante) */
+.achievement-card.unlocked {
+  filter: none;
+  opacity: 1;
+  background: linear-gradient(135deg, #ffffff 0%, #fff8fb 100%);
+  border: 1.5px solid #f29bbd;
+  box-shadow: 0 4px 16px rgba(242, 130, 175, 0.14);
+}
+
+.achievement-card.unlocked:hover {
+  border-color: #e54b85;
+  box-shadow: 0 8px 22px rgba(242, 130, 175, 0.22);
+}
+
+.achievement-card.unlocked .achievement-icon.pink {
+  background: #fbeaf0 !important;
+  color: #ce819c !important;
+}
+
+.achievement-card.unlocked .achievement-icon.peach {
+  background: #fff0e7 !important;
+  color: #d59a73 !important;
+}
+
+.achievement-card.unlocked .achievement-icon.gold {
+  background: #fff4dc !important;
+  color: #c98e2c !important;
+}
+
+.achievement-card.unlocked .achievement-icon.green {
+  background: #e8f5ef !important;
+  color: #55a27e !important;
+}
+
+.achievement-card.unlocked .achievement-title-row strong {
+  color: #2b242e;
+  font-weight: 800;
+}
+
+.achievement-card.unlocked .achievement-status-badge {
+  background: #e4f7ed;
+  color: #278859;
+  border: 1px solid #beeacf;
+  font-weight: 800;
+}
+
+.achievement-card.unlocked .achievement-content p {
+  color: #726875;
+}
+
+.achievement-card.unlocked .achievement-progress-bar {
+  background: #e2f4eb;
+}
+
+.achievement-card.unlocked .achievement-progress-fill {
+  background: linear-gradient(90deg, #42b783 0%, #298d5f 100%);
+  box-shadow: 0 0 8px rgba(66, 183, 131, 0.4);
+}
+
+.achievement-card.unlocked .achievement-progress-labels {
+  color: #278859;
+  font-weight: 700;
 }
 
 .achievements-badge-count {
@@ -4024,9 +4060,10 @@ button.nav-item,
   letter-spacing: -0.1px;
 }
 
-/* Provider service details: keep this modal a mobile bottom sheet, separate from admin forms. */
+/* Provider modals: keep service and achievements modals mobile bottom sheets */
 @media (max-width: 768px) {
-  #serviceModal.modal-backdrop {
+  #serviceModal.modal-backdrop,
+  #achievementsModal.modal-backdrop {
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -4036,13 +4073,15 @@ button.nav-item,
     overflow: hidden;
   }
 
-  #serviceModal.modal-backdrop.open {
+  #serviceModal.modal-backdrop.open,
+  #achievementsModal.modal-backdrop.open {
     display: flex;
     visibility: visible;
     pointer-events: auto;
   }
 
-  #serviceModal .modal-card {
+  #serviceModal .modal-card,
+  #achievementsModal .modal-card {
     width: 100%;
     max-width: none;
     max-height: min(90dvh, calc(100dvh - env(safe-area-inset-top)));
@@ -4051,12 +4090,14 @@ button.nav-item,
     transform: translateY(100%);
   }
 
-  #serviceModal.open .modal-card {
+  #serviceModal.open .modal-card,
+  #achievementsModal.open .modal-card {
     transform: translateY(0);
   }
 
-  #serviceModal .modal-body {
-    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  #serviceModal .modal-body,
+  #achievementsModal .achievements-body {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
   }
 }
 
