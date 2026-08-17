@@ -22,11 +22,25 @@
         <span class="brand-mark">Z</span>
         <strong>zygg</strong>
       </a>
-      <div class="provider-user">
-        <span class="avatar">MC</span>
-        <div>
-          <strong>Marina Costa</strong>
-          <small>Prestadora de serviços</small>
+      <div class="provider-user-menu-wrap">
+        <button type="button" class="avatar avatar-btn" id="providerAvatarBtn" aria-label="Menu do perfil" aria-expanded="false">
+          MC
+        </button>
+        <div class="provider-dropdown" id="providerDropdown">
+          <div class="provider-dropdown-header">
+            <span class="avatar avatar-lg">MC</span>
+            <div class="provider-dropdown-info">
+              <strong id="dropdownUserName">Marina Costa</strong>
+              <small id="dropdownUserRole">Prestadora de serviços</small>
+            </div>
+          </div>
+          <div class="provider-dropdown-divider"></div>
+          <div class="provider-dropdown-actions">
+            <button type="button" class="provider-dropdown-item logout-btn" id="providerLogoutBtn">
+              <i data-lucide="log-out"></i>
+              <span>Sair da conta</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>

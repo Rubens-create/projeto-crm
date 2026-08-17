@@ -177,12 +177,24 @@ async function load() {
 
     if (data.professional) {
       const firstName = (data.professional.name || '').split(' ')[0];
+      const fullName = data.professional.name || 'Prestador';
+      const initials = fullName
+        .split(' ')
+        .filter(Boolean)
+        .map(part => part[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase() || 'P';
+
       const heading = document.querySelector('.provider-heading h1');
-      const userName = document.querySelector('.provider-user strong');
-      const avatar = document.querySelector('.provider-user .avatar');
       if (heading && firstName) heading.textContent = `Olá, ${firstName}`;
-      if (userName && firstName) userName.textContent = firstName;
-      if (avatar && data.professional.name) avatar.textContent = data.professional.name.split(' ').map(part => part[0]).slice(0, 2).join('');
+
+      document.querySelectorAll('.avatar').forEach(el => {
+        el.textContent = initials;
+      });
+
+      const dropdownName = document.querySelector('#dropdownUserName');
+      if (dropdownName) dropdownName.textContent = fullName;
     }
 
     const thEl = document.querySelector('#totalHours'); if (thEl) thEl.textContent = (data.totalHours || 0).toFixed(1).replace('.', ',') + 'h';
@@ -316,6 +328,42 @@ if (refreshBtn) {
       setTimeout(() => refreshBtn.classList.remove('spinning'), 500);
     });
   };
+}
+
+// Toggle Menu Flutuante do Avatar
+const avatarBtn = document.querySelector('#providerAvatarBtn');
+const dropdownMenu = document.querySelector('#providerDropdown');
+const logoutBtn = document.querySelector('#providerLogoutBtn');
+
+if (avatarBtn && dropdownMenu) {
+  avatarBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = dropdownMenu.classList.toggle('open');
+    avatarBtn.setAttribute('aria-expanded', isOpen);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!dropdownMenu.contains(e.target) && !avatarBtn.contains(e.target)) {
+      dropdownMenu.classList.remove('open');
+      avatarBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      dropdownMenu.classList.remove('open');
+      avatarBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (_) {}
+    window.location.assign('/login');
+  });
 }
 
 load();
