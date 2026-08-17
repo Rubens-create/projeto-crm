@@ -122,6 +122,7 @@ function renderTimer() {
 }
 
 function switchTab(tabName) {
+  closeServiceModal();
   document.querySelectorAll('.bottom-nav-item').forEach(b => {
     b.classList.toggle('active', b.dataset.tab === tabName);
   });
@@ -153,12 +154,14 @@ function openServiceModal(option) {
 
   const modal = document.querySelector('#serviceModal');
   modal.classList.add('open');
+  document.body.classList.add('modal-open');
   if (window.lucide) lucide.createIcons();
 }
 
 function closeServiceModal() {
   const modal = document.querySelector('#serviceModal');
   if (modal) modal.classList.remove('open');
+  document.body.classList.remove('modal-open');
 }
 
 async function load() {

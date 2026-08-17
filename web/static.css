@@ -10,9 +10,42 @@
   --green: #4f9a7b;
   --shadow: 0 8px 28px rgba(48, 35, 54, 0.045);
 }
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none;
+}
+
+button,
+a,
+select,
+summary,
+[role="button"],
+[tabindex] {
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button:focus,
+button:active,
+button:focus-visible,
+a:focus,
+a:active,
+a:focus-visible,
+select:focus,
+select:active,
+select:focus-visible {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+svg {
+  pointer-events: none;
+  outline: none !important;
 }
 body {
   margin: 0;
@@ -1102,6 +1135,13 @@ tr:last-child td {
   border-color: var(--pink-strong);
 }
 
+/* Trava de Scroll ao abrir Modal */
+body.modal-open {
+  overflow: hidden !important;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
 /* Modal Bottom Sheet de Detalhes do Serviço */
 .modal-backdrop {
   position: fixed;
@@ -1117,6 +1157,8 @@ tr:last-child td {
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  overscroll-behavior: contain;
+  touch-action: none;
 }
 
 .modal-backdrop.open {
@@ -1137,6 +1179,8 @@ tr:last-child td {
   flex-direction: column;
   position: relative;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+  touch-action: auto;
+  overscroll-behavior: contain;
 }
 
 .modal-backdrop.open .modal-card {
@@ -1209,6 +1253,8 @@ tr:last-child td {
 .modal-body {
   padding: 20px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: 16px;
