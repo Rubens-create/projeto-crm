@@ -93,6 +93,73 @@ function updateLiveChart(secExact, rate) {
   }
 }
 
+let cachedExecutions = [];
+
+function renderWeeklyChart(executions = cachedExecutions, currentSessionSeconds = 0) {
+  const barsContainer = document.querySelector('#weeklyBars');
+  if (!barsContainer) return;
+
+  const daysShort = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const today = new Date();
+  const dayData = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    d.setHours(0, 0, 0, 0);
+
+    const nextD = new Date(d);
+    nextD.setDate(d.getDate() + 1);
+
+    let totalSeconds = 0;
+    (executions || []).forEach(ex => {
+      if (ex.status !== 'CANCELADO') {
+        const exDate = new Date(ex.startedAt);
+        if (exDate >= d && exDate < nextD) {
+          totalSeconds += (ex.durationSeconds || 0);
+        }
+      }
+    });
+
+    if (i === 0) {
+      totalSeconds += currentSessionSeconds;
+    }
+
+    const hours = totalSeconds / 3600;
+    dayData.push({
+      date: d,
+      dayLabel: daysShort[d.getDay()],
+      isToday: i === 0,
+      hours: hours,
+      formattedHours: hours > 0 ? (hours >= 1 ? hours.toFixed(1).replace('.0', '') + 'h' : Math.round(hours * 60) + 'm') : '0h'
+    });
+  }
+
+  const maxHoursRaw = Math.max(...dayData.map(d => d.hours));
+  const maxHours = Math.max(Math.ceil(maxHoursRaw) || 1, 4);
+  const midHours = (maxHours / 2).toFixed(1).replace('.0', '');
+
+  const yMaxEl = document.querySelector('#chartYMax');
+  const yMidEl = document.querySelector('#chartYMid');
+  if (yMaxEl) yMaxEl.textContent = `${maxHours}h`;
+  if (yMidEl) yMidEl.textContent = `${midHours}h`;
+
+  const totalWeekHours = dayData.reduce((acc, d) => acc + d.hours, 0);
+  const badgeEl = document.querySelector('#weeklyTotalHoursBadge');
+  if (badgeEl) badgeEl.textContent = `${totalWeekHours.toFixed(1).replace('.0', '')}h`;
+
+  barsContainer.innerHTML = dayData.map(d => {
+    const percent = d.hours > 0 ? Math.min(100, Math.max(8, Math.round((d.hours / maxHours) * 100))) : 4;
+    return `
+      <div class="bar-col ${d.isToday ? 'is-today' : ''}" title="${d.dayLabel} (${d.date.toLocaleDateString('pt-BR')}): ${d.formattedHours}">
+        <small class="bar-val">${d.hours > 0 ? d.formattedHours : ''}</small>
+        <b style="height: ${percent}%;"></b>
+        <small class="bar-label">${d.isToday ? 'Hoje' : d.dayLabel}</small>
+      </div>
+    `;
+  }).join('');
+}
+
 let lastRenderedActive = null;
 
 function renderTimer() {
@@ -119,10 +186,14 @@ function renderTimer() {
   }
 
   updateLiveChart(secExact, rate);
+  if (latestProviderData && timerState.active) {
+    calculateAndRenderAchievements(latestProviderData, secExact);
+  }
 }
 
 function switchTab(tabName) {
   closeServiceModal();
+  closeAchievementsModal();
   document.querySelectorAll('.bottom-nav-item').forEach(b => {
     b.classList.toggle('active', b.dataset.tab === tabName);
   });
@@ -161,7 +232,137 @@ function openServiceModal(option) {
 function closeServiceModal() {
   const modal = document.querySelector('#serviceModal');
   if (modal) modal.classList.remove('open');
-  document.body.classList.remove('modal-open');
+  const achModal = document.querySelector('#achievementsModal');
+  if (!achModal || !achModal.classList.contains('open')) {
+    document.body.classList.remove('modal-open');
+  }
+}
+
+function openAchievementsModal() {
+  const modal = document.querySelector('#achievementsModal');
+  if (modal) {
+    modal.classList.add('open');
+    document.body.classList.add('modal-open');
+    if (window.lucide) lucide.createIcons();
+  }
+}
+
+function closeAchievementsModal() {
+  const modal = document.querySelector('#achievementsModal');
+  if (modal) modal.classList.remove('open');
+  const serviceModal = document.querySelector('#serviceModal');
+  if (!serviceModal || !serviceModal.classList.contains('open')) {
+    document.body.classList.remove('modal-open');
+  }
+}
+
+let latestProviderData = null;
+
+function calculateAndRenderAchievements(data = latestProviderData, currentSessionSeconds = 0) {
+  if (!data) return;
+  latestProviderData = data;
+
+  const sessionHours = currentSessionSeconds / 3600;
+  const totalHours = (data.totalHours || 0) + sessionHours;
+  const currentRate = getSelectedRate();
+  const totalEarned = (data.totalEarned || 0) + (sessionHours * currentRate);
+  const executions = data.executions || [];
+
+  // 1. 1.000 horas trabalhadas
+  const targetHours = 1000;
+  const pctHours = Math.min(100, Math.max(0, (totalHours / targetHours) * 100));
+  const isHoursUnlocked = totalHours >= targetHours;
+  const cardHours = document.querySelector('#achieveCardHours');
+  const fillHours = document.querySelector('#fillHours');
+  const badgeHours = document.querySelector('#badgeHours');
+  const labelHours = document.querySelector('#labelHoursCurrent');
+
+  if (cardHours) cardHours.classList.toggle('unlocked', isHoursUnlocked);
+  if (fillHours) fillHours.style.width = `${pctHours.toFixed(1)}%`;
+  if (badgeHours) badgeHours.textContent = isHoursUnlocked ? 'Concluído 🏆' : `${pctHours.toFixed(1)}%`;
+  if (labelHours) labelHours.textContent = `${totalHours.toFixed(1).replace('.', ',')}h`;
+
+  // 2. R$ 10.000 ganhos
+  const targetEarned10k = 10000;
+  const pctEarned10k = Math.min(100, Math.max(0, (totalEarned / targetEarned10k) * 100));
+  const isEarned10kUnlocked = totalEarned >= targetEarned10k;
+  const cardEarned10k = document.querySelector('#achieveCardEarned10k');
+  const fillEarned10k = document.querySelector('#fillEarned10k');
+  const badgeEarned10k = document.querySelector('#badgeEarned10k');
+  const labelEarned10k = document.querySelector('#labelEarned10kCurrent');
+
+  if (cardEarned10k) cardEarned10k.classList.toggle('unlocked', isEarned10kUnlocked);
+  if (fillEarned10k) fillEarned10k.style.width = `${pctEarned10k.toFixed(1)}%`;
+  if (badgeEarned10k) badgeEarned10k.textContent = isEarned10kUnlocked ? 'Concluído 🏆' : `${pctEarned10k.toFixed(1)}%`;
+  if (labelEarned10k) labelEarned10k.textContent = money(totalEarned);
+
+  // 3. R$ 20.000 ganhos
+  const targetEarned20k = 20000;
+  const pctEarned20k = Math.min(100, Math.max(0, (totalEarned / targetEarned20k) * 100));
+  const isEarned20kUnlocked = totalEarned >= targetEarned20k;
+  const cardEarned20k = document.querySelector('#achieveCardEarned20k');
+  const fillEarned20k = document.querySelector('#fillEarned20k');
+  const badgeEarned20k = document.querySelector('#badgeEarned20k');
+  const labelEarned20k = document.querySelector('#labelEarned20kCurrent');
+
+  if (cardEarned20k) cardEarned20k.classList.toggle('unlocked', isEarned20kUnlocked);
+  if (fillEarned20k) fillEarned20k.style.width = `${pctEarned20k.toFixed(1)}%`;
+  if (badgeEarned20k) badgeEarned20k.textContent = isEarned20kUnlocked ? 'Concluído 🏆' : `${pctEarned20k.toFixed(1)}%`;
+  if (labelEarned20k) labelEarned20k.textContent = money(totalEarned);
+
+  // 4. 5 dias seguidos trabalhando 8h
+  const dailySecondsMap = {};
+  executions.forEach(ex => {
+    if (ex.status !== 'CANCELADO') {
+      const dayKey = new Date(ex.startedAt).toISOString().slice(0, 10);
+      dailySecondsMap[dayKey] = (dailySecondsMap[dayKey] || 0) + (ex.durationSeconds || 0);
+    }
+  });
+
+  if (timerState.active) {
+    const todayKey = new Date().toISOString().slice(0, 10);
+    dailySecondsMap[todayKey] = (dailySecondsMap[todayKey] || 0) + currentSessionSeconds;
+  }
+
+  const sortedDays = Object.keys(dailySecondsMap).sort();
+  let maxStreak = 0;
+  let currentStreak = 0;
+  let prevDate = null;
+
+  sortedDays.forEach(dayStr => {
+    const seconds = dailySecondsMap[dayStr];
+    const dayDate = new Date(dayStr + 'T00:00:00');
+    if (seconds >= 28800) { // 8h
+      if (prevDate && (dayDate - prevDate === 86400000)) {
+        currentStreak++;
+      } else {
+        currentStreak = 1;
+      }
+      prevDate = dayDate;
+      if (currentStreak > maxStreak) maxStreak = currentStreak;
+    } else {
+      currentStreak = 0;
+      prevDate = null;
+    }
+  });
+
+  const targetStreak = 5;
+  const pctStreak = Math.min(100, Math.max(0, (maxStreak / targetStreak) * 100));
+  const isStreakUnlocked = maxStreak >= targetStreak;
+  const cardStreak = document.querySelector('#achieveCardStreak5d');
+  const fillStreak = document.querySelector('#fillStreak5d');
+  const badgeStreak = document.querySelector('#badgeStreak5d');
+  const labelStreak = document.querySelector('#labelStreak5dCurrent');
+
+  if (cardStreak) cardStreak.classList.toggle('unlocked', isStreakUnlocked);
+  if (fillStreak) fillStreak.style.width = `${pctStreak.toFixed(1)}%`;
+  if (badgeStreak) badgeStreak.textContent = isStreakUnlocked ? 'Concluído 🏆' : `${maxStreak}/5 dias`;
+  if (labelStreak) labelStreak.textContent = `${maxStreak} dia(s) consecutivo(s)`;
+
+  // Contador total desbloqueado
+  const unlockedCount = [isHoursUnlocked, isEarned10kUnlocked, isEarned20kUnlocked, isStreakUnlocked].filter(Boolean).length;
+  const badgeCountEl = document.querySelector('#achievementsUnlockedCount');
+  if (badgeCountEl) badgeCountEl.textContent = `${unlockedCount}/4`;
 }
 
 async function load() {
@@ -237,6 +438,10 @@ async function load() {
       <div class="professional-cell" style="padding:10px 0;border-bottom:1px solid var(--line);">
         <div><strong>${execution.serviceName}</strong><small>${new Date(execution.startedAt).toLocaleDateString('pt-BR')} · ${formatTime(execution.durationSeconds).slice(0, 8)} · ${money(execution.totalValueCents / 100)} · ${execution.status}</small></div>
       </div>`).join('') || '<small>Nenhum serviço executado ainda.</small>';
+
+    cachedExecutions = data.executions || [];
+    renderWeeklyChart(cachedExecutions, timerState.active ? elapsedExact() : 0);
+    calculateAndRenderAchievements(data, timerState.active ? elapsedExact() : 0);
 
     if (timerState.active && !tick) {
       tick = setInterval(renderTimer, 30);
@@ -365,6 +570,56 @@ if (logoutBtn) {
     window.location.assign('/login');
   });
 }
+
+// Toggle Como Funciona (Steps Expansíveis)
+const howToggle = document.querySelector('#howItWorksToggle');
+const howCard = document.querySelector('#howItWorksCard');
+
+if (howToggle && howCard) {
+  const toggleHowItWorks = () => {
+    const isOpen = howCard.classList.toggle('open');
+    howToggle.setAttribute('aria-expanded', isOpen);
+  };
+
+  howToggle.addEventListener('click', toggleHowItWorks);
+  howToggle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleHowItWorks();
+    }
+  });
+}
+
+// Modal de Conquistas
+const achievementsBtn = document.querySelector('#providerAchievementsBtn');
+const achievementsCloseBtn = document.querySelector('#achievementsCloseBtn');
+const achievementsModal = document.querySelector('#achievementsModal');
+
+if (achievementsBtn) {
+  achievementsBtn.addEventListener('click', () => {
+    if (dropdownMenu) {
+      dropdownMenu.classList.remove('open');
+      if (avatarBtn) avatarBtn.setAttribute('aria-expanded', 'false');
+    }
+    openAchievementsModal();
+  });
+}
+
+if (achievementsCloseBtn) {
+  achievementsCloseBtn.addEventListener('click', closeAchievementsModal);
+}
+
+if (achievementsModal) {
+  achievementsModal.addEventListener('click', (e) => {
+    if (e.target === achievementsModal) closeAchievementsModal();
+  });
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeAchievementsModal();
+  }
+});
 
 load();
 

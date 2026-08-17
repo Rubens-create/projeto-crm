@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zygg-limpeza-v3';
+const CACHE_NAME = 'zygg-limpeza-v6';
 const ASSETS_TO_CACHE = [
   '/prestador',
   '/static.css',

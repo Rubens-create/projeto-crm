@@ -36,6 +36,11 @@
           </div>
           <div class="provider-dropdown-divider"></div>
           <div class="provider-dropdown-actions">
+            <button type="button" class="provider-dropdown-item" id="providerAchievementsBtn">
+              <i data-lucide="trophy"></i>
+              <span>Conquistas</span>
+              <span class="achievements-badge-count" id="achievementsUnlockedCount">0/4</span>
+            </button>
             <button type="button" class="provider-dropdown-item logout-btn" id="providerLogoutBtn">
               <i data-lucide="log-out"></i>
               <span>Sair da conta</span>
@@ -83,16 +88,50 @@
           <div class="panel-head"><div><h2>Meus serviços</h2><p>Histórico das minhas execuções.</p></div></div>
           <div id="executionsList"></div>
         </section>
-        <section class="panel earning-card" style="margin-top:16px;">
+
+        <!-- GRÁFICO DE COLUNAS DA SEMANA (HORAS TRABALHADAS) -->
+        <section class="panel weekly-hours-panel" style="margin-top:16px;">
           <div class="panel-head">
-            <div><h2>Como funciona</h2><p>Seu pagamento é calculado por hora.</p></div>
-            <span class="how-icon"><i data-lucide="circle-help"></i></span>
+            <div>
+              <h2>Horas da semana</h2>
+              <p>Horas trabalhadas por dia nos últimos 7 dias.</p>
+            </div>
+            <span class="online-pill"><i data-lucide="clock"></i> <b id="weeklyTotalHoursBadge">0h</b> nesta semana</span>
           </div>
-          <ol class="steps">
-            <li><span>1</span><div><strong>Escolha um serviço</strong><small>Veja as atividades disponíveis e o valor por hora.</small></div></li>
-            <li><span>2</span><div><strong>Inicie o cronômetro</strong><small>Registre exatamente o tempo trabalhado.</small></div></li>
-            <li><span>3</span><div><strong>Finalize o serviço</strong><small>Confirme o total calculado para receber o repasse.</small></div></li>
-          </ol>
+          <div class="chart weekly-chart">
+            <div class="chart-y">
+              <span id="chartYMax">8h</span>
+              <span id="chartYMid">4h</span>
+              <span>0h</span>
+            </div>
+            <div class="chart-area">
+              <div class="grid-lines">
+                <i></i>
+                <i></i>
+                <i></i>
+              </div>
+              <div class="bars" id="weeklyBars"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel earning-card collapsible" id="howItWorksCard" style="margin-top:16px;">
+          <div class="panel-head" id="howItWorksToggle" role="button" tabindex="0" aria-expanded="false" aria-controls="howItWorksContent">
+            <div>
+              <h2>Como funciona</h2>
+              <p>Seu pagamento é calculado por hora.</p>
+            </div>
+            <span class="how-toggle-btn"><i data-lucide="chevron-down"></i></span>
+          </div>
+          <div class="steps-collapse" id="howItWorksContent">
+            <div class="steps-collapse-inner">
+              <ol class="steps">
+                <li><span>1</span><div><strong>Escolha um serviço</strong><small>Veja as atividades disponíveis e o valor por hora.</small></div></li>
+                <li><span>2</span><div><strong>Inicie o cronômetro</strong><small>Registre exatamente o tempo trabalhado.</small></div></li>
+                <li><span>3</span><div><strong>Finalize o serviço</strong><small>Confirme o total calculado para receber o repasse.</small></div></li>
+              </ol>
+            </div>
+          </div>
         </section>
       </section>
 
@@ -241,6 +280,116 @@
           <i data-lucide="play-circle"></i>
           <span>Selecionar e ir para o Cronômetro</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONQUISTAS DO PRESTADOR -->
+  <div class="modal-backdrop" id="achievementsModal">
+    <div class="modal-card achievements-modal-card">
+      <button class="modal-close" id="achievementsCloseBtn" aria-label="Fechar"><i data-lucide="x"></i></button>
+      <div class="achievements-header">
+        <div class="achievements-icon-badge">
+          <i data-lucide="trophy"></i>
+        </div>
+        <div>
+          <h2>Minhas Conquistas</h2>
+          <p>Acompanhe suas metas e marcos na plataforma Zygg.</p>
+        </div>
+      </div>
+      
+      <div class="achievements-body">
+        <!-- Card 1: 1.000 Horas Trabalhadas -->
+        <article class="achievement-card" id="achieveCardHours">
+          <div class="achievement-icon pink">
+            <i data-lucide="clock-3"></i>
+          </div>
+          <div class="achievement-content">
+            <div class="achievement-title-row">
+              <strong>1.000 horas trabalhadas</strong>
+              <span class="achievement-status-badge" id="badgeHours">0%</span>
+            </div>
+            <p>Acumule mil horas em atendimentos executados.</p>
+            <div class="achievement-progress-wrap">
+              <div class="achievement-progress-bar">
+                <div class="achievement-progress-fill" id="fillHours" style="width: 0%;"></div>
+              </div>
+              <div class="achievement-progress-labels">
+                <span id="labelHoursCurrent">0h</span>
+                <span>Meta: 1.000h</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 2: R$ 10.000 Ganhos -->
+        <article class="achievement-card" id="achieveCardEarned10k">
+          <div class="achievement-icon peach">
+            <i data-lucide="wallet"></i>
+          </div>
+          <div class="achievement-content">
+            <div class="achievement-title-row">
+              <strong>R$ 10.000 ganhos</strong>
+              <span class="achievement-status-badge" id="badgeEarned10k">0%</span>
+            </div>
+            <p>Atinja dez mil reais em faturamento total com serviços.</p>
+            <div class="achievement-progress-wrap">
+              <div class="achievement-progress-bar">
+                <div class="achievement-progress-fill" id="fillEarned10k" style="width: 0%;"></div>
+              </div>
+              <div class="achievement-progress-labels">
+                <span id="labelEarned10kCurrent">R$ 0,00</span>
+                <span>Meta: R$ 10.000,00</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 3: R$ 20.000 Ganhos -->
+        <article class="achievement-card" id="achieveCardEarned20k">
+          <div class="achievement-icon gold">
+            <i data-lucide="award"></i>
+          </div>
+          <div class="achievement-content">
+            <div class="achievement-title-row">
+              <strong>R$ 20.000 ganhos</strong>
+              <span class="achievement-status-badge" id="badgeEarned20k">0%</span>
+            </div>
+            <p>Alcance vinte mil reais acumulados como prestador parceiro.</p>
+            <div class="achievement-progress-wrap">
+              <div class="achievement-progress-bar">
+                <div class="achievement-progress-fill" id="fillEarned20k" style="width: 0%;"></div>
+              </div>
+              <div class="achievement-progress-labels">
+                <span id="labelEarned20kCurrent">R$ 0,00</span>
+                <span>Meta: R$ 20.000,00</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 4: 5 dias seguidos trabalhando 8h -->
+        <article class="achievement-card" id="achieveCardStreak5d">
+          <div class="achievement-icon green">
+            <i data-lucide="flame"></i>
+          </div>
+          <div class="achievement-content">
+            <div class="achievement-title-row">
+              <strong>5 dias seguidos trabalhando 8h</strong>
+              <span class="achievement-status-badge" id="badgeStreak5d">0/5 dias</span>
+            </div>
+            <p>Mantenha uma sequência de 5 dias consecutivos com 8h ou mais de dedicação.</p>
+            <div class="achievement-progress-wrap">
+              <div class="achievement-progress-bar">
+                <div class="achievement-progress-fill" id="fillStreak5d" style="width: 0%;"></div>
+              </div>
+              <div class="achievement-progress-labels">
+                <span id="labelStreak5dCurrent">0 dias seguidos</span>
+                <span>Meta: 5 dias (8h/dia)</span>
+              </div>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
   </div>
