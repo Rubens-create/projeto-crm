@@ -22,4 +22,23 @@ document.addEventListener('DOMContentLoaded', () => {
     entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('is-visible'); });
   }, { threshold: 0.12 });
   document.querySelectorAll('.zygg-reveal').forEach(element => reveal.observe(element));
+
+  document.querySelectorAll('[data-live-timer]').forEach(timer => {
+    const display = timer.querySelector('span');
+    const parts = timer.dataset.liveTimer.split(':').map(Number);
+    if (!display || parts.length !== 3 || parts.some(Number.isNaN)) return;
+
+    let elapsedSeconds = (parts[0] * 3600) + (parts[1] * 60) + parts[2];
+    const renderTimer = () => {
+      elapsedSeconds += 1;
+      const hours = Math.floor(elapsedSeconds / 3600);
+      const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+      const seconds = elapsedSeconds % 60;
+      display.textContent = [hours, minutes, seconds]
+        .map(value => String(value).padStart(2, '0'))
+        .join(':');
+    };
+
+    window.setInterval(renderTimer, 1000);
+  });
 });
