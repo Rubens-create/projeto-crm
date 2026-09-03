@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"database/sql"
@@ -15,6 +16,7 @@ import (
 )
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
+var ErrBootstrapAlreadyComplete = errors.New("initial superuser setup already completed")
 
 func (d *DB) CreateProviderAccount(name, email, phone, specialty, password string) (model.AuthUser, error) {
 	email = strings.ToLower(strings.TrimSpace(email))
@@ -58,14 +60,61 @@ func (d *DB) EnsureBootstrapAdmin(email, password string) error {
 	return d.CreateUser(email, password, model.RoleAdmin, "")
 }
 
+func (d *DB) UsersExist() (bool, error) {
+	var count int
+	if err := d.conn.QueryRow("SELECT COUNT(*) FROM users").Scan(&count); err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (d *DB) AdminUsersExist() (bool, error) {
+	var count int
+	if err := d.conn.QueryRow("SELECT COUNT(*) FROM users WHERE role IN ($1, $2)", model.RoleSuperAdmin, model.RoleAdmin).Scan(&count); err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (d *DB) CreateInitialSuperuser(email, password string) (model.AuthUser, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return model.AuthUser{}, err
+	}
+	tx, err := d.conn.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable})
+	if err != nil {
+		return model.AuthUser{}, err
+	}
+	defer tx.Rollback()
+
+	var count int
+	if err := tx.QueryRow("SELECT COUNT(*) FROM users WHERE role IN ($1, $2)", model.RoleSuperAdmin, model.RoleAdmin).Scan(&count); err != nil {
+		return model.AuthUser{}, err
+	}
+	if count > 0 {
+		return model.AuthUser{}, ErrBootstrapAlreadyComplete
+	}
+
+	userID := randomID()
+	if _, err := tx.Exec(`INSERT INTO users (id, email, password_hash, role, professional_id)
+		VALUES ($1, $2, $3, $4, NULL)`, userID, email, string(hash), model.RoleSuperAdmin); err != nil {
+		return model.AuthUser{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return model.AuthUser{}, err
+	}
+	return model.AuthUser{ID: userID, Email: email, Role: model.RoleSuperAdmin}, nil
+}
+
 func (d *DB) CreateUser(email, password, role, professionalID string) error {
-	if role != model.RoleAdmin && role != model.RoleProvider {
+	if role != model.RoleSuperAdmin && role != model.RoleAdmin && role != model.RoleProvider {
 		return errors.New("invalid role")
 	}
 	if role == model.RoleProvider && professionalID == "" {
 		return errors.New("professional id is required for providers")
 	}
-	if role == model.RoleAdmin && professionalID != "" {
+	if (role == model.RoleSuperAdmin || role == model.RoleAdmin) && professionalID != "" {
 		return errors.New("admins cannot have a professional id")
 	}
 

@@ -41,7 +41,7 @@ function render() {
     <td><strong>${money(service.rate)}/h</strong></td>
     <td><strong>${escapeHtml(service.estTime || 'Não informado')}</strong></td>
     <td><span class="professional-status ${service.active ? 'active' : 'inactive'}"><i data-lucide="${service.active ? 'check' : 'eye-off'}"></i>${service.active ? 'Ativo' : 'Desativado'}</span></td>
-    <td><div class="action-menu"><button class="more service-more" data-menu="${escapeHtml(service.id)}" aria-label="Mais opções"><i data-lucide="more-horizontal"></i></button><div class="action-dropdown" id="service-menu-${escapeHtml(service.id)}"><button data-action="edit" data-id="${escapeHtml(service.id)}"><i data-lucide="pencil"></i>Editar informações</button><button data-action="toggle" data-id="${escapeHtml(service.id)}"><i data-lucide="${service.active ? 'eye-off' : 'eye'}"></i>${service.active ? 'Desativar' : 'Ativar'}</button></div></div></td>
+    <td><div class="action-menu"><button class="more service-more" data-menu="${escapeHtml(service.id)}" aria-label="Mais opções"><i data-lucide="more-horizontal"></i></button><div class="action-dropdown" id="service-menu-${escapeHtml(service.id)}"><button data-action="edit" data-id="${escapeHtml(service.id)}"><i data-lucide="pencil"></i>Editar informações</button><button data-action="toggle" data-id="${escapeHtml(service.id)}"><i data-lucide="${service.active ? 'eye-off' : 'eye'}"></i>${service.active ? 'Desativar' : 'Ativar'}</button><button data-action="delete" data-id="${escapeHtml(service.id)}" class="danger-action"><i data-lucide="trash-2"></i>Excluir</button></div></div></td>
   </tr>`).join('') || '<tr><td colspan="6" class="empty-row">Nenhum serviço encontrado.</td></tr>';
 
   if (window.lucide) lucide.createIcons();
@@ -59,6 +59,12 @@ function render() {
   document.querySelectorAll('[data-action="toggle"]').forEach(button => button.onclick = async event => {
     event.stopPropagation();
     await saveService({ action: 'toggle', id: button.dataset.id }, 'Visibilidade do serviço atualizada.');
+  });
+  document.querySelectorAll('[data-action="delete"]').forEach(button => button.onclick = async event => {
+    event.stopPropagation();
+    const service = services.find(item => item.id === button.dataset.id);
+    if (!service || !window.confirm(`Excluir o serviço "${service.name}"? Esta ação não pode ser desfeita.`)) return;
+    await saveService({ action: 'delete', id: button.dataset.id }, 'Serviço excluído com sucesso.');
   });
 }
 

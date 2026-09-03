@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"crm-terceirizados/internal/model"
@@ -26,6 +27,19 @@ func (h *Handler) AdminProfessionals(w http.ResponseWriter, r *http.Request) {
 		}
 		if payload.Action == "toggle" {
 			if err := h.db.ToggleProfessionalActive(payload.ID); err != nil {
+				h.jsonError(w, "database error", 500)
+				return
+			}
+		} else if payload.Action == "update" {
+			payload.Name = strings.TrimSpace(payload.Name)
+			payload.Email = strings.ToLower(strings.TrimSpace(payload.Email))
+			payload.Phone = strings.TrimSpace(payload.Phone)
+			payload.Specialty = strings.TrimSpace(payload.Specialty)
+			if payload.ID == "" || payload.Name == "" || payload.Email == "" || payload.Specialty == "" {
+				h.jsonError(w, "invalid professional", http.StatusBadRequest)
+				return
+			}
+			if err := h.db.UpdateProfessional(model.Professional{ID: payload.ID, Name: payload.Name, Email: payload.Email, Phone: payload.Phone, Specialty: payload.Specialty}); err != nil {
 				h.jsonError(w, "database error", 500)
 				return
 			}

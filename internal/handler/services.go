@@ -2,8 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
+
+	"crm-terceirizados/internal/database"
 )
 
 func (h *Handler) AdminServices(w http.ResponseWriter, r *http.Request) {
@@ -22,6 +25,22 @@ func (h *Handler) AdminServices(w http.ResponseWriter, r *http.Request) {
 		}
 
 		switch payload.Action {
+		case "delete":
+			if payload.ID == "" {
+				h.jsonError(w, "invalid service", http.StatusBadRequest)
+				return
+			}
+			if err := h.db.DeleteOption(payload.ID); err != nil {
+				switch {
+				case errors.Is(err, database.ErrServiceInUse):
+					h.jsonError(w, "service has execution history and cannot be deleted", http.StatusConflict)
+				case errors.Is(err, database.ErrServiceNotFound):
+					h.jsonError(w, "service not found", http.StatusNotFound)
+				default:
+					h.jsonError(w, "database error", http.StatusInternalServerError)
+				}
+				return
+			}
 		case "toggle":
 			if err := h.db.ToggleOptionActive(payload.ID); err != nil {
 				h.jsonError(w, "database error", http.StatusInternalServerError)

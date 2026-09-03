@@ -25,9 +25,11 @@ func New(cfg config.Config, h *handler.Handler) *http.Server {
 	})
 
 	mux.HandleFunc("/api/auth/login", h.Login)
+	mux.HandleFunc("/api/auth/bootstrap-status", h.BootstrapStatus)
+	mux.HandleFunc("/api/auth/setup-superuser", h.SetupSuperuser)
 	mux.HandleFunc("/api/auth/provider-signup", h.ProviderSignup)
-	mux.HandleFunc("/api/auth/logout", middleware.RequireRole(h.Database(), model.RoleAdmin, model.RoleProvider)(h.Logout))
-	mux.HandleFunc("/api/auth/session", middleware.RequireRole(h.Database(), model.RoleAdmin, model.RoleProvider)(h.Session))
+	mux.HandleFunc("/api/auth/logout", middleware.RequireRole(h.Database(), model.RoleSuperAdmin, model.RoleAdmin, model.RoleProvider)(h.Logout))
+	mux.HandleFunc("/api/auth/session", middleware.RequireRole(h.Database(), model.RoleSuperAdmin, model.RoleAdmin, model.RoleProvider)(h.Session))
 	mux.HandleFunc("/api/dashboard", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.Dashboard))
 	mux.HandleFunc("/api/provider", middleware.RequireRole(h.Database(), model.RoleProvider)(h.Provider))
 	mux.HandleFunc("/api/provider/executions", middleware.RequireRole(h.Database(), model.RoleProvider)(h.ProviderExecutions))
@@ -56,7 +58,7 @@ func New(cfg config.Config, h *handler.Handler) *http.Server {
 			middleware.RequirePageRole(h.Database(), "/login?role=provider", model.RoleProvider)(h.Pages)(w, r)
 			return
 		}
-		if strings.HasPrefix(r.URL.Path, "/admin/") {
+		if r.URL.Path == "/admin" || strings.HasPrefix(r.URL.Path, "/admin/") {
 			middleware.RequirePageRole(h.Database(), "/login?role=admin", model.RoleAdmin)(h.Pages)(w, r)
 			return
 		}

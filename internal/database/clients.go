@@ -53,3 +53,13 @@ func (d *DB) CreateClient(client model.Client) error {
 		client.ID, client.Name, client.Email, client.Phone)
 	return err
 }
+
+func (d *DB) UpdateClient(client model.Client) error {
+	_, err := d.conn.Exec(`UPDATE clients SET name = $1, email = $2, phone = $3 WHERE id = $4`, client.Name, client.Email, client.Phone, client.ID)
+	return err
+}
+
+func (d *DB) ToggleClientStatus(id string) error {
+	_, err := d.conn.Exec(`UPDATE clients SET status = CASE WHEN status = 'Ativo' THEN 'Inativo' ELSE 'Ativo' END WHERE id = $1`, id)
+	return err
+}

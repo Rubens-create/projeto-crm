@@ -4,6 +4,9 @@ const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '
 let properties = [];
 let clients = [];
 let currentFilter = 'all';
+let pendingImageFile = null;
+let pendingImageDataURL = '';
+let pendingImageRead = Promise.resolve('');
 
 const body = document.querySelector('#propertiesBody');
 const modal = document.querySelector('#propertyModal');
@@ -108,6 +111,10 @@ function bindRowActions() {
 
 function openForm(property = null) {
   form.reset();
+  pendingImageFile = null;
+  pendingImageDataURL = '';
+  pendingImageRead = Promise.resolve('');
+  document.querySelector('#propertyFileInput').value = '';
   document.querySelector('#propertyModalTitle').textContent = property ? 'Editar imóvel' : 'Novo imóvel';
   document.querySelector('#propertyId').value = property?.id || '';
   document.querySelector('#propertyName').value = property?.name || '';
@@ -166,16 +173,19 @@ async function deleteProperty(property) {
 form.onsubmit = async event => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(form));
+  const image = await uploadPendingImage();
   const payload = {
     action: data.id ? 'update' : 'create', id: data.id,
     name: data.name, clientId: data.clientId, address: data.address,
     description: data.description, bedrooms: Number(data.bedrooms) || 0,
     bathrooms: Number(data.bathrooms) || 0, livingRooms: Number(data.livingRooms) || 0,
-    sqm: Number(data.sqm) || 0, image: data.image, estimatedTime: data.estimatedTime,
+    sqm: Number(data.sqm) || 0, image, estimatedTime: data.estimatedTime,
     status: data.status || 'ATIVO'
   };
   try {
     properties = await apiPost(payload);
+    pendingImageFile = null;
+    pendingImageDataURL = '';
     modal.classList.remove('open');
     render();
     showToast(data.id ? 'Imóvel atualizado com sucesso.' : 'Imóvel criado com sucesso.');
@@ -184,35 +194,51 @@ form.onsubmit = async event => {
   }
 };
 
-async function uploadImage() {
+function uploadImage() {
   const input = document.querySelector('#propertyFileInput');
   const file = input.files[0];
   if (!file) return;
+  pendingImageFile = file;
   const preview = document.querySelector('#propertyImagePreview');
-  const hidden = document.querySelector('#propertyImage');
   const name = document.querySelector('#propertyImageName');
-  const reader = new FileReader();
-  reader.onload = () => {
-    preview.src = reader.result;
-    name.textContent = file.name;
-    hidden.value = reader.result;
-  };
-  reader.readAsDataURL(file);
+  pendingImageRead = new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      pendingImageDataURL = reader.result;
+      preview.src = pendingImageDataURL;
+      resolve(pendingImageDataURL);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+  name.textContent = `${file.name} · pronto para salvar`;
+}
+
+async function uploadPendingImage() {
+  if (!pendingImageFile) return document.querySelector('#propertyImage').value;
+  let fallbackImage = document.querySelector('#propertyImage').value;
+  try {
+    fallbackImage = await pendingImageRead;
+  } catch {
+    return fallbackImage;
+  }
   try {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', pendingImageFile);
     const response = await fetch('/api/upload', { method: 'POST', body: formData });
     if (!response.ok) throw new Error('upload failed');
     const result = await response.json();
-    hidden.value = result.url;
-    preview.src = result.url;
-    showToast('Imagem enviada com sucesso.');
+    document.querySelector('#propertyImage').value = result.url;
+    document.querySelector('#propertyImagePreview').src = result.url;
+    return result.url;
   } catch {
-    showToast('Imagem armazenada como dados locais.');
+    document.querySelector('#propertyImage').value = fallbackImage;
+    return fallbackImage;
   }
 }
 
 document.querySelector('#propertyFileInput').onchange = uploadImage;
+document.querySelector('#propertyUploadBtn').onclick = () => document.querySelector('#propertyFileInput').click();
 document.querySelector('#newPropertyBtn').onclick = () => openForm();
 document.querySelector('#closePropertyModal').onclick = () => modal.classList.remove('open');
 document.querySelector('#closePropertyDetails').onclick = () => detailsModal.classList.remove('open');

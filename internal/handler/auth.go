@@ -3,9 +3,11 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
+	"crm-terceirizados/internal/database"
 	"crm-terceirizados/internal/middleware"
 )
 
@@ -104,6 +106,58 @@ func (h *Handler) Session(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.jsonResponse(w, user)
+}
+
+func (h *Handler) BootstrapStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		h.jsonError(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	exists, err := h.db.AdminUsersExist()
+	if err != nil {
+		h.jsonError(w, "could not check setup status", http.StatusInternalServerError)
+		return
+	}
+	h.jsonResponse(w, map[string]bool{"setupRequired": !exists})
+}
+
+func (h *Handler) SetupSuperuser(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		h.jsonError(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if !sameOrigin(r) {
+		h.jsonError(w, "csrf validation failed", http.StatusForbidden)
+		return
+	}
+	var input struct {
+		Email                string `json:"email"`
+		Password             string `json:"password"`
+		PasswordConfirmation string `json:"passwordConfirmation"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil || strings.TrimSpace(input.Email) == "" || len(input.Password) < 8 || input.Password != input.PasswordConfirmation {
+		h.jsonError(w, "invalid setup data", http.StatusBadRequest)
+		return
+	}
+	user, err := h.db.CreateInitialSuperuser(input.Email, input.Password)
+	if err != nil {
+		if err == database.ErrBootstrapAlreadyComplete {
+			h.jsonError(w, err.Error(), http.StatusConflict)
+			return
+		}
+		h.jsonError(w, "could not create initial superuser", http.StatusInternalServerError)
+		return
+	}
+	h.jsonResponseStatus(w, user, http.StatusCreated)
+}
+
+func sameOrigin(r *http.Request) bool {
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		return true
+	}
+	parsed, err := url.Parse(origin)
+	return err == nil && parsed.Host == r.Host
 }
 
 func requestIsHTTPS(r *http.Request) bool {

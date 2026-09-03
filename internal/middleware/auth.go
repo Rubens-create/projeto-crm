@@ -69,6 +69,9 @@ func hasRole(role string, allowed []string) bool {
 		if strings.EqualFold(role, expected) {
 			return true
 		}
+		if strings.EqualFold(role, model.RoleSuperAdmin) && strings.EqualFold(expected, model.RoleAdmin) {
+			return true
+		}
 	}
 	return false
 }

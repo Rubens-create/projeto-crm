@@ -72,10 +72,7 @@ function render() {
             <i data-lucide="more-horizontal"></i>
           </button>
           <div class="action-dropdown" id="menu-${p.id}">
-            <button data-action="pay" data-id="${p.id}">
-              <i data-lucide="check"></i>
-              Repasse Concluído
-            </button>
+            ${p.status === 'Pago' ? `<button data-action="pending" data-id="${p.id}"><i data-lucide="rotate-ccw"></i>Marcar como pendente</button>` : `<button data-action="pay" data-id="${p.id}"><i data-lucide="check"></i>Marcar como pago</button>`}
           </div>
         </div>
       </td>
@@ -156,21 +153,22 @@ if (reportsMenuBtn && reportsNavGroup) {
 
 if (body) {
   body.addEventListener('click', async (e) => {
-    const btn = e.target.closest('button[data-action="pay"]');
+    const btn = e.target.closest('button[data-action="pay"], button[data-action="pending"]');
     if (btn) {
       e.stopPropagation();
       const id = btn.dataset.id;
+      const isPending = btn.dataset.action === 'pending';
       try {
         const res = await fetch('/api/admin/payments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'mark_paid', id: id })
+          body: JSON.stringify({ action: isPending ? 'mark_pending' : 'mark_paid', id: id })
         });
         if (res.ok) {
           fetchPayments();
-          showToast('Repasse marcado como concluído com sucesso!');
+          showToast(isPending ? 'Repasse marcado como pendente novamente.' : 'Repasse marcado como pago com sucesso!');
         } else {
-          showToast('Erro ao marcar repasse como concluído.');
+          showToast('Erro ao atualizar o status do repasse.');
         }
       } catch (err) {
         showToast('Erro ao comunicar com o servidor.');

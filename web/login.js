@@ -3,6 +3,7 @@ const form = document.querySelector('#loginForm');
 const error = document.querySelector('#loginError');
 
 const loginHint = document.querySelector('#loginHint');
+const initialSetupLink = document.querySelector('#initialSetupLink');
 const providerSignupLink = document.querySelector('#providerSignupLink');
 if (requestedRole === 'admin' && loginHint) {
   loginHint.textContent = 'Entre com sua conta administrativa.';
@@ -10,6 +11,11 @@ if (requestedRole === 'admin' && loginHint) {
   loginHint.textContent = 'Entre com sua conta de prestador.';
   if (providerSignupLink) providerSignupLink.hidden = false;
 }
+
+fetch('/api/auth/bootstrap-status')
+  .then(response => response.ok ? response.json() : null)
+  .then(status => { if (status?.setupRequired && initialSetupLink) initialSetupLink.hidden = false; })
+  .catch(() => {});
 
 if (new URLSearchParams(window.location.search).get('created') === '1' && error) {
   error.classList.add('success-message');
@@ -31,7 +37,7 @@ form.addEventListener('submit', async (event) => {
       return;
     }
     const user = await response.json();
-    if (requestedRole === 'admin' && user.role !== 'ADMIN') {
+    if (requestedRole === 'admin' && !['ADMIN', 'SUPERADMIN'].includes(user.role)) {
       error.textContent = 'Esta conta não possui acesso administrativo.';
       await fetch('/api/auth/logout', { method: 'POST' });
       return;
@@ -41,7 +47,7 @@ form.addEventListener('submit', async (event) => {
       await fetch('/api/auth/logout', { method: 'POST' });
       return;
     }
-    window.location.assign(user.role === 'ADMIN' ? '/admin/servicos' : '/prestador');
+    window.location.assign(['ADMIN', 'SUPERADMIN'].includes(user.role) ? '/admin/servicos' : '/prestador');
   } catch (_) {
     error.textContent = 'Não foi possível entrar. Tente novamente.';
   }

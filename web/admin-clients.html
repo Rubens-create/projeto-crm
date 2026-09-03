@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Zygg | Gestão de Clientes & Proprietários</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static.css">
   <script src="/i18n.js"></script>
   <script src="/auth.js"></script>
@@ -20,7 +23,7 @@
         </div>
       </div>
       <nav class="nav">
-        <a class="nav-item" href="/" data-i18n="nav.home"><i class="icon" data-lucide="home"></i> Início (Landing)</a>
+        <a class="nav-item" href="/admin" data-i18n="nav.home"><i class="icon" data-lucide="layout-dashboard"></i> Dashboard</a>
         <a class="nav-item" href="/admin/servicos" data-i18n="nav.services"><i class="icon" data-lucide="clipboard-list"></i> Serviços</a>
         <a class="nav-item" href="/admin/imoveis" data-i18n="nav.properties"><i class="icon" data-lucide="house"></i> Imóveis</a>
         <a class="nav-item" href="/admin/profissionais" data-i18n="nav.professionals"><i class="icon" data-lucide="users-round"></i> Profissionais</a>
@@ -146,12 +149,13 @@
     <section class="modal">
       <div class="modal-head">
         <div>
-          <h2>Novo cliente</h2>
-          <p>Cadastre o cliente. Os imóveis são gerenciados na seção Imóveis.</p>
+          <h2 id="clientModalTitle">Novo cliente</h2>
+          <p id="clientModalSubtitle">Cadastre o cliente. Os imóveis são gerenciados na seção Imóveis.</p>
         </div>
         <button class="modal-close" id="closeModal" aria-label="Fechar"><i data-lucide="x"></i></button>
       </div>
       <form id="clientForm">
+        <input type="hidden" name="id" id="clientId">
         <label>Nome do Proprietário / Empresa
           <input name="name" required placeholder="Ex.: Dra. Camila Rocha">
         </label>
@@ -163,14 +167,16 @@
             <input name="phone" placeholder="(11) 91122-3344">
           </label>
         </div>
-        <button class="primary" type="submit"><i data-lucide="building-2"></i> Cadastrar Proprietário</button>
+        <button class="primary" type="submit" id="clientSubmit"><i data-lucide="building-2"></i> Cadastrar Proprietário</button>
       </form>
     </section>
   </div>
 
   <div class="toast" id="toast">Operação realizada com sucesso</div>
 
+  <script src="/admin-page-ready.js"></script>
   <script src="/admin-clients.js"></script>
   <script>window.addEventListener('load',()=>lucide.createIcons());</script>
+  <script src="/admin-shell.js"></script>
 </body>
 </html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zygg | Configuração inicial</title>
+  <link rel="stylesheet" href="/static.css">
+  <script src="/i18n.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="landing-page-body login-page-body initial-setup-page">
+  <div class="landing-background-glow"></div>
+  <main class="login-main">
+    <section class="login-card" aria-labelledby="setupTitle">
+      <a class="login-brand" href="/" aria-label="Voltar para a Zygg"><span class="landing-mark">Z</span><span><strong>zygg</strong><small>gestão de serviços</small></span></a>
+      <div class="login-intro">
+        <p class="eyebrow">PRIMEIRO ACESSO</p>
+        <h1 id="setupTitle">Crie o superusuário</h1>
+        <p class="subtitle">Essa conta terá acesso completo à administração do Zygg.</p>
+      </div>
+      <form id="initialSetupForm" class="login-form">
+        <label for="setupEmail">E-mail</label>
+        <input id="setupEmail" name="email" type="email" autocomplete="username" placeholder="voce@empresa.com" required>
+        <label for="setupPassword">Senha</label>
+        <input id="setupPassword" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo de 8 caracteres" required>
+        <label for="setupPasswordConfirmation">Confirmar senha</label>
+        <input id="setupPasswordConfirmation" name="passwordConfirmation" type="password" autocomplete="new-password" minlength="8" placeholder="Repita sua senha" required>
+        <p id="setupError" role="alert" aria-live="polite"></p>
+        <button class="primary" type="submit"><i data-lucide="shield-check"></i> Criar superusuário</button>
+      </form>
+      <p class="signup-footer"><a href="/login">Voltar para o login</a></p>
+    </section>
+  </main>
+  <script src="/initial-setup.js"></script>
+  <script>window.addEventListener('load', () => lucide.createIcons());</script>
+</body>
+</html>

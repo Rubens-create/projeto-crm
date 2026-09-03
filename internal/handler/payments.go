@@ -29,8 +29,12 @@ func (h *Handler) AdminPayments(w http.ResponseWriter, r *http.Request) {
 				h.executionError(w, err)
 				return
 			}
-		} else if payload.Action == "mark_paid" && payload.ID != "" {
-			if err := h.db.UpdatePaymentStatus(payload.ID, "Pago"); err != nil {
+		} else if (payload.Action == "mark_paid" || payload.Action == "mark_pending") && payload.ID != "" {
+			status := "Pago"
+			if payload.Action == "mark_pending" {
+				status = "Pendente"
+			}
+			if err := h.db.UpdatePaymentStatus(payload.ID, status); err != nil {
 				h.jsonError(w, "database error", 500)
 				return
 			}

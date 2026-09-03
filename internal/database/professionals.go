@@ -1,6 +1,10 @@
 package database
 
-import "crm-terceirizados/internal/model"
+import (
+	"database/sql"
+
+	"crm-terceirizados/internal/model"
+)
 
 func (d *DB) GetAllProfessionals() ([]model.Professional, error) {
 	rows, err := d.conn.Query("SELECT id, name, email, phone, specialty, rate, hours, earned, active FROM professionals ORDER BY name ASC")
@@ -26,6 +30,30 @@ func (d *DB) CreateProfessional(p model.Professional) error {
 	_, err := d.conn.Exec("INSERT INTO professionals (id, name, email, phone, specialty, rate, hours, earned, active) VALUES ($1, $2, $3, $4, $5, $6, 0, 0, true)",
 		p.ID, p.Name, p.Email, p.Phone, p.Specialty, p.Rate)
 	return err
+}
+
+func (d *DB) UpdateProfessional(p model.Professional) error {
+	tx, err := d.conn.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	result, err := tx.Exec(`UPDATE professionals SET name = $1, email = $2, phone = $3, specialty = $4 WHERE id = $5`, p.Name, p.Email, p.Phone, p.Specialty, p.ID)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return sql.ErrNoRows
+	}
+	if _, err := tx.Exec(`UPDATE users SET email = $1 WHERE professional_id = $2`, p.Email, p.ID); err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 func (d *DB) GetProfessionalByID(id string) (model.Professional, error) {

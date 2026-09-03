@@ -1,0 +1,6 @@
+services:
+  app:
+    # Production uses Traefik on the Docker network, not a host port.
+    ports: !reset []
+    expose:
+      - "8080"

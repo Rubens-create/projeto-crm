@@ -1,6 +1,15 @@
 package database
 
-import "crm-terceirizados/internal/model"
+import (
+	"errors"
+
+	"crm-terceirizados/internal/model"
+)
+
+var (
+	ErrServiceNotFound = errors.New("service not found")
+	ErrServiceInUse    = errors.New("service has execution history")
+)
 
 const optionSelect = `SELECT s.id, s.property_id, p.name, s.description,
 	s.rate, s.active, p.bedrooms, p.bathrooms, p.living_rooms, p.sqm,
@@ -98,5 +107,24 @@ func (d *DB) UpdateOptionRate(id string, rate float64) error {
 
 func (d *DB) ToggleOptionActive(id string) error {
 	_, err := d.conn.Exec("UPDATE service_options SET active = NOT active WHERE id = $1", id)
+	return err
+}
+
+func (d *DB) DeleteOption(id string) error {
+	var executions int
+	if err := d.conn.QueryRow("SELECT COUNT(*) FROM service_executions WHERE service_id = $1", id).Scan(&executions); err != nil {
+		return err
+	}
+	if executions > 0 {
+		return ErrServiceInUse
+	}
+	result, err := d.conn.Exec("DELETE FROM service_options WHERE id = $1", id)
+	if err != nil {
+		return err
+	}
+	count, err := result.RowsAffected()
+	if err == nil && count == 0 {
+		return ErrServiceNotFound
+	}
 	return err
 }

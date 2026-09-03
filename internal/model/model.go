@@ -6,8 +6,9 @@ import (
 )
 
 const (
-	RoleAdmin    = "ADMIN"
-	RoleProvider = "PRESTADOR"
+	RoleSuperAdmin = "SUPERADMIN"
+	RoleAdmin      = "ADMIN"
+	RoleProvider   = "PRESTADOR"
 
 	ExecutionInProgress = "EM_ANDAMENTO"
 	ExecutionCompleted  = "CONCLUIDO"

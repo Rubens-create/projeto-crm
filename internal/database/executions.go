@@ -15,6 +15,52 @@ var (
 	ErrExecutionState    = errors.New("invalid execution state")
 )
 
+func (d *DB) CreateManualExecution(professionalID, serviceID string, startedAt time.Time, durationSeconds int64, notes string) (model.ServiceExecution, error) {
+	if professionalID == "" || serviceID == "" || durationSeconds <= 0 {
+		return model.ServiceExecution{}, ErrExecutionState
+	}
+
+	tx, err := d.conn.Begin()
+	if err != nil {
+		return model.ServiceExecution{}, err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	var rate float64
+	err = tx.QueryRow(`SELECT s.rate
+		FROM service_options s
+		JOIN properties p ON p.id = s.property_id
+		JOIN professionals pro ON pro.id = $1
+		WHERE s.id = $2 AND s.active = true AND p.status = $3`, professionalID, serviceID, model.PropertyActive).Scan(&rate)
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.ServiceExecution{}, ErrExecutionNotFound
+	}
+	if err != nil {
+		return model.ServiceExecution{}, err
+	}
+
+	rateCents := int64(math.Round(rate * 100))
+	totalCents, err := model.CalculateExecutionValueCents(rateCents, durationSeconds)
+	if err != nil {
+		return model.ServiceExecution{}, ErrExecutionState
+	}
+	finishedAt := startedAt.Add(time.Duration(durationSeconds) * time.Second)
+	executionID := randomID()
+	if _, err := tx.Exec(`INSERT INTO service_executions
+		(id, service_id, professional_id, started_at, finished_at, duration_seconds, hourly_rate_cents, total_value_cents, status, notes)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+		executionID, serviceID, professionalID, startedAt, finishedAt, durationSeconds, rateCents, totalCents, model.ExecutionCompleted, notes); err != nil {
+		return model.ServiceExecution{}, err
+	}
+	if _, err := tx.Exec(`UPDATE professionals SET hours = hours + $1, earned = earned + $2 WHERE id = $3`, float64(durationSeconds)/3600, float64(totalCents)/100, professionalID); err != nil {
+		return model.ServiceExecution{}, err
+	}
+	if err := tx.Commit(); err != nil {
+		return model.ServiceExecution{}, err
+	}
+	return d.GetExecution(executionID)
+}
+
 func (d *DB) StartExecution(professionalID, serviceID string, now time.Time) (model.TimerState, model.ServiceExecution, error) {
 	tx, err := d.conn.Begin()
 	if err != nil {

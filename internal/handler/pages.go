@@ -9,8 +9,21 @@ import (
 func (h *Handler) Pages(w http.ResponseWriter, r *http.Request) {
 	file := "index.html"
 	switch r.URL.Path {
+	case "/admin":
+		file = "admin-dashboard.html"
 	case "/login":
 		file = "login.html"
+	case "/configuracao-inicial":
+		exists, err := h.db.AdminUsersExist()
+		if err != nil {
+			http.Error(w, "setup status error", http.StatusInternalServerError)
+			return
+		}
+		if exists {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		file = "initial-setup.html"
 	case "/cadastro-prestador":
 		file = "provider-signup.html"
 	case "/prestador":

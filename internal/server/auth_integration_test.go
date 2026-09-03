@@ -428,6 +428,249 @@ func TestProviderExecutionLifecycleAndIsolation(t *testing.T) {
 	}
 }
 
+func TestAdminCreatesManualHoursAsCompletedExecution(t *testing.T) {
+	app := setupTestApp(t)
+	payload := bytes.NewBufferString(`{"professionalId":"PRO-TEST-01","serviceId":"OPT-01","date":"2026-08-31","startTime":"09:30","hours":2.5,"notes":"Lançamento conferido pelo administrador"}`)
+	req, err := http.NewRequest(http.MethodPost, app.server.URL+"/api/admin/executions", payload)
+	if err != nil {
+		t.Fatalf("NewRequest() error = %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(login(t, app, "admin@example.com", "admin-secret"))
+	res, err := app.server.Client().Do(req)
+	if err != nil {
+		t.Fatalf("manual execution request error = %v", err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusCreated {
+		t.Fatalf("manual execution status = %d, want %d", res.StatusCode, http.StatusCreated)
+	}
+
+	var execution model.ServiceExecution
+	if err := json.NewDecoder(res.Body).Decode(&execution); err != nil {
+		t.Fatalf("decode manual execution = %v", err)
+	}
+	if execution.ProfessionalID != "PRO-TEST-01" || execution.ServiceID != "OPT-01" {
+		t.Fatalf("manual execution relationships = %+v", execution)
+	}
+	if execution.Status != model.ExecutionCompleted || execution.DurationSeconds != 9000 || execution.HourlyRateCents != 12000 || execution.TotalValueCents != 30000 {
+		t.Fatalf("manual execution values = %+v", execution)
+	}
+	if execution.FinishedAt == nil || execution.Notes != "Lançamento conferido pelo administrador" {
+		t.Fatalf("manual execution completion data = %+v", execution)
+	}
+
+	professional, err := app.db.GetProfessionalByID("PRO-TEST-01")
+	if err != nil {
+		t.Fatalf("GetProfessionalByID() error = %v", err)
+	}
+	if professional.Hours != 2.5 || professional.Earned != 300 {
+		t.Fatalf("professional totals = %.2fh / %.2f, want 2.50h / 300.00", professional.Hours, professional.Earned)
+	}
+}
+
+func TestAdminUpdatesProfessionalWithoutCreatingAnotherRecord(t *testing.T) {
+	app := setupTestApp(t)
+	initialList, err := app.db.GetAllProfessionals()
+	if err != nil {
+		t.Fatalf("GetAllProfessionals() before update error = %v", err)
+	}
+	payload := bytes.NewBufferString(`{"action":"update","id":"PRO-TEST-01","name":"Prestador Atualizado","email":"atualizado@example.com","phone":"11999990000","specialty":"Limpeza premium"}`)
+	req, err := http.NewRequest(http.MethodPost, app.server.URL+"/api/admin/professionals", payload)
+	if err != nil {
+		t.Fatalf("NewRequest() error = %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.AddCookie(login(t, app, "admin@example.com", "admin-secret"))
+	res, err := app.server.Client().Do(req)
+	if err != nil {
+		t.Fatalf("update professional request error = %v", err)
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("update professional status = %d, want %d", res.StatusCode, http.StatusOK)
+	}
+
+	professional, err := app.db.GetProfessionalByID("PRO-TEST-01")
+	if err != nil {
+		t.Fatalf("GetProfessionalByID() error = %v", err)
+	}
+	if professional.Name != "Prestador Atualizado" || professional.Email != "atualizado@example.com" || professional.Phone != "11999990000" || professional.Specialty != "Limpeza premium" {
+		t.Fatalf("updated professional = %+v", professional)
+	}
+	if _, err := app.db.AuthenticateUser("atualizado@example.com", "provider-one-secret"); err != nil {
+		t.Fatalf("updated professional login cannot authenticate: %v", err)
+	}
+	list, err := app.db.GetAllProfessionals()
+	if err != nil {
+		t.Fatalf("GetAllProfessionals() error = %v", err)
+	}
+	if len(list) != len(initialList) {
+		t.Fatalf("professionals after update = %d, want %d", len(list), len(initialList))
+	}
+}
+
+func TestAdminUpdatesAndDeactivatesClientWithoutRemovingProperties(t *testing.T) {
+	app := setupTestApp(t)
+	cookie := login(t, app, "admin@example.com", "admin-secret")
+	initialClients, err := app.db.GetAllClients()
+	if err != nil {
+		t.Fatalf("GetAllClients() before update error = %v", err)
+	}
+
+	post := func(payload string) *http.Response {
+		req, err := http.NewRequest(http.MethodPost, app.server.URL+"/api/admin/clients", bytes.NewBufferString(payload))
+		if err != nil {
+			t.Fatalf("NewRequest() error = %v", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.AddCookie(cookie)
+		res, err := app.server.Client().Do(req)
+		if err != nil {
+			t.Fatalf("client request error = %v", err)
+		}
+		return res
+	}
+
+	res := post(`{"action":"update","id":"CLI-01","name":"Cliente Atualizado","email":"cliente.atualizado@example.com","phone":"11988887777"}`)
+	res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("update client status = %d, want %d", res.StatusCode, http.StatusOK)
+	}
+	updatedClients, err := app.db.GetAllClients()
+	if err != nil {
+		t.Fatalf("GetAllClients() after update error = %v", err)
+	}
+	if len(updatedClients) != len(initialClients) {
+		t.Fatalf("clients after update = %d, want %d", len(updatedClients), len(initialClients))
+	}
+	var updated model.Client
+	for _, client := range updatedClients {
+		if client.ID == "CLI-01" {
+			updated = client
+			break
+		}
+	}
+	if updated.Name != "Cliente Atualizado" || updated.Email != "cliente.atualizado@example.com" || updated.Phone != "11988887777" || len(updated.PropertyItems) == 0 {
+		t.Fatalf("updated client = %+v", updated)
+	}
+
+	res = post(`{"action":"toggle","id":"CLI-01"}`)
+	res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("toggle client status = %d, want %d", res.StatusCode, http.StatusOK)
+	}
+	clientsAfterToggle, err := app.db.GetAllClients()
+	if err != nil {
+		t.Fatalf("GetAllClients() after toggle error = %v", err)
+	}
+	for _, client := range clientsAfterToggle {
+		if client.ID == "CLI-01" && (client.Status != "Inativo" || len(client.PropertyItems) == 0) {
+			t.Fatalf("toggled client = %+v", client)
+		}
+	}
+}
+
+func TestAdminDeletesUnusedServiceAndPreservesExecutedService(t *testing.T) {
+	app := setupTestApp(t)
+	cookie := login(t, app, "admin@example.com", "admin-secret")
+	post := func(serviceID string) *http.Response {
+		req, err := http.NewRequest(http.MethodPost, app.server.URL+"/api/admin/services", bytes.NewBufferString(`{"action":"delete","id":"`+serviceID+`"}`))
+		if err != nil {
+			t.Fatalf("NewRequest() error = %v", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.AddCookie(cookie)
+		res, err := app.server.Client().Do(req)
+		if err != nil {
+			t.Fatalf("delete service request error = %v", err)
+		}
+		return res
+	}
+
+	res := post("OPT-04")
+	res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("unused service delete status = %d, want %d", res.StatusCode, http.StatusOK)
+	}
+	options, err := app.db.GetAllOptions()
+	if err != nil {
+		t.Fatalf("GetAllOptions() error = %v", err)
+	}
+	for _, option := range options {
+		if option.ID == "OPT-04" {
+			t.Fatal("unused service was not deleted")
+		}
+	}
+
+	if _, err := app.db.CreateManualExecution("PRO-TEST-01", "OPT-01", time.Now().Add(-2*time.Hour), 3600, "teste"); err != nil {
+		t.Fatalf("CreateManualExecution() error = %v", err)
+	}
+	res = post("OPT-01")
+	res.Body.Close()
+	if res.StatusCode != http.StatusConflict {
+		t.Fatalf("executed service delete status = %d, want %d", res.StatusCode, http.StatusConflict)
+	}
+}
+
+func TestAdminCanTogglePaymentBetweenPaidAndPending(t *testing.T) {
+	app := setupTestApp(t)
+	cookie := login(t, app, "admin@example.com", "admin-secret")
+	post := func(action string) *http.Response {
+		req, err := http.NewRequest(http.MethodPost, app.server.URL+"/api/admin/payments", bytes.NewBufferString(`{"action":"`+action+`","id":"PAY-1001"}`))
+		if err != nil {
+			t.Fatalf("NewRequest() error = %v", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		req.AddCookie(cookie)
+		res, err := app.server.Client().Do(req)
+		if err != nil {
+			t.Fatalf("payment request error = %v", err)
+		}
+		return res
+	}
+
+	res := post("mark_pending")
+	res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("mark pending status = %d, want %d", res.StatusCode, http.StatusOK)
+	}
+	payments, err := app.db.GetAllPayments()
+	if err != nil {
+		t.Fatalf("GetAllPayments() error = %v", err)
+	}
+	var pendingPayment model.Payment
+	for _, payment := range payments {
+		if payment.ID == "PAY-1001" {
+			pendingPayment = payment
+			break
+		}
+	}
+	if pendingPayment.Status != "Pendente" {
+		t.Fatalf("payment after mark_pending = %+v", pendingPayment)
+	}
+
+	res = post("mark_paid")
+	res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("mark paid status = %d, want %d", res.StatusCode, http.StatusOK)
+	}
+	payments, err = app.db.GetAllPayments()
+	if err != nil {
+		t.Fatalf("GetAllPayments() after mark paid error = %v", err)
+	}
+	var paidPayment model.Payment
+	for _, payment := range payments {
+		if payment.ID == "PAY-1001" {
+			paidPayment = payment
+			break
+		}
+	}
+	if paidPayment.Status != "Pago" {
+		t.Fatalf("payment after mark_paid = %+v", paidPayment)
+	}
+}
+
 func TestAdminPropertyLifecycleAndDeleteConflict(t *testing.T) {
 	app := setupTestApp(t)
 	cookie := login(t, app, "admin@example.com", "admin-secret")
@@ -564,5 +807,113 @@ func TestAdminPropertiesPageIsRegistered(t *testing.T) {
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("properties page status = %d, want %d", res.StatusCode, http.StatusOK)
+	}
+}
+
+func setupEmptyTestApp(t *testing.T) *testApp {
+	t.Helper()
+	t.Chdir(t.TempDir())
+	db, err := database.New(config.Config{
+		Server: config.ServerConfig{Port: "0"},
+		Database: config.DatabaseConfig{
+			URL: "host=127.0.0.1 port=1 user=test dbname=test sslmode=disable connect_timeout=1",
+		},
+	})
+	if err != nil {
+		t.Fatalf("database.New() error = %v", err)
+	}
+	t.Cleanup(func() { _ = db.Close() })
+	ts := httptest.NewServer(server.New(config.Config{Server: config.ServerConfig{Port: "0"}}, handler.New(db)).Handler)
+	t.Cleanup(ts.Close)
+	return &testApp{server: ts, db: db}
+}
+
+func TestInitialSuperuserSetupIsOneTimeOnly(t *testing.T) {
+	app := setupEmptyTestApp(t)
+
+	statusRes, err := app.server.Client().Get(app.server.URL + "/api/auth/bootstrap-status")
+	if err != nil {
+		t.Fatalf("bootstrap status request error = %v", err)
+	}
+	defer statusRes.Body.Close()
+	if statusRes.StatusCode != http.StatusOK {
+		t.Fatalf("bootstrap status = %d, want %d", statusRes.StatusCode, http.StatusOK)
+	}
+	var status struct {
+		SetupRequired bool `json:"setupRequired"`
+	}
+	if err := json.NewDecoder(statusRes.Body).Decode(&status); err != nil {
+		t.Fatalf("decode bootstrap status = %v", err)
+	}
+	if !status.SetupRequired {
+		t.Fatal("setupRequired = false, want true for empty database")
+	}
+
+	body := bytes.NewBufferString(`{"email":"owner@example.com","password":"owner-secret","passwordConfirmation":"owner-secret"}`)
+	setupRes, err := app.server.Client().Post(app.server.URL+"/api/auth/setup-superuser", "application/json", body)
+	if err != nil {
+		t.Fatalf("superuser setup request error = %v", err)
+	}
+	setupRes.Body.Close()
+	if setupRes.StatusCode != http.StatusCreated {
+		t.Fatalf("superuser setup status = %d, want %d", setupRes.StatusCode, http.StatusCreated)
+	}
+
+	user, err := app.db.AuthenticateUser("owner@example.com", "owner-secret")
+	if err != nil || user.Role != model.RoleSuperAdmin {
+		t.Fatalf("created role = %q, want %q", user.Role, model.RoleSuperAdmin)
+	}
+	adminRes := request(t, app, http.MethodGet, "/api/dashboard", login(t, app, "owner@example.com", "owner-secret"))
+	defer adminRes.Body.Close()
+	if adminRes.StatusCode != http.StatusOK {
+		t.Fatalf("superuser dashboard status = %d, want %d", adminRes.StatusCode, http.StatusOK)
+	}
+
+	secondBody := bytes.NewBufferString(`{"email":"other@example.com","password":"other-secret","passwordConfirmation":"other-secret"}`)
+	secondRes, err := app.server.Client().Post(app.server.URL+"/api/auth/setup-superuser", "application/json", secondBody)
+	if err != nil {
+		t.Fatalf("second superuser setup request error = %v", err)
+	}
+	defer secondRes.Body.Close()
+	if secondRes.StatusCode != http.StatusConflict {
+		t.Fatalf("second superuser setup status = %d, want %d", secondRes.StatusCode, http.StatusConflict)
+	}
+}
+
+func TestProviderSignupDoesNotBlockInitialSuperuserSetup(t *testing.T) {
+	app := setupEmptyTestApp(t)
+	providerBody := bytes.NewBufferString(`{"name":"Primeira Prestadora","email":"primeira@example.com","phone":"11999990000","specialty":"Limpeza","password":"provider-secret","passwordConfirmation":"provider-secret"}`)
+	providerRes, err := app.server.Client().Post(app.server.URL+"/api/auth/provider-signup", "application/json", providerBody)
+	if err != nil {
+		t.Fatalf("provider signup request error = %v", err)
+	}
+	providerRes.Body.Close()
+	if providerRes.StatusCode != http.StatusCreated {
+		t.Fatalf("provider signup status = %d, want %d", providerRes.StatusCode, http.StatusCreated)
+	}
+
+	statusRes, err := app.server.Client().Get(app.server.URL + "/api/auth/bootstrap-status")
+	if err != nil {
+		t.Fatalf("bootstrap status request error = %v", err)
+	}
+	defer statusRes.Body.Close()
+	var status struct {
+		SetupRequired bool `json:"setupRequired"`
+	}
+	if err := json.NewDecoder(statusRes.Body).Decode(&status); err != nil {
+		t.Fatalf("decode bootstrap status = %v", err)
+	}
+	if !status.SetupRequired {
+		t.Fatal("setupRequired = false after provider signup, want true until an administrator exists")
+	}
+
+	setupBody := bytes.NewBufferString(`{"email":"owner@example.com","password":"owner-secret","passwordConfirmation":"owner-secret"}`)
+	setupRes, err := app.server.Client().Post(app.server.URL+"/api/auth/setup-superuser", "application/json", setupBody)
+	if err != nil {
+		t.Fatalf("superuser setup request error = %v", err)
+	}
+	setupRes.Body.Close()
+	if setupRes.StatusCode != http.StatusCreated {
+		t.Fatalf("superuser setup status = %d, want %d", setupRes.StatusCode, http.StatusCreated)
 	}
 }
