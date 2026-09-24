@@ -10,6 +10,9 @@
   <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=512&q=85">
   <link rel="manifest" href="/manifest.json">
   <title>Zygg | Área do prestador</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static.css">
   <script src="/i18n.js"></script>
   <script src="/auth.js"></script>
@@ -41,6 +44,10 @@
               <span>Conquistas</span>
               <span class="achievements-badge-count" id="achievementsUnlockedCount">0/4</span>
             </button>
+            <a class="provider-dropdown-item" id="providerSettingsLink" href="/prestador/configuracoes">
+              <i data-lucide="settings-2"></i>
+              <span>Configurações</span>
+            </a>
             <button type="button" class="provider-dropdown-item logout-btn" id="providerLogoutBtn">
               <i data-lucide="log-out"></i>
               <span>Sair da conta</span>
@@ -395,6 +402,7 @@
   </div>
 
   <script src="/provider.js"></script>
+  <script src="/provider-navigation.js"></script>
   <script>window.addEventListener('load',()=>lucide.createIcons());</script>
 </body>
 </html>

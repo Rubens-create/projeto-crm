@@ -28,6 +28,8 @@ func (h *Handler) Pages(w http.ResponseWriter, r *http.Request) {
 		file = "provider-signup.html"
 	case "/prestador":
 		file = "provider.html"
+	case "/prestador/configuracoes":
+		file = "provider-settings.html"
 	case "/admin/servicos":
 		file = "admin-services.html"
 	case "/admin/imoveis":

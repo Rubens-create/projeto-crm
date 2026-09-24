@@ -1,4 +1,5 @@
 const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 }).format(value);
+const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
 
 const toast = document.querySelector('#toast');
 const reportsBody = document.querySelector('#reportsBody');
@@ -127,13 +128,13 @@ async function updateReportView(type) {
 
     const theadTr = document.querySelector('thead tr');
     if (theadTr && data.headers) {
-      theadTr.innerHTML = data.headers.map(h => `<th>${h}</th>`).join('');
+      theadTr.innerHTML = data.headers.map(h => `<th>${escapeHtml(h)}</th>`).join('');
     }
 
     if (reportsBody) {
       reportsBody.innerHTML = (data.rows || []).map(row => `
         <tr>
-          ${row.map(cell => `<td>${cell}</td>`).join('')}
+          ${row.map((cell, index) => `<td${data.headers?.[index] === 'Status' ? '' : ' translate="no"'}>${escapeHtml(cell)}</td>`).join('')}
         </tr>
       `).join('') || '<tr><td colspan="100%" class="empty-row" style="text-align:center;">Nenhum dado encontrado.</td></tr>';
     }
@@ -179,15 +180,17 @@ if (csvBtn) {
   csvBtn.onclick = () => {
     if (!window.currentReportData) return showToast('Sem dados para exportar');
     const { headers, rows } = window.currentReportData;
+    const statusColumn = (headers || []).indexOf('Status');
+    const csvCell = value => `"${String(value).replace(/"/g, '""')}"`;
     const csvContent = [
-      (headers || []).join(','),
-      ...(rows || []).map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))
+      (headers || []).map(header => csvCell(window.i18n.translateText(header))).join(','),
+      ...(rows || []).map(row => row.map((cell, index) => csvCell(index === statusColumn ? window.i18n.translateText(String(cell)) : cell)).join(','))
     ].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'relatorio.csv';
+    a.download = window.i18n.getCurrentLanguage() === 'en' ? 'report.csv' : 'relatorio.csv';
     a.click();
     URL.revokeObjectURL(url);
     showToast('Download do Relatório CSV iniciado com sucesso!');

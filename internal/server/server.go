@@ -29,6 +29,7 @@ func New(cfg config.Config, h *handler.Handler) *http.Server {
 	mux.HandleFunc("/api/auth/setup-superuser", h.SetupSuperuser)
 	mux.HandleFunc("/api/auth/provider-signup", h.ProviderSignup)
 	mux.HandleFunc("/api/auth/logout", middleware.RequireRole(h.Database(), model.RoleSuperAdmin, model.RoleAdmin, model.RoleProvider)(h.Logout))
+	mux.HandleFunc("/api/auth/change-password", middleware.RequireRole(h.Database(), model.RoleSuperAdmin, model.RoleAdmin, model.RoleProvider)(h.ChangePassword))
 	mux.HandleFunc("/api/auth/session", middleware.RequireRole(h.Database(), model.RoleSuperAdmin, model.RoleAdmin, model.RoleProvider)(h.Session))
 	mux.HandleFunc("/api/dashboard", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.Dashboard))
 	mux.HandleFunc("/api/provider", middleware.RequireRole(h.Database(), model.RoleProvider)(h.Provider))
@@ -54,7 +55,7 @@ func New(cfg config.Config, h *handler.Handler) *http.Server {
 			http.ServeFile(w, r, filepath.Join("web", filepath.Base(r.URL.Path)))
 			return
 		}
-		if r.URL.Path == "/prestador" {
+		if r.URL.Path == "/prestador" || r.URL.Path == "/prestador/configuracoes" {
 			middleware.RequirePageRole(h.Database(), "/login?role=provider", model.RoleProvider)(h.Pages)(w, r)
 			return
 		}

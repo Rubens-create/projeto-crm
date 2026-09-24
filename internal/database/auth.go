@@ -140,6 +140,22 @@ func (d *DB) AuthenticateUser(email, password string) (model.AuthUser, error) {
 	return user, nil
 }
 
+func (d *DB) ChangePassword(userID, currentPassword, newPassword string) error {
+	var hash string
+	if err := d.conn.QueryRow("SELECT password_hash FROM users WHERE id = $1", userID).Scan(&hash); err != nil {
+		return ErrInvalidCredentials
+	}
+	if bcrypt.CompareHashAndPassword([]byte(hash), []byte(currentPassword)) != nil {
+		return ErrInvalidCredentials
+	}
+	newHash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	_, err = d.conn.Exec("UPDATE users SET password_hash = $1 WHERE id = $2", string(newHash), userID)
+	return err
+}
+
 func (d *DB) CreateSession(userID string, expiresAt time.Time) (string, error) {
 	token := randomID()
 	_, err := d.conn.Exec(`INSERT INTO user_sessions (id, user_id, expires_at) VALUES ($1, $2, $3)`, hashToken(token), userID, expiresAt)

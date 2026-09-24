@@ -157,17 +157,17 @@
       </div>
       <form id="paymentForm">
         <label>Nome do Prestador
-          <input name="proName" required placeholder="Ex.: Marina Costa">
+          <select name="proName" id="paymentProfessional" class="setting-select" required><option value="">Carregando prestadores...</option></select>
         </label>
         <label>Imóvel / Atendimento
-          <input name="serviceName" required placeholder="Ex.: Loft Jardins (Check-out)">
+          <select name="serviceName" id="paymentService" class="setting-select" required disabled><option value="">Carregando imóveis...</option></select>
         </label>
         <div class="form-row">
           <label>Horas Trabalhadas
             <input name="hours" type="number" min="0.5" step="0.5" value="4.0" required>
           </label>
           <label>Tarifa Horária (R$)
-            <input name="rate" type="number" min="1" step="0.50" value="110.00" required>
+            <input name="rate" id="paymentRate" type="number" min="1" step="0.50" value="0" readonly required>
           </label>
         </div>
         <button class="primary" type="submit"><i data-lucide="wallet"></i> Registrar Repasse</button>

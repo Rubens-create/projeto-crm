@@ -439,7 +439,7 @@ async function load() {
     const history = document.querySelector('#executionsList');
     if (history) history.innerHTML = (data.executions || []).map(execution => `
       <div class="professional-cell" style="padding:10px 0;border-bottom:1px solid var(--line);">
-        <div><strong>${execution.serviceName}</strong><small>${new Date(execution.startedAt).toLocaleDateString('pt-BR')} · ${formatTime(execution.durationSeconds).slice(0, 8)} · ${money(execution.totalValueCents / 100)} · ${execution.status}</small></div>
+        <div><strong translate="no">${execution.serviceName}</strong><small>${new Date(execution.startedAt).toLocaleDateString(window.i18n.locale())} · ${formatTime(execution.durationSeconds).slice(0, 8)} · ${money(execution.totalValueCents / 100)} · <span>${execution.status}</span></small></div>
       </div>`).join('') || '<small>Nenhum serviço executado ainda.</small>';
 
     cachedExecutions = data.executions || [];

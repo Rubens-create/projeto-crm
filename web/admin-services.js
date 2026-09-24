@@ -20,7 +20,7 @@ function showToast(message) {
 
 function populatePropertySelects() {
   const options = properties.filter(property => property.status === 'ATIVO').map(property =>
-    `<option value="${escapeHtml(property.id)}">${escapeHtml(property.name)}${property.clientName ? ` · ${escapeHtml(property.clientName)}` : ''}</option>`
+    `<option value="${escapeHtml(property.id)}" translate="no">${escapeHtml(property.name)}${property.clientName ? ` · ${escapeHtml(property.clientName)}` : ''}</option>`
   ).join('');
   ['newServiceProperty', 'editServiceProperty'].forEach(id => {
     const select = document.querySelector(`#${id}`);
@@ -63,7 +63,7 @@ function render() {
   document.querySelectorAll('[data-action="delete"]').forEach(button => button.onclick = async event => {
     event.stopPropagation();
     const service = services.find(item => item.id === button.dataset.id);
-    if (!service || !window.confirm(`Excluir o serviço "${service.name}"? Esta ação não pode ser desfeita.`)) return;
+    if (!service || !window.confirm(window.i18n.text('Excluir o serviço "{name}"? Esta ação não pode ser desfeita.', { name: service.name }))) return;
     await saveService({ action: 'delete', id: button.dataset.id }, 'Serviço excluído com sucesso.');
   });
 }

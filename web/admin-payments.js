@@ -1,6 +1,10 @@
 const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 }).format(value);
+const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
 
 let payments = [];
+let professionals = [];
+let properties = [];
+let directoryReady = Promise.resolve();
 let currentFilter = 'all';
 
 const body = document.querySelector('#paymentsBody');
@@ -14,6 +18,12 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
+function setPaymentOptions(id, options, placeholder, disabled = false) {
+  const select = document.querySelector(`#${id}`);
+  select.innerHTML = `<option value="">${escapeHtml(placeholder)}</option>` + options.map(option => `<option value="${escapeHtml(option.value)}" translate="no" data-rate="${option.rate || ''}" data-property-name="${escapeHtml(option.propertyName || '')}">${escapeHtml(option.label)}</option>`).join('');
+  select.disabled = disabled;
+}
+
 async function fetchPayments() {
   try {
     const res = await fetch('/api/admin/payments');
@@ -25,6 +35,38 @@ async function fetchPayments() {
     console.error('Erro ao buscar pagamentos:', err);
   }
 }
+
+async function fetchPaymentDirectory() {
+  const [professionalsResponse, propertiesResponse] = await Promise.all([fetch('/api/admin/professionals'), fetch('/api/admin/properties')]);
+  if (!professionalsResponse.ok || !propertiesResponse.ok) throw new Error('Falha ao carregar prestadores e atendimentos.');
+  [professionals, properties] = await Promise.all([professionalsResponse.json(), propertiesResponse.json()]);
+  populatePaymentDirectory();
+}
+
+function populatePaymentDirectory() {
+  setPaymentOptions('paymentProfessional', professionals.filter(professional => professional.active).map(professional => ({ value: professional.name, label: `${professional.name}${professional.specialty ? ` · ${professional.specialty}` : ''}` })), 'Selecione o prestador');
+  updatePaymentProperties();
+}
+
+function updatePaymentProperties() {
+  const selectedProfessional = professionals.find(professional => professional.name === document.querySelector('#paymentProfessional').value);
+  const professionalRate = Number(selectedProfessional?.rate) || 0;
+  const options = properties.filter(property => property.status === 'ATIVO').map(property => {
+    const services = (property.services || []).filter(service => service.active);
+    const rate = Number(services[0]?.rate) || professionalRate;
+    return {
+      value: property.id,
+      propertyName: property.name,
+      rate,
+      label: `${property.name}${property.clientName ? ` · ${property.clientName}` : ''}`
+    };
+  });
+  setPaymentOptions('paymentService', options, options.length ? 'Selecione um imóvel' : 'Nenhum imóvel ativo disponível', !options.length);
+  document.querySelector('#paymentRate').value = '';
+}
+
+document.querySelector('#paymentProfessional').onchange = updatePaymentProperties;
+document.querySelector('#paymentService').onchange = event => { document.querySelector('#paymentRate').value = event.target.selectedOptions[0]?.dataset.rate || ''; };
 
 function render() {
   const filtered = payments.filter(p => currentFilter === 'all' || (currentFilter === 'done' ? p.status === 'Pago' : p.status !== 'Pago'));
@@ -102,7 +144,18 @@ document.querySelectorAll('.filter').forEach(btn => {
 });
 
 const newPaymentBtn = document.querySelector('#newPayment');
-if (newPaymentBtn) newPaymentBtn.onclick = () => modal.classList.add('open');
+if (newPaymentBtn) newPaymentBtn.onclick = async () => {
+  try {
+    await directoryReady.catch(() => {});
+    await fetchPaymentDirectory();
+  } catch (error) {
+    return showToast(error.message);
+  }
+  if (!professionals.length || !properties.length) return showToast('Não foi possível carregar prestadores e atendimentos.');
+  document.querySelector('#paymentForm').reset();
+  populatePaymentDirectory();
+  modal.classList.add('open');
+};
 
 const closeModalBtn = document.querySelector('#closeModal');
 if (closeModalBtn) closeModalBtn.onclick = () => modal.classList.remove('open');
@@ -119,12 +172,12 @@ if (form) {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.target));
     const hours = Number(data.hours) || 4;
-    const amount = Number(data.amount) || (hours * 120);
+    const amount = hours * (Number(data.rate) || 0);
     const newPay = {
-      professional: data.proName || data.professional,
+      professional: data.proName,
       amount: amount,
       hours: hours,
-      period: data.period || 'Semana Atual'
+      period: e.target.querySelector('#paymentService').selectedOptions[0]?.dataset.propertyName || 'Imóvel selecionado'
     };
     await fetch('/api/admin/payments', {
       method: 'POST',
@@ -133,7 +186,7 @@ if (form) {
     });
     form.reset();
     modal.classList.remove('open');
-    fetchPayments();
+    Promise.all([fetchPayments(), fetchPaymentDirectory()]).catch(error => showToast(error.message));
     showToast(`Repasse de ${money(amount)} para ${newPay.professional} salvo no banco!`);
   };
 }
@@ -165,7 +218,7 @@ if (body) {
           body: JSON.stringify({ action: isPending ? 'mark_pending' : 'mark_paid', id: id })
         });
         if (res.ok) {
-          fetchPayments();
+          Promise.all([fetchPayments(), fetchPaymentDirectory()]).catch(error => showToast(error.message));
           showToast(isPending ? 'Repasse marcado como pendente novamente.' : 'Repasse marcado como pago com sucesso!');
         } else {
           showToast('Erro ao atualizar o status do repasse.');
@@ -177,4 +230,5 @@ if (body) {
   });
 }
 
-fetchPayments();
+directoryReady = fetchPaymentDirectory().catch(error => { showToast(error.message); throw error; });
+Promise.all([fetchPayments(), directoryReady]).catch(() => {});

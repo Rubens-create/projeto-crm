@@ -95,6 +95,36 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		h.jsonError(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	user, ok := middleware.CurrentUser(r)
+	if !ok {
+		h.jsonError(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	var input struct {
+		CurrentPassword     string `json:"currentPassword"`
+		NewPassword         string `json:"newPassword"`
+		PasswordConfirmation string `json:"passwordConfirmation"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil || len(input.NewPassword) < 8 || input.NewPassword != input.PasswordConfirmation || input.CurrentPassword == "" {
+		h.jsonError(w, "invalid password data", http.StatusBadRequest)
+		return
+	}
+	if err := h.db.ChangePassword(user.ID, input.CurrentPassword, input.NewPassword); err != nil {
+		if err == database.ErrInvalidCredentials {
+			h.jsonError(w, "current password is incorrect", http.StatusUnauthorized)
+			return
+		}
+		h.jsonError(w, "could not change password", http.StatusInternalServerError)
+		return
+	}
+	h.jsonResponse(w, map[string]string{"status": "ok"})
+}
+
 func (h *Handler) Session(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		h.jsonError(w, "method not allowed", http.StatusMethodNotAllowed)

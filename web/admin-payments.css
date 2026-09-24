@@ -1,0 +1,4 @@
+.payment-directory-select { position: relative; }
+.payment-directory-select select { width: 100%; min-height: 43px; padding: 11px 38px 11px 12px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: #4d4550; font: inherit; font-size: 12px; cursor: pointer; }
+.payment-directory-select select:focus { border-color: #efb5ca; outline: 0; box-shadow: 0 0 0 3px #fff1f6; }
+.payment-directory-select select:disabled { color: #aaa2ab; background: #f7f5f7; cursor: not-allowed; }

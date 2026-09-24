@@ -37,7 +37,7 @@ function populateClients() {
   if (!select) return;
   const current = select.value;
   select.innerHTML = '<option value="">Não vinculado</option>' + clients.map(client =>
-    `<option value="${escapeHtml(client.id)}">${escapeHtml(client.name)}</option>`
+    `<option value="${escapeHtml(client.id)}" translate="no">${escapeHtml(client.name)}</option>`
   ).join('');
   select.value = current;
 }
@@ -149,7 +149,7 @@ function openDetails(property) {
 }
 
 async function archiveProperty(property) {
-  if (!confirm(`Arquivar o imóvel “${property.name}”? O histórico será preservado.`)) return;
+  if (!confirm(window.i18n.text('Arquivar o imóvel “{name}”? O histórico será preservado.', { name: property.name }))) return;
   try {
     properties = await apiPost({ action: 'archive', id: property.id });
     render();
@@ -160,7 +160,7 @@ async function archiveProperty(property) {
 }
 
 async function deleteProperty(property) {
-  if (!confirm(`Excluir permanentemente o imóvel “${property.name}”?`)) return;
+  if (!confirm(window.i18n.text('Excluir permanentemente o imóvel “{name}”?', { name: property.name }))) return;
   try {
     properties = await apiPost({ action: 'delete', id: property.id });
     render();

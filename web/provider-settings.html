@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Zygg | Configurações</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static.css">
+  <script src="/i18n.js"></script>
+  <script src="/auth.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="provider-page provider-settings-page">
+  <div class="provider-shell">
+    <header class="provider-top">
+      <a class="brand-mini" href="/prestador"><span class="brand-mark">Z</span><strong>zygg</strong></a>
+      <a class="provider-settings-back" href="/prestador"><i data-lucide="arrow-left"></i><span>Voltar</span></a>
+    </header>
+    <main class="provider-settings-content">
+      <div class="provider-settings-heading">
+        <p class="eyebrow">CONFIGURAÇÕES</p>
+        <h1>Configurações</h1>
+        <p>Gerencie suas preferências e os dados de acesso da sua conta.</p>
+      </div>
+      <section class="provider-settings-card">
+        <div class="provider-settings-card-heading"><span class="settings-card-icon"><i data-lucide="languages"></i></span><div><h2>Idioma</h2><p>Escolha o idioma exibido no aplicativo.</p></div></div>
+        <label for="providerLanguageSelect">Idioma do aplicativo</label>
+        <select id="providerLanguageSelect" class="setting-select"><option value="pt">Português (Brasil)</option><option value="en">English (United States)</option></select>
+      </section>
+      <section class="provider-settings-card">
+        <div class="provider-settings-card-heading"><span class="settings-card-icon"><i data-lucide="key-round"></i></span><div><h2>Alterar senha</h2><p>Atualize sua senha de acesso com segurança.</p></div></div>
+        <form id="changePasswordForm" class="provider-password-form">
+          <label>Senha atual<input name="currentPassword" type="password" autocomplete="current-password" required></label>
+          <label>Nova senha<input name="newPassword" type="password" minlength="8" autocomplete="new-password" required></label>
+          <label>Confirmar nova senha<input name="passwordConfirmation" type="password" minlength="8" autocomplete="new-password" required></label>
+          <p id="changePasswordMessage" class="form-message" role="alert" aria-live="polite"></p>
+          <button class="primary" type="submit"><i data-lucide="save"></i> Salvar nova senha</button>
+        </form>
+      </section>
+    </main>
+  </div>
+  <script src="/provider-settings.js"></script>
+  <script src="/provider-navigation.js"></script>
+  <script>window.addEventListener('load', () => lucide.createIcons());</script>
+</body>
+</html>
