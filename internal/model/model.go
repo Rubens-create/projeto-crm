@@ -102,12 +102,24 @@ type ExecutionSummary struct {
 type ProviderView struct {
 	ServerTime   time.Time          `json:"serverTime"`
 	Options      []ServiceOption    `json:"options"`
+	Achievements []Achievement      `json:"achievements"`
 	Timer        TimerState         `json:"timer"`
 	Professional Professional       `json:"professional"`
 	TotalHours   float64            `json:"totalHours"`
 	TotalEarned  float64            `json:"totalEarned"`
 	TodayEarned  float64            `json:"todayEarned"`
 	Executions   []ServiceExecution `json:"executions"`
+}
+
+type Achievement struct {
+	ID          string  `json:"id"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Metric      string  `json:"metric"`
+	Target      float64 `json:"target"`
+	Icon        string  `json:"icon"`
+	Color       string  `json:"color"`
+	Active      bool    `json:"active"`
 }
 
 type Professional struct {

@@ -116,5 +116,19 @@ func (d *DB) Seed() error {
 	if count == 0 {
 		_, _ = d.conn.Exec("INSERT INTO settings (id, company_name, cnpj, email, phone, currency, default_rate, language) VALUES (1, 'Zygg Limpezas Airbnb & Terceirizados', '12.345.678/0001-90', 'ruben@zygg.com', '(11) 99887-6655', 'BRL', 120.00, 'pt')")
 	}
+	_ = d.conn.QueryRow("SELECT COUNT(*) FROM achievements").Scan(&count)
+	if count == 0 {
+		achievements := []model.Achievement{
+			{ID: "ACH-HOURS-1000", Title: "1.000 horas trabalhadas", Description: "Acumule mil horas em atendimentos executados.", Metric: "HORAS", Target: 1000, Icon: "clock-3", Color: "pink", Active: true},
+			{ID: "ACH-EARNED-10000", Title: "R$ 10.000 ganhos", Description: "Atinja dez mil reais em faturamento total com serviços.", Metric: "GANHOS", Target: 10000, Icon: "wallet", Color: "peach", Active: true},
+			{ID: "ACH-EARNED-20000", Title: "R$ 20.000 ganhos", Description: "Alcance vinte mil reais acumulados como prestador parceiro.", Metric: "GANHOS", Target: 20000, Icon: "award", Color: "gold", Active: true},
+			{ID: "ACH-HOURS-2000", Title: "2.000 horas de experiência", Description: "Construa uma trajetória de duas mil horas na plataforma.", Metric: "HORAS", Target: 2000, Icon: "flame", Color: "green", Active: true},
+		}
+		for _, achievement := range achievements {
+			if err := d.CreateAchievement(achievement); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }

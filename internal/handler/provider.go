@@ -20,6 +20,12 @@ func (h *Handler) Provider(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	achievements, err := h.db.ListAchievements(true)
+	if err != nil {
+		h.jsonError(w, "database error", 500)
+		return
+	}
+
 	user, ok := middleware.CurrentUser(r)
 	if !ok || user.ProfessionalID == "" {
 		h.jsonError(w, "unauthorized", http.StatusUnauthorized)
@@ -72,6 +78,7 @@ func (h *Handler) Provider(w http.ResponseWriter, r *http.Request) {
 	h.jsonResponse(w, model.ProviderView{
 		ServerTime:   time.Now(),
 		Options:      options,
+		Achievements: achievements,
 		Timer:        timer,
 		Professional: professional,
 		TotalHours:   hours,

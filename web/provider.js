@@ -1,3 +1,4 @@
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const money = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 const moneyExact = value => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(value);
 
@@ -366,6 +367,38 @@ function calculateAndRenderAchievements(data = latestProviderData, currentSessio
   const unlockedCount = [isHoursUnlocked, isEarned10kUnlocked, isEarned20kUnlocked, isStreakUnlocked].filter(Boolean).length;
   const badgeCountEl = document.querySelector('#achievementsUnlockedCount');
   if (badgeCountEl) badgeCountEl.textContent = `${unlockedCount}/4`;
+}
+
+function calculateAndRenderAchievements(data = latestProviderData, currentSessionSeconds = 0) {
+  if (!data) return;
+  latestProviderData = data;
+  const list = document.querySelector('#achievementsList');
+  const achievements = data.achievements || [];
+  const sessionHours = currentSessionSeconds / 3600;
+  const totalHours = (data.totalHours || 0) + sessionHours;
+  const totalEarned = (data.totalEarned || 0) + (sessionHours * getSelectedRate());
+  const values = { HORAS: totalHours, GANHOS: totalEarned };
+  let unlocked = 0;
+
+  if (list) {
+    list.innerHTML = achievements.length ? achievements.map(achievement => {
+      const current = values[achievement.metric] || 0;
+      const percent = Math.min(100, Math.max(0, (current / achievement.target) * 100));
+      const done = current >= achievement.target;
+      if (done) unlocked++;
+      const isMoney = achievement.metric === 'GANHOS';
+      const currentLabel = isMoney ? money(current) : `${current.toFixed(1).replace('.', ',')}h`;
+      const targetLabel = isMoney ? money(achievement.target) : `${achievement.target.toLocaleString('pt-BR')}h`;
+      return `<article class="achievement-card ${done ? 'unlocked' : ''}">
+        <div class="achievement-icon ${escapeHtml(achievement.color || 'pink')}"><i data-lucide="${escapeHtml(achievement.icon || 'trophy')}"></i></div>
+        <div class="achievement-content"><div class="achievement-title-row"><strong>${escapeHtml(achievement.title)}</strong><span class="achievement-status-badge">${done ? 'Concluído' : `${percent.toFixed(1)}%`}</span></div>
+        <p>${escapeHtml(achievement.description)}</p><div class="achievement-progress-wrap"><div class="achievement-progress-bar"><div class="achievement-progress-fill" style="width:${percent.toFixed(1)}%"></div></div><div class="achievement-progress-labels"><span>${currentLabel}</span><span>Meta: ${targetLabel}</span></div></div></div>
+      </article>`;
+    }).join('') : '<p class="achievement-empty-state">Nenhuma conquista disponível no momento.</p>';
+    if (window.lucide) lucide.createIcons();
+  }
+  const badgeCountEl = document.querySelector('#achievementsUnlockedCount');
+  if (badgeCountEl) badgeCountEl.textContent = `${unlocked}/${achievements.length}`;
 }
 
 async function load() {

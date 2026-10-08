@@ -78,6 +78,7 @@
             <div class="list-filter">
               <button class="filter active" data-tab="general" data-i18n="config.tabGeneral">Geral & Empresa</button>
               <button class="filter" data-tab="app" data-i18n="config.tabApp">App do Prestador</button>
+              <button class="filter" data-tab="achievements">Conquistas</button>
               <button class="filter" data-tab="db" data-i18n="config.tabDb">Banco de Dados</button>
             </div>
           </div>
@@ -199,6 +200,26 @@
               </div>
             </div>
 
+            <div class="config-tab-section" id="tabAchievements" style="display:none;">
+              <div class="config-card-group">
+                <div class="config-card-head">
+                  <div class="config-icon pink"><i data-lucide="trophy"></i></div>
+                  <div><h3>Conquistas dos prestadores</h3><p>Crie metas que serão calculadas com as horas e ganhos reais registrados no banco.</p></div>
+                </div>
+                <div class="achievement-admin-form">
+                  <input id="achievementTitle" class="setting-input" placeholder="Título da conquista">
+                  <input id="achievementDescription" class="setting-input" placeholder="Descrição exibida ao prestador">
+                  <select id="achievementMetric" class="setting-select"><option value="HORAS">Horas trabalhadas</option><option value="GANHOS">Ganhos acumulados</option></select>
+                  <input id="achievementTarget" class="setting-input" type="number" min="0.01" step="0.01" placeholder="Meta">
+                  <input id="achievementIcon" type="hidden" value="trophy">
+                  <button type="button" class="icon-picker-trigger" id="achievementIconPickerBtn"><i data-lucide="trophy"></i><span>Escolher ícone</span></button>
+                  <select id="achievementColor" class="setting-select"><option value="pink">Rosa</option><option value="peach">Pêssego</option><option value="gold">Dourado</option><option value="green">Verde</option></select>
+                  <button type="button" class="primary" id="createAchievementBtn"><i data-lucide="plus"></i> Criar conquista</button>
+                </div>
+                <div id="adminAchievementsList" class="admin-achievements-list"><small>Carregando conquistas...</small></div>
+              </div>
+            </div>
+
             <!-- ABA BANCO DE DADOS -->
             <div class="config-tab-section" id="tabDb" style="display:none;">
               <div class="config-card-group">
@@ -240,6 +261,15 @@
   </div>
 
   <div class="toast" id="toast">Configurações salvas com sucesso</div>
+
+  <div class="icon-picker-modal" id="iconPickerModal" aria-hidden="true">
+    <div class="icon-picker-card" role="dialog" aria-modal="true" aria-labelledby="iconPickerTitle">
+      <button type="button" class="modal-close" id="iconPickerCloseBtn" aria-label="Fechar"><i data-lucide="x"></i></button>
+      <h2 id="iconPickerTitle">Escolha um ícone</h2>
+      <p>Selecione o ícone que será exibido na conquista.</p>
+      <div class="icon-picker-grid" id="iconPickerGrid"></div>
+    </div>
+  </div>
 
   <script src="/admin-page-ready.js"></script>
   <script src="/admin-config.js"></script>

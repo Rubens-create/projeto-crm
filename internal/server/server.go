@@ -44,6 +44,8 @@ func New(cfg config.Config, h *handler.Handler) *http.Server {
 	mux.HandleFunc("/api/admin/clients", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.AdminClients))
 	mux.HandleFunc("/api/admin/payments", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.AdminPayments))
 	mux.HandleFunc("/api/admin/config", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.AdminConfig))
+	mux.HandleFunc("/api/admin/achievements", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.AdminAchievements))
+	mux.HandleFunc("/api/admin/achievements/", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.AdminAchievements))
 	mux.HandleFunc("/api/admin/reports", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.AdminReports))
 	mux.HandleFunc("/api/upload", middleware.RequireRole(h.Database(), model.RoleAdmin)(h.Upload))
 

@@ -129,6 +129,18 @@ func (d *DB) Migrate() error {
 			FOREIGN KEY (service_id) REFERENCES service_options(id),
 			FOREIGN KEY (professional_id) REFERENCES professionals(id)
 		);`,
+		`CREATE TABLE IF NOT EXISTS achievements (
+			id VARCHAR(64) PRIMARY KEY,
+			title VARCHAR(255) NOT NULL,
+			description TEXT NOT NULL DEFAULT '',
+			metric VARCHAR(30) NOT NULL,
+			target NUMERIC(12, 2) NOT NULL,
+			icon VARCHAR(50) NOT NULL DEFAULT 'trophy',
+			color VARCHAR(30) NOT NULL DEFAULT 'pink',
+			active BOOLEAN NOT NULL DEFAULT TRUE,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		);`,
 	}
 
 	for _, query := range createTables {
@@ -171,6 +183,7 @@ func (d *DB) Migrate() error {
 		`CREATE INDEX IF NOT EXISTS idx_service_options_property_id ON service_options(property_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_service_executions_service_id ON service_executions(service_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_service_executions_professional_id ON service_executions(professional_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_achievements_active ON achievements(active);`,
 	}
 
 	for _, query := range indexQueries {
